@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agentic SDLC — Infographics Chapters 9–15</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:system-ui,-apple-system,sans-serif; background:#0f172a; color:#e2e8f0; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ── top bar ── */
+#topbar {
+  display:flex; align-items:center; gap:12px;
+  padding:8px 16px; background:#1e293b; border-bottom:1px solid #334155;
+  flex-shrink:0; min-height:52px;
+}
+#topbar h1 { font-size:14px; font-weight:700; color:#f1f5f9; white-space:nowrap; }
+#topbar .sep { color:#475569; }
+
+/* ── chapter tabs ── */
+#chapter-tabs { display:flex; gap:4px; flex-wrap:nowrap; overflow-x:auto; flex:1; }
+#chapter-tabs::-webkit-scrollbar { height:3px; }
+#chapter-tabs::-webkit-scrollbar-thumb { background:#475569; border-radius:2px; }
+.ch-tab {
+  padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;
+  cursor:pointer; white-space:nowrap; border:1px solid transparent;
+  color:#94a3b8; background:transparent; transition:all .15s;
+}
+.ch-tab:hover { background:#334155; color:#e2e8f0; }
+.ch-tab.active { background:#0e7490; color:#fff; border-color:#0891b2; }
+
+/* ── page jump controls ── */
+#nav-controls { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+#nav-controls button {
+  width:32px; height:32px; border:1px solid #475569; border-radius:6px;
+  background:#1e293b; color:#e2e8f0; font-size:16px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:all .15s;
+}
+#nav-controls button:hover:not(:disabled) { background:#334155; border-color:#64748b; }
+#nav-controls button:disabled { opacity:.35; cursor:not-allowed; }
+#page-input {
+  width:44px; height:32px; text-align:center; border:1px solid #475569;
+  border-radius:6px; background:#0f172a; color:#f1f5f9; font-size:14px; font-weight:600;
+}
+#page-total { font-size:13px; color:#64748b; }
+#page-label { font-size:11px; color:#94a3b8; max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* ── topic jump ── */
+#topic-wrap { position:relative; flex-shrink:0; }
+#btn-topic {
+  height:32px; padding:0 10px; border:1px solid #475569; border-radius:6px;
+  background:#1e293b; color:#e2e8f0; font-size:12px; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; gap:6px; transition:all .15s; white-space:nowrap;
+}
+#btn-topic:hover { background:#334155; border-color:#64748b; }
+#topic-dropdown {
+  display:none; position:absolute; top:calc(100% + 6px); right:0; z-index:100;
+  background:#1e293b; border:1px solid #334155; border-radius:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4); width:300px; max-height:400px; overflow-y:auto;
+}
+#topic-dropdown.open { display:block; }
+#topic-search {
+  width:100%; padding:8px 12px; background:#0f172a; border:none; border-bottom:1px solid #334155;
+  color:#f1f5f9; font-size:12px; outline:none; border-radius:8px 8px 0 0;
+}
+#topic-search::placeholder { color:#475569; }
+.topic-ch-header { padding:5px 12px 3px; font-size:10px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.08em; }
+.topic-item {
+  padding:7px 12px; font-size:12px; cursor:pointer; color:#94a3b8;
+  display:flex; align-items:center; gap:8px; transition:background .1s;
+}
+.topic-item:hover { background:#334155; color:#e2e8f0; }
+.topic-item .t-fig { font-size:10px; font-weight:700; color:#475569; min-width:28px; }
+
+/* ── fullscreen button ── */
+#btn-fullscreen {
+  width:32px; height:32px; border:1px solid #475569; border-radius:6px;
+  background:#1e293b; color:#e2e8f0; font-size:15px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:all .15s;
+  flex-shrink:0;
+}
+#btn-fullscreen:hover { background:#334155; border-color:#64748b; }
+
+/* ── main layout ── */
+#main { display:flex; flex:1; overflow:hidden; }
+
+/* ── sidebar ── */
+#sidebar-wrap { display:flex; flex-shrink:0; position:relative; transition:width .25s ease; width:240px; }
+#sidebar-wrap.collapsed { width:0; }
+#sidebar {
+  width:240px; flex-shrink:0; background:#1e293b; border-right:1px solid #334155;
+  overflow-y:auto; overflow-x:hidden; transition:transform .25s ease, opacity .2s ease;
+}
+#sidebar-wrap.collapsed #sidebar { transform:translateX(-240px); opacity:0; pointer-events:none; }
+#sidebar::-webkit-scrollbar { width:4px; }
+#sidebar::-webkit-scrollbar-thumb { background:#475569; border-radius:2px; }
+.sidebar-chapter { padding:8px 12px 4px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.08em; }
+.sidebar-item {
+  display:flex; align-items:center; gap:8px; padding:6px 12px;
+  font-size:12px; cursor:pointer; color:#94a3b8; transition:all .12s;
+  border-left:2px solid transparent;
+}
+.sidebar-item:hover { background:#334155; color:#e2e8f0; }
+.sidebar-item.active { background:#164e63; color:#e0f2fe; border-left-color:#0e7490; }
+.sidebar-item .pg-num { font-size:10px; font-weight:700; color:#475569; min-width:22px; }
+.sidebar-item.active .pg-num { color:#7dd3fc; }
+.sidebar-item .fig-label { flex:1; line-height:1.3; }
+
+/* ── toggle button ── */
+#sidebar-toggle {
+  position:absolute; top:50%; right:-14px; transform:translateY(-50%);
+  z-index:10; width:14px; height:48px;
+  background:#1e293b; border:1px solid #334155; border-left:none;
+  border-radius:0 6px 6px 0; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:#64748b; font-size:10px; transition:background .15s, color .15s;
+}
+#sidebar-toggle:hover { background:#334155; color:#e2e8f0; }
+#sidebar-wrap.collapsed #sidebar-toggle { right:-14px; border-left:1px solid #334155; border-radius:6px; }
+
+/* ── iframe viewer ── */
+#viewer-wrap { flex:1; position:relative; background:#F0F2F5; }
+#viewer { width:100%; height:100%; border:none; display:block; }
+
+/* ── loading overlay ── */
+#loader {
+  position:absolute; inset:0; background:#F0F2F5;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:#64748b; opacity:0; pointer-events:none; transition:opacity .2s;
+}
+#loader.show { opacity:1; pointer-events:all; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div id="topbar">
+  <h1>AI Agentic SDLC</h1>
+  <span class="sep">|</span>
+  <div id="chapter-tabs">
+    <button class="ch-tab" data-ch="9">Ch 9</button>
+    <button class="ch-tab" data-ch="10">Ch 10</button>
+    <button class="ch-tab" data-ch="11">Ch 11</button>
+    <button class="ch-tab" data-ch="12">Ch 12</button>
+    <button class="ch-tab" data-ch="13">Ch 13</button>
+    <button class="ch-tab" data-ch="14">Ch 14</button>
+    <button class="ch-tab" data-ch="15">Ch 15</button>
+  </div>
+  <span class="sep">|</span>
+  <div id="nav-controls">
+    <button id="btn-first" title="First page">&#8676;</button>
+    <button id="btn-prev" title="Previous (← key)">&#8592;</button>
+    <input id="page-input" type="number" min="1" max="39" value="1" title="Jump to page">
+    <span id="page-total">/ 39</span>
+    <button id="btn-next" title="Next (→ key)">&#8594;</button>
+    <button id="btn-last" title="Last page">&#8677;</button>
+  </div>
+  <span id="page-label">—</span>
+  <span class="sep">|</span>
+  <div id="topic-wrap">
+    <button id="btn-topic" title="Go to topic">&#9776; Topic</button>
+    <div id="topic-dropdown">
+      <input id="topic-search" type="text" placeholder="Search topics…" autocomplete="off">
+      <div id="topic-list"></div>
+    </div>
+  </div>
+  <button id="btn-fullscreen" title="Toggle fullscreen (F key)">&#x26F6;</button>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="sidebar-wrap">
+    <nav id="sidebar"></nav>
+    <button id="sidebar-toggle" title="Toggle sidebar">&#9664;</button>
+  </div>
+  <div id="viewer-wrap">
+    <iframe id="viewer" sandbox="allow-scripts allow-same-origin"></iframe>
+    <div id="loader">Loading...</div>
+  </div>
+</div>
+
+<script>
+const PAGES = [
+  // Chapter 9 — CI/CD & Deployment
+  { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:1,  fig:"9.1", title:"PR Created CI/CD Pipeline",            file:"chapter-9/01-pr-created-ci-cd-pipeline.html" },
+  { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:2,  fig:"9.2", title:"Docker Compose Service Topology",      file:"chapter-9/02-docker-compose-service-topology.html" },
+  { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:3,  fig:"9.3", title:"Multi-Stage Docker Build",             file:"chapter-9/03-multi-stage-docker-build.html" },
+  { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:4,  fig:"9.4", title:"Blue-Green Deployment Switch",         file:"chapter-9/04-blue-green-deployment-switch.html" },
+  { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:5,  fig:"9.5", title:"Deploy Production Workflow",           file:"chapter-9/05-deploy-production-workflow.html" },
+  // Chapter 10 — Production Launch
+  { ch:10, chTitle:"Ch 10: Production Launch",    page:6,  fig:"10.1", title:"Production Readiness Scorecard",      file:"chapter-10/01-production-readiness-scorecard.html" },
+  { ch:10, chTitle:"Ch 10: Production Launch",    page:7,  fig:"10.2", title:"Launch Day Timeline",                 file:"chapter-10/02-launch-day-timeline.html" },
+  { ch:10, chTitle:"Ch 10: Production Launch",    page:8,  fig:"10.3", title:"Load Test Targets",                   file:"chapter-10/03-load-test-target.html" },
+  { ch:10, chTitle:"Ch 10: Production Launch",    page:9,  fig:"10.4", title:"Production Dashboard",                file:"chapter-10/04-production-dashboard.html" },
+  { ch:10, chTitle:"Ch 10: Production Launch",    page:10, fig:"10.5", title:"Sprint Improvement Cycle",            file:"chapter-10/05-sprint-improvement-cycle.html" },
+  // Chapter 11 — Observability (9 files: light + dark variants)
+  { ch:11, chTitle:"Ch 11: Observability",        page:11, fig:"11.1",  title:"Observability Pillars",              file:"chapter-11/01-observability-pillars.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:12, fig:"11.2a", title:"Four Golden Signals (Light)",        file:"chapter-11/02-four-golden-signals-light.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:13, fig:"11.2b", title:"Four Golden Signals (Dark)",         file:"chapter-11/03-four-golden-signals-dark.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:14, fig:"11.3a", title:"Error Budget (Light)",               file:"chapter-11/04-error-budget-light.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:15, fig:"11.3b", title:"Error Budget (Dark)",                file:"chapter-11/05-error-budget-dark.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:16, fig:"11.4a", title:"Alert Noise Reduction Pipeline (Light)", file:"chapter-11/06-alert-noise-reduction-pipeline-light.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:17, fig:"11.4b", title:"Alert Noise Reduction Pipeline (Dark)",  file:"chapter-11/07-alert-noise-reduction-pipeline-dark.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:18, fig:"11.5a", title:"Trace Waterfall (Light)",            file:"chapter-11/08-trace-waterfall-light.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:19, fig:"11.5b", title:"Trace Waterfall (Dark)",             file:"chapter-11/09-trace-waterfall-dark.html" },
+  // Chapter 12 — Incident Response & Retrospectives
+  { ch:12, chTitle:"Ch 12: Incident & Retro",     page:20, fig:"12.1", title:"Five-Phase Incident Response Lifecycle",          file:"chapter-12-figure-12-1-incident-response-lifecycle-animated.html" },
+  { ch:12, chTitle:"Ch 12: Incident & Retro",     page:21, fig:"12.2", title:"Blameless Post-Mortem Structure",                 file:"chapter-12-figure-12-2-blameless-postmortem-structure-animated.html" },
+  { ch:12, chTitle:"Ch 12: Incident & Retro",     page:22, fig:"12.3", title:"Retrospective Data Collection & Analysis",        file:"chapter-12-figure-12-3-retrospective-data-collection-analysis-workflow-animated.html" },
+  { ch:12, chTitle:"Ch 12: Incident & Retro",     page:23, fig:"12.4", title:"AI Impact Scorecard Q2 2026",                     file:"chapter-12-figure-12-4-ai-impact-scorecard-animated.html" },
+  { ch:12, chTitle:"Ch 12: Incident & Retro",     page:24, fig:"12.5", title:"CLAUDE.md Evolution Over Time",                   file:"chapter-12-figure-12-5-claude-md-evolution-over-time-animated.html" },
+  // Chapter 13 — Go Clean Architecture
+  { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:25, fig:"13.1", title:"Standard Go Project Layout Tree",                 file:"chapter-13-figure-13-1-standard-go-project-layout-tree-animated.html" },
+  { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:26, fig:"13.2", title:"Clean Architecture Dependency Ring",              file:"chapter-13-figure-13-2-clean-architecture-dependency-ring-animated.html" },
+  { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:27, fig:"13.3", title:"Dependency Injection Wiring Sequence",            file:"chapter-13-figure-13-3-dependency-injection-wiring-sequence-animated.html" },
+  { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:28, fig:"13.4", title:"Viper Config Four-Step Resolution Order",         file:"chapter-13-figure-13-4-viper-config-resolution-order-animated.html" },
+  { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:29, fig:"13.5", title:"Anti-Patterns vs Clean Architecture",             file:"chapter-13-figure-13-5-antipatterns-vs-clean-architecture-animated.html" },
+  // Chapter 14 — Role-Based Subagents
+  { ch:14, chTitle:"Ch 14: Role-Based Subagents", page:30, fig:"14.1", title:"Human Role · Agent Role · Skill Taxonomy",       file:"chapter-14-figure-14-1-human-role-agent-role-skill-taxonomy-animated.html" },
+  { ch:14, chTitle:"Ch 14: Role-Based Subagents", page:31, fig:"14.2", title:"File Ownership Map",                             file:"chapter-14-figure-14-2-file-ownership-map-animated.html" },
+  { ch:14, chTitle:"Ch 14: Role-Based Subagents", page:32, fig:"14.3", title:"Four Workflow Modes: Sync / Async / Parallel / Resync", file:"chapter-14-figure-14-3-workflow-modes-sync-async-parallel-resync-animated.html" },
+  { ch:14, chTitle:"Ch 14: Role-Based Subagents", page:33, fig:"14.4", title:"Parallel Wave → Resync Sequence",                file:"chapter-14-figure-14-4-parallel-wave-resync-sequence-animated.html" },
+  { ch:14, chTitle:"Ch 14: Role-Based Subagents", page:34, fig:"14.5", title:"Seven Coordination Rules vs Pitfalls",           file:"chapter-14-figure-14-5-coordination-rules-vs-pitfalls-animated.html" },
+  // Chapter 15 — Agent Team Operating Model
+  { ch:15, chTitle:"Ch 15: Agent Team Model",     page:35, fig:"15.1", title:"Eight-Agent Team Roster",                        file:"chapter-15-figure-15-1-eight-agent-team-roster-animated.html" },
+  { ch:15, chTitle:"Ch 15: Agent Team Model",     page:36, fig:"15.2", title:"Agent Team vs Role-Based Subagents",             file:"chapter-15-figure-15-2-agent-team-vs-role-subagents-animated.html" },
+  { ch:15, chTitle:"Ch 15: Agent Team Model",     page:37, fig:"15.3", title:"Nine-Step Agent Delivery Flow",                  file:"chapter-15-figure-15-3-nine-step-agent-delivery-flow-animated.html" },
+  { ch:15, chTitle:"Ch 15: Agent Team Model",     page:38, fig:"15.4", title:"Charter, Team State & Handoff Packet",           file:"chapter-15-figure-15-4-charter-team-state-animated.html" },
+  { ch:15, chTitle:"Ch 15: Agent Team Model",     page:39, fig:"15.5", title:"Six Guardrails vs Seven Pitfalls",               file:"chapter-15-figure-15-5-guardrails-pitfalls-animated.html" },
+];
+
+const TOTAL_PAGES = PAGES.length;
+let currentPage = 1;
+
+// Build sidebar
+const sidebar = document.getElementById('sidebar');
+let lastCh = null;
+PAGES.forEach(p => {
+  if (p.ch !== lastCh) {
+    const hdr = document.createElement('div');
+    hdr.className = 'sidebar-chapter';
+    hdr.textContent = p.chTitle;
+    sidebar.appendChild(hdr);
+    lastCh = p.ch;
+  }
+  const item = document.createElement('div');
+  item.className = 'sidebar-item';
+  item.id = 'sidebar-' + p.page;
+  item.dataset.page = p.page;
+  const pgNum = document.createElement('span');
+  pgNum.className = 'pg-num';
+  pgNum.textContent = p.page;
+  const figLabel = document.createElement('span');
+  figLabel.className = 'fig-label';
+  figLabel.textContent = 'Fig ' + p.fig + ' — ' + p.title;
+  item.appendChild(pgNum);
+  item.appendChild(figLabel);
+  item.addEventListener('click', () => goTo(p.page));
+  sidebar.appendChild(item);
+});
+
+// Chapter tabs
+document.querySelectorAll('.ch-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const ch = parseInt(btn.dataset.ch);
+    const first = PAGES.find(p => p.ch === ch);
+    if (first) goTo(first.page);
+  });
+});
+
+// Navigation controls
+document.getElementById('btn-first').addEventListener('click', () => goTo(1));
+document.getElementById('btn-last').addEventListener('click', () => goTo(TOTAL_PAGES));
+document.getElementById('btn-prev').addEventListener('click', () => goTo(currentPage - 1));
+document.getElementById('btn-next').addEventListener('click', () => goTo(currentPage + 1));
+
+const pageInput = document.getElementById('page-input');
+pageInput.addEventListener('change', () => {
+  const v = parseInt(pageInput.value);
+  if (!isNaN(v)) goTo(Math.max(1, Math.min(TOTAL_PAGES, v)));
+});
+pageInput.addEventListener('keydown', e => { if (e.key === 'Enter') pageInput.blur(); });
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.target === pageInput) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(currentPage + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(currentPage - 1); }
+  if (e.key === 'Home') { e.preventDefault(); goTo(1); }
+  if (e.key === 'End') { e.preventDefault(); goTo(TOTAL_PAGES); }
+});
+
+// Loader
+const viewer = document.getElementById('viewer');
+const loader = document.getElementById('loader');
+viewer.addEventListener('load', () => loader.classList.remove('show'));
+
+function goTo(n) {
+  n = Math.max(1, Math.min(TOTAL_PAGES, n));
+  if (n === currentPage && viewer.src) return;
+  currentPage = n;
+  const p = PAGES[n - 1];
+
+  loader.classList.add('show');
+  viewer.src = p.file;
+
+  pageInput.value = n;
+  document.getElementById('page-label').textContent = 'Fig ' + p.fig + ' — ' + p.title;
+
+  document.getElementById('btn-first').disabled = n === 1;
+  document.getElementById('btn-prev').disabled = n === 1;
+  document.getElementById('btn-next').disabled = n === TOTAL_PAGES;
+  document.getElementById('btn-last').disabled = n === TOTAL_PAGES;
+
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const activeItem = document.getElementById('sidebar-' + n);
+  if (activeItem) {
+    activeItem.classList.add('active');
+    activeItem.scrollIntoView({ block:'nearest', behavior:'smooth' });
+  }
+
+  document.querySelectorAll('.ch-tab').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.ch) === p.ch);
+  });
+}
+
+goTo(1);
+
+// Sidebar collapse/expand
+const sidebarWrap = document.getElementById('sidebar-wrap');
+const toggleBtn = document.getElementById('sidebar-toggle');
+toggleBtn.addEventListener('click', () => {
+  const collapsed = sidebarWrap.classList.toggle('collapsed');
+  toggleBtn.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+  toggleBtn.textContent = collapsed ? '▶' : '◄';
+});
+// Keyboard shortcut: [ to toggle
+document.addEventListener('keydown', e => {
+  if (e.target === pageInput) return;
+  if (e.key === '[') sidebarWrap.classList.toggle('collapsed');
+});
+
+// ── Topic dropdown ──
+const topicBtn = document.getElementById('btn-topic');
+const topicDropdown = document.getElementById('topic-dropdown');
+const topicSearch = document.getElementById('topic-search');
+const topicList = document.getElementById('topic-list');
+
+function buildTopicList(filter) {
+  topicList.innerHTML = '';
+  let lastCh2 = null;
+  const q = (filter || '').toLowerCase();
+  PAGES.forEach(p => {
+    const label = 'Fig ' + p.fig + ' — ' + p.title;
+    if (q && !label.toLowerCase().includes(q) && !p.chTitle.toLowerCase().includes(q)) return;
+    if (p.ch !== lastCh2) {
+      const hdr = document.createElement('div');
+      hdr.className = 'topic-ch-header';
+      hdr.textContent = p.chTitle;
+      topicList.appendChild(hdr);
+      lastCh2 = p.ch;
+    }
+    const item = document.createElement('div');
+    item.className = 'topic-item';
+    const figSpan = document.createElement('span');
+    figSpan.className = 't-fig';
+    figSpan.textContent = p.fig;
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = p.title;
+    item.appendChild(figSpan);
+    item.appendChild(titleSpan);
+    item.addEventListener('click', () => { goTo(p.page); closeTopicDropdown(); });
+    topicList.appendChild(item);
+  });
+}
+
+function openTopicDropdown() {
+  buildTopicList('');
+  topicDropdown.classList.add('open');
+  topicSearch.value = '';
+  topicSearch.focus();
+}
+
+function closeTopicDropdown() {
+  topicDropdown.classList.remove('open');
+}
+
+topicBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  topicDropdown.classList.contains('open') ? closeTopicDropdown() : openTopicDropdown();
+});
+
+topicSearch.addEventListener('input', () => buildTopicList(topicSearch.value));
+topicSearch.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeTopicDropdown();
+});
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('topic-wrap').contains(e.target)) closeTopicDropdown();
+});
+
+// ── Fullscreen ──
+const fsBtn = document.getElementById('btn-fullscreen');
+function updateFsIcon() {
+  fsBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
+  fsBtn.title = document.fullscreenElement ? 'Exit fullscreen' : 'Toggle fullscreen (F key)';
+}
+fsBtn.addEventListener('click', () => {
+  document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+});
+document.addEventListener('fullscreenchange', updateFsIcon);
+document.addEventListener('keydown', e => {
+  if (e.target === pageInput || e.target === topicSearch) return;
+  if (e.key === 'f' || e.key === 'F') {
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+});
+</script>
+</body>
+</html>

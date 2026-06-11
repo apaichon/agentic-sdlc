@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agentic SDLC — Infographics Chapters 1–8</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:system-ui,-apple-system,sans-serif; background:#0f172a; color:#e2e8f0; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ── top bar ── */
+#topbar {
+  display:flex; align-items:center; gap:12px;
+  padding:8px 16px; background:#1e293b; border-bottom:1px solid #334155;
+  flex-shrink:0; min-height:52px;
+}
+#topbar h1 { font-size:14px; font-weight:700; color:#f1f5f9; white-space:nowrap; }
+#topbar .sep { color:#475569; }
+
+/* ── chapter tabs ── */
+#chapter-tabs { display:flex; gap:4px; flex-wrap:nowrap; overflow-x:auto; flex:1; }
+#chapter-tabs::-webkit-scrollbar { height:3px; }
+#chapter-tabs::-webkit-scrollbar-thumb { background:#475569; border-radius:2px; }
+.ch-tab {
+  padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;
+  cursor:pointer; white-space:nowrap; border:1px solid transparent;
+  color:#94a3b8; background:transparent; transition:all .15s;
+}
+.ch-tab:hover { background:#334155; color:#e2e8f0; }
+.ch-tab.active { background:#0e7490; color:#fff; border-color:#0891b2; }
+
+/* ── page jump controls ── */
+#nav-controls { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+#nav-controls button {
+  width:32px; height:32px; border:1px solid #475569; border-radius:6px;
+  background:#1e293b; color:#e2e8f0; font-size:16px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:all .15s;
+}
+#nav-controls button:hover:not(:disabled) { background:#334155; border-color:#64748b; }
+#nav-controls button:disabled { opacity:.35; cursor:not-allowed; }
+#page-input {
+  width:44px; height:32px; text-align:center; border:1px solid #475569;
+  border-radius:6px; background:#0f172a; color:#f1f5f9; font-size:14px; font-weight:600;
+}
+#page-total { font-size:13px; color:#64748b; }
+#page-label { font-size:11px; color:#94a3b8; max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* ── topic jump ── */
+#topic-wrap { position:relative; flex-shrink:0; }
+#btn-topic {
+  height:32px; padding:0 10px; border:1px solid #475569; border-radius:6px;
+  background:#1e293b; color:#e2e8f0; font-size:12px; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; gap:6px; transition:all .15s; white-space:nowrap;
+}
+#btn-topic:hover { background:#334155; border-color:#64748b; }
+#topic-dropdown {
+  display:none; position:absolute; top:calc(100% + 6px); right:0; z-index:100;
+  background:#1e293b; border:1px solid #334155; border-radius:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4); width:300px; max-height:400px; overflow-y:auto;
+}
+#topic-dropdown.open { display:block; }
+#topic-search {
+  width:100%; padding:8px 12px; background:#0f172a; border:none; border-bottom:1px solid #334155;
+  color:#f1f5f9; font-size:12px; outline:none; border-radius:8px 8px 0 0;
+}
+#topic-search::placeholder { color:#475569; }
+.topic-ch-header { padding:5px 12px 3px; font-size:10px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.08em; }
+.topic-item {
+  padding:7px 12px; font-size:12px; cursor:pointer; color:#94a3b8;
+  display:flex; align-items:center; gap:8px; transition:background .1s;
+}
+.topic-item:hover, .topic-item.highlighted { background:#334155; color:#e2e8f0; }
+.topic-item .t-fig { font-size:10px; font-weight:700; color:#475569; min-width:28px; }
+.topic-item.highlighted .t-fig { color:#7dd3fc; }
+
+/* ── fullscreen button ── */
+#btn-fullscreen {
+  width:32px; height:32px; border:1px solid #475569; border-radius:6px;
+  background:#1e293b; color:#e2e8f0; font-size:15px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:all .15s;
+  flex-shrink:0;
+}
+#btn-fullscreen:hover { background:#334155; border-color:#64748b; }
+
+/* ── main layout ── */
+#main { display:flex; flex:1; overflow:hidden; }
+
+/* ── sidebar ── */
+#sidebar-wrap { display:flex; flex-shrink:0; position:relative; transition:width .25s ease; width:240px; }
+#sidebar-wrap.collapsed { width:0; }
+#sidebar {
+  width:240px; flex-shrink:0; background:#1e293b; border-right:1px solid #334155;
+  overflow-y:auto; overflow-x:hidden; transition:transform .25s ease, opacity .2s ease;
+}
+#sidebar-wrap.collapsed #sidebar { transform:translateX(-240px); opacity:0; pointer-events:none; }
+#sidebar::-webkit-scrollbar { width:4px; }
+#sidebar::-webkit-scrollbar-thumb { background:#475569; border-radius:2px; }
+.sidebar-chapter { padding:8px 12px 4px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.08em; }
+.sidebar-item {
+  display:flex; align-items:center; gap:8px; padding:6px 12px;
+  font-size:12px; cursor:pointer; color:#94a3b8; transition:all .12s;
+  border-left:2px solid transparent;
+}
+.sidebar-item:hover { background:#334155; color:#e2e8f0; }
+.sidebar-item.active { background:#164e63; color:#e0f2fe; border-left-color:#0e7490; }
+.sidebar-item .pg-num { font-size:10px; font-weight:700; color:#475569; min-width:20px; }
+.sidebar-item.active .pg-num { color:#7dd3fc; }
+.sidebar-item .fig-label { flex:1; line-height:1.3; }
+
+/* ── toggle button ── */
+#sidebar-toggle {
+  position:absolute; top:50%; right:-14px; transform:translateY(-50%);
+  z-index:10; width:14px; height:48px;
+  background:#1e293b; border:1px solid #334155; border-left:none;
+  border-radius:0 6px 6px 0; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:#64748b; font-size:10px; transition:background .15s, color .15s;
+}
+#sidebar-toggle:hover { background:#334155; color:#e2e8f0; }
+#sidebar-wrap.collapsed #sidebar-toggle { right:-14px; border-left:1px solid #334155; border-radius:6px; }
+
+/* ── iframe viewer ── */
+#viewer-wrap { flex:1; position:relative; background:#F0F2F5; overflow:hidden; }
+#viewer {
+  width:100%; height:100%; border:none;
+  display:block;
+}
+/* shadow host for inlined handbook pages */
+#shadow-host {
+  display:none; width:100%; height:100%;
+  overflow-y:auto; background:#F8F9FA;
+}
+#shadow-host.active { display:block; }
+#viewer.hidden { display:none; }
+
+/* ── loading overlay ── */
+#loader {
+  position:absolute; inset:0; background:#F0F2F5;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:#64748b; opacity:0; pointer-events:none; transition:opacity .2s;
+}
+#loader.show { opacity:1; pointer-events:all; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div id="topbar">
+  <h1>AI Agentic SDLC</h1>
+  <span class="sep">|</span>
+  <div id="chapter-tabs">
+    <button class="ch-tab" data-ch="1">Ch 1</button>
+    <button class="ch-tab" data-ch="2">Ch 2</button>
+    <button class="ch-tab" data-ch="3">Ch 3</button>
+    <button class="ch-tab" data-ch="4">Ch 4</button>
+    <button class="ch-tab" data-ch="5">Ch 5</button>
+    <button class="ch-tab" data-ch="6">Ch 6</button>
+    <button class="ch-tab" data-ch="7">Ch 7</button>
+    <button class="ch-tab" data-ch="8">Ch 8</button>
+  </div>
+  <span class="sep">|</span>
+  <div id="nav-controls">
+    <button id="btn-first" title="First page">&#8676;</button>
+    <button id="btn-prev" title="Previous (← key)">&#8592;</button>
+    <input id="page-input" type="number" min="1" max="42" value="1" title="Jump to page">
+    <span id="page-total">/ 42</span>
+    <button id="btn-next" title="Next (→ key)">&#8594;</button>
+    <button id="btn-last" title="Last page">&#8677;</button>
+  </div>
+  <span id="page-label">—</span>
+  <span class="sep">|</span>
+  <div id="topic-wrap">
+    <button id="btn-topic" title="Go to topic">&#9776; Topic</button>
+    <div id="topic-dropdown">
+      <input id="topic-search" type="text" placeholder="Search topics…" autocomplete="off">
+      <div id="topic-list"></div>
+    </div>
+  </div>
+  <button id="btn-fullscreen" title="Toggle fullscreen (F key)">&#x26F6;</button>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <!-- Sidebar -->
+  <div id="sidebar-wrap">
+    <nav id="sidebar"></nav>
+    <button id="sidebar-toggle" title="Collapse sidebar">&#9664;</button>
+  </div>
+
+  <!-- Iframe viewer -->
+  <div id="viewer-wrap">
+    <iframe id="viewer" sandbox="allow-scripts allow-same-origin"></iframe>
+    <div id="shadow-host"></div>
+    <div id="loader">Loading...</div>
+  </div>
+</div>
+
+<script>
+const PAGES = [
+  // Chapter 1 — AI-Augmented SDLC
+  { ch:1, chTitle:"Ch 1: AI-Augmented SDLC", page:1,  fig:"1.1", title:"Traditional vs Agentic SDLC",           file:"chapter-1-figure-1-1-traditional-vs-agentic-sdlc-white-theme.html" },
+  { ch:1, chTitle:"Ch 1: AI-Augmented SDLC", page:2,  fig:"1.2", title:"Agentic Team Roles",                    file:"chapter-1-figure-1-2-agentic-team-roles-white-theme.html" },
+  { ch:1, chTitle:"Ch 1: AI-Augmented SDLC", page:3,  fig:"1.3", title:"Chat & SMS Architecture",               file:"chapter-1-figure-1-3-chat-sms-architecture-white-theme.html" },
+  { ch:1, chTitle:"Ch 1: AI-Augmented SDLC", page:4,  fig:"1.4", title:"Agentic Development Principles",        file:"chapter-1-figure-1-4-agentic-development-principles-white-theme.html" },
+  { ch:1, chTitle:"Ch 1: AI-Augmented SDLC", page:5,  fig:"1.5", title:"WhatsApp Adapter Timeline",             file:"chapter-1-figure-1-5-whatsapp-adapter-timeline-white-theme.html" },
+  // Chapter 2 — Claude Code Setup
+  { ch:2, chTitle:"Ch 2: Claude Code Setup", page:6,  fig:"2.1", title:"Permission Modes Spectrum",             file:"chapter-2-figure-2-1-permission-modes-spectrum-white-theme.html" },
+  { ch:2, chTitle:"Ch 2: Claude Code Setup", page:7,  fig:"2.2", title:"CLAUDE.md as AI Constitution",          file:"chapter-2-figure-2-2-claude-md-ai-constitution-white-theme.html" },
+  { ch:2, chTitle:"Ch 2: Claude Code Setup", page:8,  fig:"2.3", title:"Role File Inheritance Model",           file:"chapter-2-figure-2-3-role-file-inheritance-white-theme.html" },
+  { ch:2, chTitle:"Ch 2: Claude Code Setup", page:9,  fig:"2.4", title:"MCP Server Ecosystem",                  file:"chapter-2-figure-2-4-mcp-server-ecosystem-white-theme.html" },
+  { ch:2, chTitle:"Ch 2: Claude Code Setup", page:10, fig:"2.5", title:"Workspace Setup Checklist",             file:"chapter-2-figure-2-5-workspace-setup-checklist-white-theme.html" },
+  // Chapter 3 — Hooks & Skills
+  { ch:3, chTitle:"Ch 3: Hooks & Skills",    page:11, fig:"3.1", title:"Hook Lifecycle Sequence",               file:"chapter-3-figure-3-1-hook-lifecycle-white-theme.html" },
+  { ch:3, chTitle:"Ch 3: Hooks & Skills",    page:12, fig:"3.2", title:"PreToolUse Decision Tree",              file:"chapter-3-figure-3-2-pretooluse-decision-tree-white-theme.html" },
+  { ch:3, chTitle:"Ch 3: Hooks & Skills",    page:13, fig:"3.3", title:"Skills Library",                        file:"chapter-3-figure-3-3-skills-library-white-theme.html" },
+  { ch:3, chTitle:"Ch 3: Hooks & Skills",    page:14, fig:"3.4", title:"Subagent Architecture",                 file:"chapter-3-figure-3-4-subagent-architecture-white-theme.html" },
+  { ch:3, chTitle:"Ch 3: Hooks & Skills",    page:15, fig:"3.5", title:"Settings Control Plane",                file:"chapter-3-figure-3-5-settings-control-plane-white-theme.html" },
+  { ch:3, chTitle:"Ch 3: Hooks & Skills",    page:16, fig:"3.H", title:"Claude Code 101 Handbook",              inline:"INLINE_101" },
+  { ch:3, chTitle:"Ch 3: Hooks & Skills",    page:17, fig:"3.C", title:"Cheat Sheet — Hooks · Skills · Subagents", inline:"INLINE_CHEAT" },
+  // Chapter 4 — Prompt Engineering
+  { ch:4, chTitle:"Ch 4: Prompt Engineering",page:18, fig:"4.1", title:"RISEN Prompting Framework",             file:"chapter-4-figure-4-1-risen-prompting-framework-white-theme.html" },
+  { ch:4, chTitle:"Ch 4: Prompt Engineering",page:19, fig:"4.2", title:"Three-Phase PRD Generation Workflow",   file:"chapter-4-figure-4-2-prd-generation-workflow-white-theme.html" },
+  { ch:4, chTitle:"Ch 4: Prompt Engineering",page:20, fig:"4.3", title:"User Story Anatomy",                    file:"chapter-4-figure-4-3-user-story-anatomy-white-theme.html" },
+  { ch:4, chTitle:"Ch 4: Prompt Engineering",page:21, fig:"4.4", title:"Sprint Backlog Dependency Graph",       file:"chapter-4-figure-4-4-sprint-backlog-dependency-graph-white-theme.html" },
+  { ch:4, chTitle:"Ch 4: Prompt Engineering",page:22, fig:"4.5", title:"/sprint-plan Skill Cycle",              file:"chapter-4-figure-4-5-sprint-plan-skill-cycle-white-theme.html" },
+  // Chapter 5 — Messaging Architecture
+  { ch:5, chTitle:"Ch 5: Messaging Architecture",page:23, fig:"5.1", title:"RabbitMQ Fanout Exchange Topology", file:"chapter-5-figure-5-1-rabbitmq-fanout-exchange-topology-animated.html" },
+  { ch:5, chTitle:"Ch 5: Messaging Architecture",page:24, fig:"5.2", title:"MongoDB Unified Message Schema",    file:"chapter-5-figure-5-2-mongodb-unified-message-schema-animated.html" },
+  { ch:5, chTitle:"Ch 5: Messaging Architecture",page:25, fig:"5.3", title:"Redis Dual-Role Caching Architecture", file:"chapter-5-figure-5-3-redis-dual-role-caching-architecture-animated.html" },
+  { ch:5, chTitle:"Ch 5: Messaging Architecture",page:26, fig:"5.4", title:"ClickHouse Analytics Pipeline",    file:"chapter-5-figure-5-4-clickhouse-analytics-pipeline-animated.html" },
+  { ch:5, chTitle:"Ch 5: Messaging Architecture",page:27, fig:"5.5", title:"ADR Structure and Decision Map",    file:"chapter-5-figure-5-5-adr-structure-and-decision-map-animated.html" },
+  // Chapter 6 — TDD & Clean Architecture
+  { ch:6, chTitle:"Ch 6: TDD & Clean Arch",  page:28, fig:"6.1", title:"Clean Architecture Three-Layer Pattern",file:"chapter-6-figure-6-1-clean-architecture-three-layer-pattern-light-theme.html" },
+  { ch:6, chTitle:"Ch 6: TDD & Clean Arch",  page:29, fig:"6.2", title:"TDD-First Development Cycle",          file:"chapter-6-figure-6-2-tdd-first-development-cycle-posttooluse-hook-light-theme.html" },
+  { ch:6, chTitle:"Ch 6: TDD & Clean Arch",  page:30, fig:"6.3", title:"Five Channel Adapters",                file:"chapter-6-figure-6-3-five-channel-adapters-one-interface-five-implementations-light-theme.html" },
+  { ch:6, chTitle:"Ch 6: TDD & Clean Arch",  page:31, fig:"6.4", title:"SMS Gateway Failover Circuit Breaker", file:"chapter-6-figure-6-4-sms-gateway-provider-failover-circuit-breaker-light-theme.html" },
+  { ch:6, chTitle:"Ch 6: TDD & Clean Arch",  page:32, fig:"6.5", title:"Complete Dev Workflow Pipeline",       file:"chapter-6-figure-6-5-complete-dev-workflow-pipeline-architecture-to-pr-light-theme.html" },
+  // Chapter 7 — Testing Strategy
+  { ch:7, chTitle:"Ch 7: Testing Strategy",  page:33, fig:"7.1", title:"AI-Adjusted Testing Pyramid",          file:"chapter-7-figure-7-1-ai-adjusted-testing-pyramid-light-theme.html" },
+  { ch:7, chTitle:"Ch 7: Testing Strategy",  page:34, fig:"7.2", title:"Test Strategy Risk Matrix",            file:"chapter-7-figure-7-2-test-strategy-risk-matrix-light-theme.html" },
+  { ch:7, chTitle:"Ch 7: Testing Strategy",  page:35, fig:"7.3", title:"PostToolUse Auto-Test Feedback Loop",  file:"chapter-7-figure-7-3-posttooluse-auto-test-feedback-loop-light-theme.html" },
+  { ch:7, chTitle:"Ch 7: Testing Strategy",  page:36, fig:"7.4", title:"Integration Test Infrastructure",      file:"chapter-7-figure-7-4-integration-test-infrastructure-testcontainers-light-theme.html" },
+  { ch:7, chTitle:"Ch 7: Testing Strategy",  page:37, fig:"7.5", title:"Contract Test Adapter Interface",      file:"chapter-7-figure-7-5-contract-test-adapter-interface-verification-light-theme.html" },
+  // Chapter 8 — Parallel Execution & Worktrees
+  { ch:8, chTitle:"Ch 8: Parallel Execution", page:38, fig:"8.1", title:"Shared Git Worktrees Architecture",   file:"chapter-8/01-shared-git-worktrees.html" },
+  { ch:8, chTitle:"Ch 8: Parallel Execution", page:39, fig:"8.2", title:"Six-Week Wave Execution Plan",        file:"chapter-8/02-six-week-wave-plan.html" },
+  { ch:8, chTitle:"Ch 8: Parallel Execution", page:40, fig:"8.3", title:"Sonnet Speed vs Opus Depth",          file:"chapter-8/03-sonnet-speed-opus-depth.html" },
+  { ch:8, chTitle:"Ch 8: Parallel Execution", page:41, fig:"8.4", title:"Context Health Degradation Timeline", file:"chapter-8/04-context-health-over-time.html" },
+  { ch:8, chTitle:"Ch 8: Parallel Execution", page:42, fig:"8.5", title:"Parallel PR & CI Timeline",           file:"chapter-8/05-parallel-pr-ci-timeline.html" },
+];
+
+const TOTAL_PAGES = PAGES.length;
+let currentPage = 1;
+
+// Build sidebar
+const sidebar = document.getElementById('sidebar');
+let lastCh = null;
+PAGES.forEach(p => {
+  if (p.ch !== lastCh) {
+    const hdr = document.createElement('div');
+    hdr.className = 'sidebar-chapter';
+    hdr.textContent = p.chTitle;
+    sidebar.appendChild(hdr);
+    lastCh = p.ch;
+  }
+  const item = document.createElement('div');
+  item.className = 'sidebar-item';
+  item.id = 'sidebar-' + p.page;
+  item.dataset.page = p.page;
+  const pgNum = document.createElement('span');
+  pgNum.className = 'pg-num';
+  pgNum.textContent = p.page;
+  const figLabel = document.createElement('span');
+  figLabel.className = 'fig-label';
+  figLabel.textContent = `Fig ${p.fig} — ${p.title}`;
+  item.appendChild(pgNum);
+  item.appendChild(figLabel);
+  item.addEventListener('click', () => goTo(p.page));
+  sidebar.appendChild(item);
+});
+
+// Chapter tabs
+document.querySelectorAll('.ch-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const ch = parseInt(btn.dataset.ch);
+    const first = PAGES.find(p => p.ch === ch);
+    if (first) goTo(first.page);
+  });
+});
+
+// Navigation controls
+document.getElementById('btn-first').addEventListener('click', () => goTo(1));
+document.getElementById('btn-last').addEventListener('click', () => goTo(TOTAL_PAGES));
+document.getElementById('btn-prev').addEventListener('click', () => goTo(currentPage - 1));
+document.getElementById('btn-next').addEventListener('click', () => goTo(currentPage + 1));
+
+const pageInput = document.getElementById('page-input');
+pageInput.addEventListener('change', () => {
+  const v = parseInt(pageInput.value);
+  if (!isNaN(v)) goTo(Math.max(1, Math.min(TOTAL_PAGES, v)));
+});
+pageInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { pageInput.blur(); }
+});
+
+// Keyboard navigation (when iframe doesn't have focus)
+document.addEventListener('keydown', e => {
+  if (e.target === pageInput) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(currentPage + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(currentPage - 1); }
+  if (e.key === 'Home') { e.preventDefault(); goTo(1); }
+  if (e.key === 'End') { e.preventDefault(); goTo(TOTAL_PAGES); }
+});
+
+// Inline HTML for handbook pages
+// Lazily read template content on first use (templates are after this script in DOM)
+const INLINE_CACHE = {};
+function getInlineContent(key) {
+  if (!INLINE_CACHE[key]) {
+    const id = key === 'INLINE_101' ? 'tpl-101' : 'tpl-cheat';
+    const tpl = document.getElementById(id);
+    INLINE_CACHE[key] = tpl ? tpl.innerHTML : '<p>Template not found: ' + id + '</p>';
+  }
+  return INLINE_CACHE[key];
+}
+
+const viewer = document.getElementById('viewer');
+const loader = document.getElementById('loader');
+const shadowHost = document.getElementById('shadow-host');
+let shadowRoot = null;
+
+viewer.addEventListener('load', () => loader.classList.remove('show'));
+
+function showInline(key) {
+  viewer.classList.add('hidden');
+  shadowHost.classList.add('active');
+  if (!shadowRoot) shadowRoot = shadowHost.attachShadow({ mode: 'open' });
+  shadowRoot.innerHTML = getInlineContent(key);
+  // re-execute inline scripts inside shadow DOM (runs in main window scope)
+  shadowRoot.querySelectorAll('script').forEach(old => {
+    const s = document.createElement('script');
+    s.textContent = old.textContent;
+    old.replaceWith(s);
+  });
+  // after scripts run, point the shadow-root reference variable at our shadow root
+  window._r101 = shadowRoot;
+  loader.classList.remove('show');
+}
+
+function showIframe(file) {
+  viewer.classList.remove('hidden');
+  shadowHost.classList.remove('active');
+  loader.classList.add('show');
+  viewer.src = file;
+}
+
+function goTo(n) {
+  n = Math.max(1, Math.min(TOTAL_PAGES, n));
+  if (n === currentPage && (viewer.src || shadowHost.classList.contains('active'))) return;
+  currentPage = n;
+  const p = PAGES[n - 1];
+
+  if (p.inline) {
+    showInline(p.inline);
+  } else {
+    showIframe(p.file);
+  }
+
+  // Update input + label
+  pageInput.value = n;
+  document.getElementById('page-label').textContent = `Fig ${p.fig} — ${p.title}`;
+
+  // Update buttons
+  document.getElementById('btn-first').disabled = n === 1;
+  document.getElementById('btn-prev').disabled = n === 1;
+  document.getElementById('btn-next').disabled = n === TOTAL_PAGES;
+  document.getElementById('btn-last').disabled = n === TOTAL_PAGES;
+
+  // Update sidebar active
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const activeItem = document.getElementById('sidebar-' + n);
+  if (activeItem) {
+    activeItem.classList.add('active');
+    activeItem.scrollIntoView({ block:'nearest', behavior:'smooth' });
+  }
+
+  // Update chapter tabs
+  document.querySelectorAll('.ch-tab').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.ch) === p.ch);
+  });
+}
+
+// reset so first goTo always loads
+currentPage = 0;
+goTo(1);
+
+// Sidebar collapse/expand
+const sidebarWrap = document.getElementById('sidebar-wrap');
+const toggleBtn = document.getElementById('sidebar-toggle');
+toggleBtn.addEventListener('click', () => {
+  const collapsed = sidebarWrap.classList.toggle('collapsed');
+  toggleBtn.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+  toggleBtn.textContent = collapsed ? '▶' : '◄';
+});
+// Keyboard shortcut: [ to toggle
+document.addEventListener('keydown', e => {
+  if (e.target === pageInput) return;
+  if (e.key === '[') sidebarWrap.classList.toggle('collapsed');
+});
+
+// ── Topic dropdown ──
+const topicBtn = document.getElementById('btn-topic');
+const topicDropdown = document.getElementById('topic-dropdown');
+const topicSearch = document.getElementById('topic-search');
+const topicList = document.getElementById('topic-list');
+
+function buildTopicList(filter) {
+  topicList.innerHTML = '';
+  let lastCh2 = null;
+  let highlightIdx = 0;
+  const q = (filter || '').toLowerCase();
+  PAGES.forEach(p => {
+    const label = `Fig ${p.fig} — ${p.title}`;
+    if (q && !label.toLowerCase().includes(q) && !p.chTitle.toLowerCase().includes(q)) return;
+    if (p.ch !== lastCh2) {
+      const hdr = document.createElement('div');
+      hdr.className = 'topic-ch-header';
+      hdr.textContent = p.chTitle;
+      topicList.appendChild(hdr);
+      lastCh2 = p.ch;
+    }
+    const item = document.createElement('div');
+    item.className = 'topic-item';
+    const figSpan = document.createElement('span');
+    figSpan.className = 't-fig';
+    figSpan.textContent = p.fig;
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = p.title;
+    item.appendChild(figSpan);
+    item.appendChild(titleSpan);
+    item.addEventListener('click', () => { goTo(p.page); closeTopicDropdown(); });
+    topicList.appendChild(item);
+  });
+}
+
+function openTopicDropdown() {
+  buildTopicList('');
+  topicDropdown.classList.add('open');
+  topicSearch.value = '';
+  topicSearch.focus();
+}
+
+function closeTopicDropdown() {
+  topicDropdown.classList.remove('open');
+}
+
+topicBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  topicDropdown.classList.contains('open') ? closeTopicDropdown() : openTopicDropdown();
+});
+
+topicSearch.addEventListener('input', () => buildTopicList(topicSearch.value));
+topicSearch.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeTopicDropdown();
+});
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('topic-wrap').contains(e.target)) closeTopicDropdown();
+});
+
+// ── Fullscreen ──
+const fsBtn = document.getElementById('btn-fullscreen');
+function updateFsIcon() {
+  fsBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
+  fsBtn.title = document.fullscreenElement ? 'Exit fullscreen' : 'Toggle fullscreen (F key)';
+}
+fsBtn.addEventListener('click', () => {
+  document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+});
+document.addEventListener('fullscreenchange', updateFsIcon);
+document.addEventListener('keydown', e => {
+  if (e.target === pageInput || e.target === topicSearch) return;
+  if (e.key === 'f' || e.key === 'F') {
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+});
+</script>
+
+<!-- ── Handbook templates (inert <template> elements, read by innerHTML) ── -->
+<template id="tpl-101">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:host, :root {
+  --body-bg:#F0F2F5; --card-bg:#ffffff; --canvas-bg:#F8F9FA; --border:#e2e8f0;
+  --text:#1e293b; --muted:#64748b; --primary:#4f46e5; --teal:#0891b2;
+  --violet:#7c3aed; --emerald:#059669; --code-bg:#1e293b; --code-text:#e2e8f0;
+  --radius:12px; --shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-hover:0 4px 12px rgba(0,0,0,.12),0 12px 32px rgba(0,0,0,.1);
+  --transition:all .2s ease;
+}
+:host { display:block; background:var(--body-bg); color:var(--text); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+html { scroll-behavior:smooth; }
+body, .handbook-root { font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--body-bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
+header { background:linear-gradient(135deg,#312e81 0%,#4f46e5 50%,#7c3aed 100%); color:#fff; padding:48px 24px 40px; text-align:center; }
+header .badge { display:inline-block; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3); border-radius:999px; padding:4px 16px; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; margin-bottom:16px; }
+header h1 { font-size:clamp(1.6rem,4vw,2.8rem); font-weight:800; line-height:1.2; margin-bottom:12px; }
+header h1 span { opacity:.65; }
+header p { font-size:1.05rem; opacity:.85; max-width:560px; margin:0 auto; line-height:1.6; }
+nav.tabs { position:sticky; top:0; z-index:100; background:var(--card-bg); border-bottom:1px solid var(--border); display:flex; justify-content:center; gap:0; overflow-x:auto; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+nav.tabs button { background:none; border:none; border-bottom:3px solid transparent; padding:16px 24px; font-size:.9rem; font-weight:600; color:var(--muted); cursor:pointer; transition:var(--transition); white-space:nowrap; display:flex; align-items:center; gap:8px; }
+nav.tabs button:hover { color:var(--text); background:var(--body-bg); }
+nav.tabs button.active { color:var(--primary); border-bottom-color:var(--primary); }
+nav.tabs button .tab-icon { font-size:1.1rem; }
+main { flex:1; max-width:1100px; margin:0 auto; padding:40px 20px 60px; width:100%; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; animation:fadeIn .25s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.section-header { margin-bottom:32px; text-align:center; }
+.section-header h2 { font-size:1.9rem; font-weight:800; margin-bottom:8px; }
+.section-header p { color:var(--muted); font-size:1rem; max-width:580px; margin:0 auto; line-height:1.6; }
+.card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:28px; transition:var(--transition); }
+.card:hover { box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+.card-grid { display:grid; gap:20px; }
+.card-grid.cols-3 { grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+.card-grid.cols-2 { grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); }
+.concept-card { position:relative; overflow:hidden; }
+.concept-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; border-radius:var(--radius) var(--radius) 0 0; }
+.concept-card.hooks::before { background:var(--teal); }
+.concept-card.skills::before { background:var(--violet); }
+.concept-card.agents::before { background:var(--emerald); }
+.concept-icon { font-size:2.4rem; margin-bottom:14px; display:block; }
+.concept-card h3 { font-size:1.25rem; font-weight:700; margin-bottom:6px; }
+.concept-card .tagline { font-size:.82rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; margin-bottom:12px; }
+.concept-card.hooks .tagline { color:var(--teal); }
+.concept-card.skills .tagline { color:var(--violet); }
+.concept-card.agents .tagline { color:var(--emerald); }
+.concept-card p { color:var(--muted); font-size:.93rem; line-height:1.6; margin-bottom:16px; }
+.why-box { background:var(--canvas-bg); border-radius:8px; padding:12px 16px; font-size:.85rem; line-height:1.5; }
+.why-box strong { font-weight:700; }
+.concept-card.hooks .why-box { border-left:3px solid var(--teal); }
+.concept-card.skills .why-box { border-left:3px solid var(--violet); }
+.concept-card.agents .why-box { border-left:3px solid var(--emerald); }
+.flow-diagram { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:32px; margin-top:32px; }
+.flow-diagram h3 { font-size:1.1rem; font-weight:700; margin-bottom:24px; text-align:center; }
+.flow-steps { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:0; }
+.flow-step { display:flex; flex-direction:column; align-items:center; text-align:center; min-width:120px; padding:16px 12px; }
+.flow-step .icon { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:10px; }
+.flow-step .label { font-size:.82rem; font-weight:600; color:var(--text); }
+.flow-step .sublabel { font-size:.72rem; color:var(--muted); margin-top:4px; }
+.flow-arrow { font-size:1.4rem; color:var(--border); padding:0 4px; flex-shrink:0; }
+.code-block { position:relative; background:var(--code-bg); border-radius:10px; overflow:hidden; margin:16px 0; }
+.code-block .code-header { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:rgba(255,255,255,.05); border-bottom:1px solid rgba(255,255,255,.08); }
+.code-block .code-lang { font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.45); }
+.copy-btn { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:6px; color:rgba(255,255,255,.7); font-size:.75rem; padding:4px 10px; cursor:pointer; transition:var(--transition); }
+.copy-btn:hover { background:rgba(255,255,255,.2); color:#fff; }
+.copy-btn.copied { background:#059669; border-color:#059669; color:#fff; }
+.code-block pre { padding:20px; overflow-x:auto; color:var(--code-text); font-family:"JetBrains Mono","Fira Code","Cascadia Code",Consolas,monospace; font-size:.82rem; line-height:1.7; }
+.kw{color:#c084fc} .str{color:#86efac} .cmt{color:#64748b} .fn{color:#67e8f9} .num{color:#fb923c} .op{color:#f9a8d4} .key{color:#fde68a}
+.accordion { display:flex; flex-direction:column; gap:12px; }
+.accordion-item { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; border:1px solid transparent; transition:var(--transition); }
+.accordion-item.open { border-color:var(--teal); }
+.accordion-trigger { width:100%; display:flex; align-items:center; gap:16px; padding:22px 24px; background:none; border:none; cursor:pointer; text-align:left; transition:var(--transition); }
+.accordion-trigger:hover { background:var(--canvas-bg); }
+.hook-badge { flex-shrink:0; width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+.hook-badge.pre { background:rgba(8,145,178,.12); }
+.hook-badge.post { background:rgba(5,150,105,.12); }
+.hook-badge.stop { background:rgba(124,58,237,.12); }
+.hook-badge.exit { background:rgba(220,38,38,.12); }
+.hook-info { flex:1; }
+.hook-info h3 { font-size:1rem; font-weight:700; margin-bottom:4px; }
+.hook-info p { font-size:.85rem; color:var(--muted); }
+.hook-when { flex-shrink:0; font-size:.75rem; font-weight:600; padding:4px 10px; border-radius:999px; }
+.hook-when.pre { background:rgba(8,145,178,.12); color:var(--teal); }
+.hook-when.post { background:rgba(5,150,105,.12); color:var(--emerald); }
+.hook-when.stop { background:rgba(124,58,237,.12); color:var(--violet); }
+.hook-when.exit { background:rgba(220,38,38,.12); color:#dc2626; }
+.chevron { flex-shrink:0; font-size:.85rem; color:var(--muted); transition:transform .2s ease; }
+.accordion-item.open .chevron { transform:rotate(180deg); }
+.accordion-body { display:none; padding:0 24px 24px; }
+.accordion-item.open .accordion-body { display:block; }
+.hook-meta { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+.meta-chip { background:var(--canvas-bg); border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:.8rem; }
+.meta-chip strong { color:var(--text); }
+.meta-chip span { color:var(--muted); }
+.exit-codes { display:flex; gap:12px; margin:16px 0; flex-wrap:wrap; }
+.exit-code { display:flex; align-items:center; gap:8px; background:var(--canvas-bg); border-radius:8px; padding:10px 16px; font-size:.85rem; }
+.exit-code .code-num { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.9rem; }
+.exit-code .code-num.allow { background:rgba(5,150,105,.15); color:var(--emerald); }
+.exit-code .code-num.block { background:rgba(220,38,38,.15); color:#dc2626; }
+.skill-card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; transition:var(--transition); border-top:3px solid var(--violet); }
+.skill-card:hover { box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+.skill-header { display:flex; align-items:flex-start; gap:14px; margin-bottom:14px; }
+.skill-icon { width:46px; height:46px; border-radius:10px; background:rgba(124,58,237,.1); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+.skill-title { flex:1; }
+.skill-title .command { font-family:"JetBrains Mono",Consolas,monospace; font-size:.88rem; font-weight:700; color:var(--violet); background:rgba(124,58,237,.08); border-radius:6px; padding:3px 8px; display:inline-block; margin-bottom:4px; }
+.skill-title h4 { font-size:.95rem; font-weight:700; margin-bottom:2px; }
+.skill-title .skill-what { font-size:.82rem; color:var(--muted); }
+.skill-body p { font-size:.85rem; color:var(--muted); line-height:1.55; margin-bottom:12px; }
+.skill-invoke { background:var(--code-bg); border-radius:8px; padding:10px 14px; font-family:"JetBrains Mono",Consolas,monospace; font-size:.78rem; color:var(--code-text); overflow-x:auto; white-space:pre; }
+.skill-invoke .cmt { color:#64748b; }
+.skill-section-header { margin:32px 0 16px; display:flex; align-items:center; gap:12px; }
+.skill-section-header h3 { font-size:1.1rem; font-weight:700; }
+.skill-section-header .pill { background:rgba(124,58,237,.1); color:var(--violet); border-radius:999px; padding:3px 12px; font-size:.75rem; font-weight:600; }
+.divider { height:1px; background:var(--border); flex:1; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
+@media (max-width:720px){.two-col{grid-template-columns:1fr}}
+.column-title { font-size:1.1rem; font-weight:800; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+.column-title .dot { width:10px; height:10px; border-radius:50%; }
+.subagent-card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:16px; border-left:4px solid var(--emerald); transition:var(--transition); }
+.subagent-card:hover { box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+.subagent-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.subagent-icon { width:40px; height:40px; border-radius:8px; background:rgba(5,150,105,.1); display:flex; align-items:center; justify-content:center; font-size:1.15rem; }
+.subagent-name { font-size:.95rem; font-weight:700; }
+.subagent-focus { font-size:.78rem; color:var(--muted); }
+.tag-list { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.tag { background:rgba(5,150,105,.08); border:1px solid rgba(5,150,105,.2); color:var(--emerald); border-radius:6px; padding:3px 9px; font-size:.73rem; font-weight:600; }
+.invoke-box { background:var(--code-bg); border-radius:8px; padding:10px 14px; font-family:"JetBrains Mono",Consolas,monospace; font-size:.76rem; color:var(--code-text); overflow-x:auto; white-space:pre; }
+.lib-card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:16px; transition:var(--transition); }
+.lib-card:hover { box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+.lib-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.lib-badge { background:rgba(79,70,229,.1); border:1px solid rgba(79,70,229,.2); color:var(--primary); border-radius:8px; padding:4px 10px; font-size:.78rem; font-weight:700; font-family:"JetBrains Mono",Consolas,monospace; }
+.lib-header h4 { font-size:.95rem; font-weight:700; }
+.lib-skills { display:flex; flex-direction:column; gap:6px; }
+.lib-skill-row { display:flex; align-items:flex-start; gap:10px; padding:8px 10px; background:var(--canvas-bg); border-radius:8px; font-size:.82rem; }
+.lib-skill-row .cmd { font-family:"JetBrains Mono",Consolas,monospace; color:var(--violet); font-weight:600; white-space:nowrap; flex-shrink:0; }
+.lib-skill-row .desc { color:var(--muted); line-height:1.4; }
+.role-table-wrap { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; margin-top:32px; }
+.role-table-title { padding:18px 24px 14px; font-size:1rem; font-weight:700; border-bottom:1px solid var(--border); }
+table { width:100%; border-collapse:collapse; }
+thead th { background:var(--canvas-bg); padding:12px 16px; text-align:left; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); border-bottom:1px solid var(--border); }
+tbody td { padding:14px 16px; font-size:.85rem; border-bottom:1px solid var(--border); vertical-align:top; }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover td { background:var(--canvas-bg); }
+.role-chip { display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:.82rem; }
+.skills-list { display:flex; flex-wrap:wrap; gap:5px; }
+.skills-list .s { background:rgba(124,58,237,.08); border:1px solid rgba(124,58,237,.18); color:var(--violet); border-radius:6px; padding:2px 8px; font-size:.75rem; font-family:"JetBrains Mono",Consolas,monospace; }
+footer { background:var(--card-bg); border-top:1px solid var(--border); padding:20px 24px; text-align:center; color:var(--muted); font-size:.82rem; }
+footer strong { color:var(--text); }
+.mb-8{margin-bottom:8px} .mb-16{margin-bottom:16px} .mb-24{margin-bottom:24px} .mt-32{margin-top:32px}
+</style>
+<header>
+  <div class="badge">Chapter 3 · Claude Code 101</div>
+  <h1>Hooks, Skills <span>&amp;</span> Subagents</h1>
+  <p>Building the AI Automation Layer — intercept actions, share reusable commands, and orchestrate parallel specialist agents.</p>
+</header>
+<nav class="tabs" role="tablist">
+  <button class="active" role="tab" onclick="switchTab101('overview',this)"><span class="tab-icon">🗺️</span> Overview</button>
+  <button role="tab" onclick="switchTab101('hooks',this)"><span class="tab-icon">🪝</span> Hooks</button>
+  <button role="tab" onclick="switchTab101('skills',this)"><span class="tab-icon">⚡</span> Skills</button>
+  <button role="tab" onclick="switchTab101('subagents',this)"><span class="tab-icon">🤖</span> Subagents &amp; Libraries</button>
+</nav>
+<main>
+  <div id="tab101-overview" class="tab-panel active">
+    <div class="section-header"><h2>The Three Pillars</h2><p>Together, Hooks, Skills, and Subagents transform Claude Code from a chat assistant into a programmable, organization-scale AI automation platform.</p></div>
+    <div class="card-grid cols-3">
+      <div class="card concept-card hooks"><span class="concept-icon">🪝</span><div class="tagline">Hooks</div><h3>Intercept &amp; Guard</h3><p>Scripts that run at key lifecycle moments — before a tool fires, after it completes, or right before Claude stops. Think of them as middleware for your AI.</p><div class="why-box"><strong>Why it matters:</strong> Hooks enforce team policies automatically. No one can <code>git push --force</code> or delete root — ever.</div></div>
+      <div class="card concept-card skills"><span class="concept-icon">⚡</span><div class="tagline">Skills</div><h3>Slash Commands, Encoded</h3><p>Markdown files in <code>.claude/skills/</code> that become first-class <code>/slash-commands</code>. Write a workflow once; invoke it forever with a single command.</p><div class="why-box"><strong>Why it matters:</strong> Skills let teams encode their best practices — scaffold patterns, incident runbooks, review protocols — and share them like code.</div></div>
+      <div class="card concept-card agents"><span class="concept-icon">🤖</span><div class="tagline">Subagents</div><h3>Parallel Specialists</h3><p>Independent Claude Code instances launched with focused system prompts. Each agent is an expert — security, docs, performance — working concurrently.</p><div class="why-box"><strong>Why it matters:</strong> Parallel review in minutes instead of sequential hours. Each subagent has deep, narrow focus rather than broad, shallow coverage.</div></div>
+    </div>
+    <div class="flow-diagram"><h3>How the Automation Layer Works Together</h3><div class="flow-steps">
+      <div class="flow-step"><div class="icon" style="background:rgba(79,70,229,.1);color:var(--primary)">👤</div><div class="label">Developer</div><div class="sublabel">types a command</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="icon" style="background:rgba(8,145,178,.12);color:var(--teal)">🪝</div><div class="label">PreToolUse Hook</div><div class="sublabel">validate &amp; guard</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="icon" style="background:rgba(79,70,229,.1);color:var(--primary)">⚙️</div><div class="label">Claude Code</div><div class="sublabel">executes tool</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="icon" style="background:rgba(5,150,105,.12);color:var(--emerald)">🪝</div><div class="label">PostToolUse Hook</div><div class="sublabel">auto-test &amp; lint</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="icon" style="background:rgba(124,58,237,.1);color:var(--violet)">⚡</div><div class="label">Skills Invoked</div><div class="sublabel">/slash-commands</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="icon" style="background:rgba(5,150,105,.1);color:var(--emerald)">🤖</div><div class="label">Subagents</div><div class="sublabel">parallel review</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="icon" style="background:rgba(5,150,105,.12);color:var(--emerald)">✅</div><div class="label">Quality Gate</div><div class="sublabel">Stop Hook check</div></div>
+    </div></div>
+  </div>
+  <div id="tab101-hooks" class="tab-panel">
+    <div class="section-header"><h2 style="color:var(--teal)">🪝 Hooks</h2><p>Lifecycle scripts that intercept Claude Code's actions. Click each hook type below to explore details and code examples.</p></div>
+    <div class="card mb-24" style="border-left:4px solid var(--teal)"><h3 style="margin-bottom:12px;font-size:.95rem">Hook Exit Codes</h3><div class="exit-codes"><div class="exit-code"><div class="code-num allow">0</div><div><strong>Allow</strong> — proceed normally, output is injected as context</div></div><div class="exit-code"><div class="code-num block">2</div><div><strong>Block</strong> — hard stop, stderr message shown to Claude and user</div></div></div></div>
+    <div class="accordion">
+      <div class="accordion-item open" id="acc101-pre"><button class="accordion-trigger" onclick="toggleAcc101('acc101-pre')"><div class="hook-badge pre">🛡️</div><div class="hook-info"><h3>PreToolUse Hook</h3><p>Runs before every tool execution — your first line of defense</p></div><span class="hook-when pre">BEFORE</span><span class="chevron">▼</span></button><div class="accordion-body"><div class="hook-meta"><div class="meta-chip"><strong>Trigger</strong> <span>Before any tool fires</span></div><div class="meta-chip"><strong>Use case</strong> <span>Block dangerous commands</span></div></div><div class="code-block"><div class="code-header"><span class="code-lang">Python — validate_command.py</span><button class="copy-btn" onclick="copyCode101(this)">Copy</button></div><pre><code><span class="kw">import</span> sys, json
+data = json.load(sys.stdin)
+cmd  = data.get(<span class="str">"tool_input"</span>, {}).get(<span class="str">"command"</span>, <span class="str">""</span>)
+BLOCKED = [<span class="str">"rm -rf /"</span>, <span class="str">"git push --force"</span>, <span class="str">"DROP DATABASE"</span>]
+<span class="kw">for</span> p <span class="kw">in</span> BLOCKED:
+    <span class="kw">if</span> p <span class="kw">in</span> cmd:
+        print(<span class="fn">f</span><span class="str">"BLOCKED: '{p}'"</span>, file=sys.stderr); sys.exit(<span class="num">2</span>)
+sys.exit(<span class="num">0</span>)</code></pre></div></div></div>
+      <div class="accordion-item" id="acc101-post"><button class="accordion-trigger" onclick="toggleAcc101('acc101-post')"><div class="hook-badge post">🔬</div><div class="hook-info"><h3>PostToolUse Hook</h3><p>Runs after a tool completes — perfect for automated quality checks</p></div><span class="hook-when post">AFTER</span><span class="chevron">▼</span></button><div class="accordion-body"><div class="code-block"><div class="code-header"><span class="code-lang">Python — auto_test.py</span><button class="copy-btn" onclick="copyCode101(this)">Copy</button></div><pre><code><span class="kw">import</span> sys, json, subprocess
+data = json.load(sys.stdin)
+tool = data.get(<span class="str">"tool_name"</span>, <span class="str">""</span>)
+filepath = data.get(<span class="str">"tool_input"</span>, {}).get(<span class="str">"file_path"</span>, <span class="str">""</span>)
+<span class="kw">if</span> tool == <span class="str">"Write"</span> <span class="kw">and</span> filepath.endswith(<span class="str">".go"</span>):
+    result = subprocess.run([<span class="str">"go"</span>, <span class="str">"test"</span>, <span class="str">"./..."</span>], capture_output=<span class="kw">True</span>, text=<span class="kw">True</span>)
+    <span class="kw">if</span> result.returncode != <span class="num">0</span>:
+        print(result.stdout, file=sys.stderr); sys.exit(<span class="num">2</span>)
+sys.exit(<span class="num">0</span>)</code></pre></div></div></div>
+      <div class="accordion-item" id="acc101-stop"><button class="accordion-trigger" onclick="toggleAcc101('acc101-stop')"><div class="hook-badge stop">🔒</div><div class="hook-info"><h3>Stop Hook</h3><p>Runs right before Claude finishes responding — the final quality gate</p></div><span class="hook-when stop">BEFORE FINISH</span><span class="chevron">▼</span></button><div class="accordion-body"><div class="code-block"><div class="code-header"><span class="code-lang">Bash — quality_gate.sh</span><button class="copy-btn" onclick="copyCode101(this)">Copy</button></div><pre><code><span class="cmt">#!/usr/bin/env bash</span>
+go test ./... <span class="op">||</span> { echo <span class="str">"Tests must pass"</span> <span class="op">>&2</span>; exit <span class="num">2</span>; }
+golangci-lint run <span class="op">||</span> { echo <span class="str">"Fix lint errors"</span> <span class="op">>&2</span>; exit <span class="num">2</span>; }
+exit <span class="num">0</span></code></pre></div></div></div>
+    </div>
+  </div>
+  <div id="tab101-skills" class="tab-panel">
+    <div class="section-header"><h2 style="color:var(--violet)">⚡ Skills</h2><p>Reusable slash commands stored as markdown files in <code>.claude/skills/</code>. Write once, invoke forever.</p></div>
+    <div class="skill-section-header"><h3>Project Skills</h3><div class="divider"></div><div class="pill">Built for this codebase</div></div>
+    <div class="card-grid cols-2">
+      <div class="skill-card"><div class="skill-header"><div class="skill-icon">🔧</div><div class="skill-title"><div class="command">/scaffold-adapter</div><h4>Adapter Scaffolding</h4><div class="skill-what">Create a new channel adapter with all required files</div></div></div><div class="skill-body"><p>Generates the full adapter boilerplate: interface implementation, config struct, table-driven tests, registry entry, and example YAML config.</p><div class="skill-invoke"><span class="cmt"># Example</span>
+/scaffold-adapter --adapter_name=slack</div></div></div>
+      <div class="skill-card"><div class="skill-header"><div class="skill-icon">🧪</div><div class="skill-title"><div class="command">/generate-tests</div><h4>Test Suite Generator</h4><div class="skill-what">Generate table-driven test suites for any Go file</div></div></div><div class="skill-body"><p>Reads a Go source file, identifies all exported functions, and generates comprehensive table-driven tests with edge cases and error paths.</p><div class="skill-invoke"><span class="cmt"># Example</span>
+/generate-tests --file=adapters/email/adapter.go</div></div></div>
+      <div class="skill-card"><div class="skill-header"><div class="skill-icon">📋</div><div class="skill-title"><div class="command">/sprint-review</div><h4>Sprint Review Generator</h4><div class="skill-what">Git-based automated sprint summary with metrics</div></div></div><div class="skill-body"><p>Analyzes git history, PR descriptions, and commit messages to generate a structured sprint review with velocity metrics.</p><div class="skill-invoke"><span class="cmt"># Example</span>
+/sprint-review --since=2024-01-01</div></div></div>
+      <div class="skill-card"><div class="skill-header"><div class="skill-icon">🚨</div><div class="skill-title"><div class="command">/incident-response</div><h4>Incident Response Workflow</h4><div class="skill-what">Structured P1/P2/P3 incident management playbook</div></div></div><div class="skill-body"><p>Activates a tiered incident workflow: severity assessment, stakeholder notification templates, runbook execution steps, mitigation tracking.</p><div class="skill-invoke"><span class="cmt"># Example</span>
+/incident-response --severity=P1</div></div></div>
+    </div>
+  </div>
+  <div id="tab101-subagents" class="tab-panel">
+    <div class="section-header"><h2 style="color:var(--emerald)">🤖 Subagents &amp; Libraries</h2><p>Parallel specialist Claude Code instances that provide deep, focused review.</p></div>
+    <div class="two-col">
+      <div>
+        <div class="column-title"><div class="dot" style="background:var(--emerald)"></div>Specialist Subagents</div>
+        <div class="subagent-card"><div class="subagent-header"><div class="subagent-icon">🔐</div><div><div class="subagent-name">Security Reviewer</div><div class="subagent-focus">Threat analysis &amp; vulnerability detection</div></div></div><div class="tag-list"><span class="tag">OWASP Top 10</span><span class="tag">Injection</span><span class="tag">Auth</span></div></div>
+        <div class="subagent-card"><div class="subagent-header"><div class="subagent-icon">📝</div><div><div class="subagent-name">Doc Generator</div><div class="subagent-focus">Documentation from source code</div></div></div><div class="tag-list"><span class="tag">godoc</span><span class="tag">Mermaid</span><span class="tag">API Docs</span></div></div>
+        <div class="subagent-card"><div class="subagent-header"><div class="subagent-icon">⚡</div><div><div class="subagent-name">Performance Analyzer</div><div class="subagent-focus">Bottlenecks, leaks &amp; resource usage</div></div></div><div class="tag-list"><span class="tag">Goroutine Leaks</span><span class="tag">Memory</span><span class="tag">Allocations</span></div></div>
+      </div>
+      <div>
+        <div class="column-title"><div class="dot" style="background:var(--primary)"></div>Community Skill Libraries</div>
+        <div class="lib-card"><div class="lib-header"><div class="lib-badge">9arm-skills</div><h4>Ops &amp; Reflection</h4></div><div class="lib-skills"><div class="lib-skill-row"><div class="cmd">/debug-mantra</div><div class="desc">Structured debugging: reproduce → isolate → hypothesize → verify</div></div><div class="lib-skill-row"><div class="cmd">/post-mortem</div><div class="desc">5-Why template with timeline and action items</div></div><div class="lib-skill-row"><div class="cmd">/scrutinize</div><div class="desc">Devil's advocate review — surfaces hidden assumptions</div></div><div class="lib-skill-row"><div class="cmd">/management-talk</div><div class="desc">Translate technical work into business impact language</div></div></div></div>
+        <div class="lib-card"><div class="lib-header"><div class="lib-badge">Superpowers</div><h4>Workflow &amp; Architecture</h4></div><div class="lib-skills"><div class="lib-skill-row"><div class="cmd">/test-driven-development</div><div class="desc">Red → Green → Refactor loop</div></div><div class="lib-skill-row"><div class="cmd">/verification-before-completion</div><div class="desc">Self-check before marking done</div></div><div class="lib-skill-row"><div class="cmd">/brainstorming</div><div class="desc">Explore design space before implementing</div></div><div class="lib-skill-row"><div class="cmd">/dispatching-parallel-agents</div><div class="desc">Launch concurrent specialist subagents</div></div></div></div>
+      </div>
+    </div>
+    <div class="role-table-wrap mt-32"><div class="role-table-title">Role → Recommended Skills</div><table><thead><tr><th>Role</th><th>Recommended Skills</th><th>Primary Value</th></tr></thead><tbody>
+      <tr><td><span class="role-chip">👩‍💻 Developer</span></td><td><div class="skills-list"><span class="s">/test-driven-development</span><span class="s">/systematic-debugging</span><span class="s">/brainstorming</span></div></td><td style="color:var(--muted);font-size:.83rem">Faster, higher-quality code</td></tr>
+      <tr><td><span class="role-chip">📊 PM / Lead</span></td><td><div class="skills-list"><span class="s">/writing-plans</span><span class="s">/management-talk</span><span class="s">/sprint-review</span></div></td><td style="color:var(--muted);font-size:.83rem">Clear plans, stakeholder-ready updates</td></tr>
+      <tr><td><span class="role-chip">🔍 Tester / QA</span></td><td><div class="skills-list"><span class="s">/verification-before-completion</span><span class="s">/scrutinize</span><span class="s">/generate-tests</span></div></td><td style="color:var(--muted);font-size:.83rem">Thorough coverage</td></tr>
+      <tr><td><span class="role-chip">⚙️ DevOps / SRE</span></td><td><div class="skills-list"><span class="s">/debug-mantra</span><span class="s">/post-mortem</span><span class="s">/dispatching-parallel-agents</span></div></td><td style="color:var(--muted);font-size:.83rem">Faster incident resolution</td></tr>
+    </tbody></table></div>
+  </div>
+</main>
+<footer><strong>Chapter 3</strong> · AI Agentic SDLC Course · Hooks, Skills &amp; Subagents · Claude Code 101</footer>
+<script>
+function switchTab101(id,btn){
+  const root=window._r101||document;
+  root.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  root.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  root.querySelector('#tab101-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function toggleAcc101(id){
+  const root=window._r101||document;
+  const item=root.querySelector('#'+id);
+  const isOpen=item.classList.contains('open');
+  root.querySelectorAll('.accordion-item').forEach(i=>i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+function copyCode101(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='✓ Copied'; btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+  });
+}
+</script>
+</template>
+
+<template id="tpl-cheat">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.45;background:#F8F9FA;color:#1e293b}
+.page{max-width:1100px;margin:0 auto;padding:12px 16px 20px}
+.grid-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.page-header{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:white;padding:12px 18px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.page-header h1{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.page-header .subtitle{font-size:11px;opacity:.65;margin-top:2px}
+.header-badges{display:flex;gap:6px}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;letter-spacing:.03em;text-transform:uppercase}
+.badge-hooks{background:#0e7490;color:white}.badge-skills{background:#6d28d9;color:white}.badge-agents{background:#047857;color:white}.badge-libs{background:#b45309;color:white}
+section{background:white;border-radius:6px;padding:11px 13px;margin-bottom:10px;border-left:4px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+section.hooks-section{border-left-color:#0891b2}section.skills-section{border-left-color:#7c3aed}section.agents-section{border-left-color:#059669}section.libs-section{border-left-color:#d97706}section.anti-section{border-left-color:#dc2626}section.role-section{border-left-color:#475569}
+.section-title{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.section-title.hooks{color:#0891b2}.section-title.skills{color:#7c3aed}.section-title.agents{color:#059669}.section-title.libs{color:#d97706}.section-title.anti{color:#dc2626}.section-title.role{color:#475569}
+.section-title::after{content:'';flex:1;height:1px;background:currentColor;opacity:.2}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+table:last-child{margin-bottom:0}
+thead th{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:5px 8px;text-align:left;border-bottom:2px solid currentColor}
+.hooks-section thead th{color:#0891b2;border-bottom-color:#0891b2}.skills-section thead th{color:#7c3aed;border-bottom-color:#7c3aed}.agents-section thead th{color:#059669;border-bottom-color:#059669}.libs-section thead th{color:#d97706;border-bottom-color:#d97706}.role-section thead th{color:#475569;border-bottom-color:#475569}
+tbody tr{transition:background .12s}tbody tr:hover{background:#f1f5f9}tbody tr:nth-child(even){background:#f8fafc}tbody tr:nth-child(even):hover{background:#e2e8f0}
+tbody td{padding:4px 8px;vertical-align:top;border-bottom:1px solid #f1f5f9;line-height:1.4}tbody tr:last-child td{border-bottom:none}
+td code,th code{background:#f1f5f9;border-radius:3px;padding:0 4px;font-size:10.5px;font-family:'Fira Code','Cascadia Code',Consolas,monospace;color:#0f172a}
+.code-wrap{position:relative;margin:7px 0}.code-wrap:last-child{margin-bottom:0}
+pre{background:#1e293b;color:#e2e8f0;border-radius:5px;padding:9px 11px;font-family:'Fira Code','Cascadia Code',Consolas,monospace;font-size:11px;line-height:1.55;overflow-x:auto;white-space:pre}
+.code-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.t-key{color:#93c5fd}.t-str{color:#86efac}.t-num{color:#fde68a}.t-com{color:#64748b}.t-kw{color:#c4b5fd}.t-bool{color:#f9a8d4}.t-cmd{color:#67e8f9}.t-punct{color:#cbd5e1}
+.copy-btn{position:absolute;top:6px;right:6px;background:#334155;color:#94a3b8;border:none;border-radius:4px;padding:2px 7px;font-size:10px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;line-height:1.6}
+.copy-btn:hover{background:#475569;color:#e2e8f0}.copy-btn.copied{background:#15803d;color:white}
+.exit-codes{display:flex;gap:10px;margin:6px 0 8px;flex-wrap:wrap}
+.exit-code{display:inline-flex;align-items:center;gap:5px;font-size:11.5px}
+.exit-code .num{font-family:'Fira Code',monospace;font-weight:700;font-size:13px;padding:1px 6px;border-radius:4px;color:white}
+.exit-code .num.allow{background:#15803d}.exit-code .num.block{background:#b45309}.exit-code .num.fail{background:#dc2626}
+.anti-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;margin-top:4px}
+.anti-list li{font-size:11.5px;display:flex;align-items:flex-start;gap:5px;line-height:1.4}
+.anti-list li::before{content:'✗';color:#dc2626;font-weight:700;flex-shrink:0}
+.install-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+.sub-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin:8px 0 4px;padding-bottom:2px;border-bottom:1px solid #e2e8f0}
+.sub-label:first-child{margin-top:0}
+.role-outer{background:white;border-radius:6px;padding:11px 13px;margin-top:10px;border-left:4px solid #475569;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.role-outer table tbody td:first-child{font-weight:600;white-space:nowrap;color:#1e293b}
+.skill-pill{display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:3px;padding:1px 5px;font-family:'Fira Code',monospace;font-size:10.5px;color:#475569;margin:1px 2px 1px 0;white-space:nowrap}
+.skill-pill.dev{border-left:2px solid #7c3aed}.skill-pill.ops{border-left:2px solid #059669}.skill-pill.pm{border-left:2px solid #d97706}.skill-pill.qa{border-left:2px solid #0891b2}.skill-pill.all{border-left:2px solid #dc2626}
+.page-footer{text-align:center;font-size:10px;color:#94a3b8;margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0}
+</style>
+<div class="page">
+  <header class="page-header"><div><h1>Claude Code Cheat Sheet &nbsp;·&nbsp; Chapter 3</h1><div class="subtitle">Hooks &nbsp;·&nbsp; Skills &nbsp;·&nbsp; Subagents &nbsp;·&nbsp; Community Libraries &nbsp;·&nbsp; Role Mapping</div></div><div class="header-badges"><span class="badge badge-hooks">Hooks</span><span class="badge badge-skills">Skills</span><span class="badge badge-agents">Subagents</span><span class="badge badge-libs">Libraries</span></div></header>
+  <div class="grid-2col">
+    <div class="col-left">
+      <section class="hooks-section">
+        <div class="section-title hooks">Hooks — settings.json</div>
+        <div class="exit-codes"><span class="exit-code"><span class="num allow">0</span> Allow / continue</span><span class="exit-code"><span class="num block">2</span> Block tool (PreToolUse only)</span><span class="exit-code"><span class="num fail">1</span> Fail with error (Stop)</span></div>
+        <div class="code-label">settings.json — hooks structure</div>
+        <div class="code-wrap"><button class="copy-btn" onclick="copyCodeCheat(this)">Copy</button><pre><span class="t-punct">{</span>
+  <span class="t-key">"hooks"</span><span class="t-punct">: {</span>
+    <span class="t-key">"PreToolUse"</span><span class="t-punct">: [{</span><span class="t-key">"matcher"</span><span class="t-punct">:</span> <span class="t-str">"Bash"</span><span class="t-punct">,</span> <span class="t-key">"command"</span><span class="t-punct">:</span> <span class="t-str">"scripts/validate.sh"</span><span class="t-punct">}],</span>
+    <span class="t-key">"PostToolUse"</span><span class="t-punct">: [{</span><span class="t-key">"matcher"</span><span class="t-punct">:</span> <span class="t-str">"Write|Edit"</span><span class="t-punct">,</span> <span class="t-key">"command"</span><span class="t-punct">:</span> <span class="t-str">"scripts/run-tests.sh"</span><span class="t-punct">}],</span>
+    <span class="t-key">"Stop"</span><span class="t-punct">: [{</span><span class="t-key">"command"</span><span class="t-punct">:</span> <span class="t-str">"scripts/quality-gate.sh"</span><span class="t-punct">}]</span>
+  <span class="t-punct">}</span>
+<span class="t-punct">}</span></pre></div>
+        <table><thead><tr><th>Type</th><th>Trigger</th><th>Use for</th></tr></thead><tbody>
+          <tr><td><code>PreToolUse</code></td><td>Before tool runs</td><td>Block <code>rm -rf</code>, force push, validate paths</td></tr>
+          <tr><td><code>PostToolUse</code></td><td>After tool runs</td><td>Auto-test, auto-lint, audit log</td></tr>
+          <tr><td><code>Stop</code></td><td>Before completion</td><td>Quality gate: compile + test + lint</td></tr>
+          <tr><td><code>Notification</code></td><td>On events</td><td>Slack alert, email, audit system</td></tr>
+        </tbody></table>
+      </section>
+      <section class="skills-section">
+        <div class="section-title skills">Skills</div>
+        <div class="sub-label">File location &amp; invocation</div>
+        <div class="code-wrap"><button class="copy-btn" onclick="copyCodeCheat(this)">Copy</button><pre><span class="t-com"># Location</span>
+<span class="t-cmd">.claude/skills/skill-name.md</span>
+<span class="t-com"># Invoke</span>
+<span class="t-cmd">/skill-name [arguments]</span></pre></div>
+        <div class="sub-label">Team skills</div>
+        <table><thead><tr><th>Skill</th><th>Purpose</th><th>Args</th></tr></thead><tbody>
+          <tr><td><code>/scaffold-adapter</code></td><td>New channel adapter + tests</td><td><code>channel</code></td></tr>
+          <tr><td><code>/generate-tests</code></td><td>Table-driven test suite</td><td><code>package</code></td></tr>
+          <tr><td><code>/sprint-review</code></td><td>Git-based sprint summary</td><td><code>dates</code></td></tr>
+          <tr><td><code>/incident-response</code></td><td>P1/P2/P3 incident workflow</td><td><code>severity</code></td></tr>
+        </tbody></table>
+      </section>
+    </div>
+    <div class="col-right">
+      <section class="agents-section">
+        <div class="section-title agents">Subagents</div>
+        <div class="sub-label">Invocation</div>
+        <div class="code-wrap"><button class="copy-btn" onclick="copyCodeCheat(this)">Copy</button><pre><span class="t-cmd">claude</span> <span class="t-kw">--print</span> <span class="t-kw">-p</span> <span class="t-str">"$(cat .claude/subagents/security.md)"</span> &lt; code.go</pre></div>
+        <table><thead><tr><th>Subagent</th><th>Focus</th><th>Output</th></tr></thead><tbody>
+          <tr><td>Security Reviewer</td><td>OWASP Top 10, injection</td><td><code>security-review.md</code></td></tr>
+          <tr><td>Doc Generator</td><td>godoc, Mermaid, API docs</td><td><code>docs/</code></td></tr>
+          <tr><td>Performance Analyzer</td><td>goroutines, memory</td><td><code>performance-review.md</code></td></tr>
+        </tbody></table>
+      </section>
+      <section class="libs-section">
+        <div class="section-title libs">Community Libraries</div>
+        <div class="sub-label">Install</div>
+        <div class="install-grid">
+          <div class="code-wrap"><button class="copy-btn" onclick="copyCodeCheat(this)">Copy</button><pre><span class="t-cmd">npx skills add</span> <span class="t-str">thananon/9arm-skills</span></pre></div>
+          <div class="code-wrap"><button class="copy-btn" onclick="copyCodeCheat(this)">Copy</button><pre><span class="t-cmd">npx skills add</span> <span class="t-str">obra/superpowers</span></pre></div>
+        </div>
+        <div class="sub-label">9arm-skills</div>
+        <table><thead><tr><th>Skill</th><th>When to use</th></tr></thead><tbody>
+          <tr><td><code>/debug-mantra</code></td><td>Any failing test or production incident</td></tr>
+          <tr><td><code>/post-mortem</code></td><td>After resolved incident</td></tr>
+          <tr><td><code>/scrutinize</code></td><td>Before merging significant changes</td></tr>
+          <tr><td><code>/management-talk</code></td><td>Translate tech → VP/PM language</td></tr>
+        </tbody></table>
+        <div class="sub-label">Superpowers</div>
+        <table><thead><tr><th>Skill</th><th>When to use</th></tr></thead><tbody>
+          <tr><td><code>/test-driven-development</code></td><td>Start of any feature or bugfix</td></tr>
+          <tr><td><code>/verification-before-completion</code></td><td>Before claiming done / before PR</td></tr>
+          <tr><td><code>/brainstorming</code></td><td>Before new feature or architecture decision</td></tr>
+          <tr><td><code>/writing-plans</code></td><td>Break task into 2–5 min steps</td></tr>
+          <tr><td><code>/dispatching-parallel-agents</code></td><td>2+ independent tasks simultaneously</td></tr>
+          <tr><td><code>/using-git-worktrees</code></td><td>Isolate feature branch</td></tr>
+          <tr><td><code>/requesting-code-review</code></td><td>Validate implementation before PR</td></tr>
+          <tr><td><code>/finishing-a-development-branch</code></td><td>Pre-merge checklist</td></tr>
+        </tbody></table>
+      </section>
+      <section class="anti-section">
+        <div class="section-title anti">Anti-Patterns to Avoid</div>
+        <ul class="anti-list">
+          <li>Hooks running on every operation — use specific matchers</li>
+          <li>Silent hook failures — always output what was checked</li>
+          <li>Monolithic skills — one skill = one focused workflow</li>
+          <li>Unbounded subagents — scope to single file / package</li>
+          <li>Untested hooks — hooks are code, test them</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+  <div class="role-outer">
+    <div class="section-title role">Role → Skill Mapping</div>
+    <table><thead><tr><th style="width:110px">Role</th><th>Skills</th></tr></thead><tbody>
+      <tr><td>Developer</td><td><span class="skill-pill dev">/test-driven-development</span><span class="skill-pill dev">/systematic-debugging</span><span class="skill-pill dev">/brainstorming</span></td></tr>
+      <tr><td>PM</td><td><span class="skill-pill pm">/writing-plans</span><span class="skill-pill pm">/management-talk</span></td></tr>
+      <tr><td>Tester</td><td><span class="skill-pill qa">/verification-before-completion</span><span class="skill-pill qa">/scrutinize</span></td></tr>
+      <tr><td>DevOps</td><td><span class="skill-pill ops">/debug-mantra</span><span class="skill-pill ops">/post-mortem</span><span class="skill-pill ops">/dispatching-parallel-agents</span></td></tr>
+      <tr><td>All roles</td><td><span class="skill-pill all">/scrutinize</span><span class="skill-pill all">/verification-before-completion</span></td></tr>
+    </tbody></table>
+  </div>
+  <footer class="page-footer">Chapter 3 · AI Agentic SDLC Course · @print optimized · Self-contained · No external dependencies</footer>
+</div>
+<script>
+function copyCodeCheat(btn){
+  const pre=btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText||pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},1800);
+  });
+}
+</script>
+</template>
+
+</body>
+</html>
