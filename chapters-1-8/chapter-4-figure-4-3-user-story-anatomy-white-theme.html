@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIGURE 4.3 — User Story Anatomy: Given/When/Then Acceptance Criteria</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  /* ── progress chrome ── */
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  /*
+   * KEY PATTERN: .step-item wraps each card with ONLY CSS fade+scale.
+   * SVG translate is on an inner child <g> — never on the .step-item itself.
+   * transform-box:fill-box keeps scale origin local to each element.
+   */
+  .step-item {
+    opacity: 0;
+    transform: scale(.88);
+    transform-origin: 50% 50%;
+    transform-box: fill-box;
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  /* Arrow draw-on: pathLength="1" so dashoffset 1→0 works for any path length */
+  .arrow-draw {
+    opacity: 0;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: opacity .05s ease, stroke-dashoffset .6s ease;
+  }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#00000018"/>
+  </filter>
+  <filter id="shadow-sm" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000014"/>
+  </filter>
+  <!-- Arrow marker for center arrow -->
+  <marker id="arrowGray" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#6B7280"/>
+  </marker>
+</defs>
+
+<!-- canvas background -->
+<rect width="1200" height="700" fill="#F8F9FA" rx="16"/>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 0: Title + panel outlines + panel headers                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="0">
+  <!-- Figure label -->
+  <text x="600" y="36" text-anchor="middle" font-size="11" font-weight="700" fill="#9CA3AF" letter-spacing="0.12em">FIGURE 4.3</text>
+  <!-- Main title -->
+  <text x="600" y="62" text-anchor="middle" font-size="22" font-weight="800" fill="#111827">User Story Anatomy: Given / When / Then Acceptance Criteria</text>
+  <line x1="80" y1="76" x2="1120" y2="76" stroke="#E5E7EB" stroke-width="1.5"/>
+</g>
+
+<!-- LEFT panel outline (red border) — step 0 -->
+<g class="step-item" data-step="0">
+  <g transform="translate(30,88)">
+    <rect width="430" height="490" rx="14" fill="white" stroke="#ef4444" stroke-width="2.5" filter="url(#shadow)"/>
+    <!-- Red header bar -->
+    <rect width="430" height="52" rx="14" fill="#ef4444"/>
+    <rect y="26" width="430" height="26" fill="#ef4444"/>
+    <!-- X icon circle -->
+    <circle cx="54" cy="26" r="17" fill="white" fill-opacity="0.25"/>
+    <line x1="46" y1="18" x2="62" y2="34" stroke="white" stroke-width="3" stroke-linecap="round"/>
+    <line x1="62" y1="18" x2="46" y2="34" stroke="white" stroke-width="3" stroke-linecap="round"/>
+    <!-- Header label -->
+    <text x="215" y="22" text-anchor="middle" font-size="15" font-weight="800" fill="white" letter-spacing="0.06em">VAGUE STORY</text>
+    <text x="215" y="42" text-anchor="middle" font-size="12" fill="white" fill-opacity="0.85">Missing specificity and testability</text>
+  </g>
+</g>
+
+<!-- RIGHT panel outline (green border) — step 0 -->
+<g class="step-item" data-step="0">
+  <g transform="translate(600,88)">
+    <rect width="570" height="490" rx="14" fill="white" stroke="#16a34a" stroke-width="2.5" filter="url(#shadow)"/>
+    <!-- Green header bar -->
+    <rect width="570" height="52" rx="14" fill="#16a34a"/>
+    <rect y="26" width="570" height="26" fill="#16a34a"/>
+    <!-- Checkmark icon circle -->
+    <circle cx="54" cy="26" r="17" fill="white" fill-opacity="0.25"/>
+    <path d="M44,26 L51,33 L64,18" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Header label -->
+    <text x="285" y="22" text-anchor="middle" font-size="15" font-weight="800" fill="white" letter-spacing="0.06em">ARCHITECTURE-SPECIFIC STORY</text>
+    <text x="285" y="42" text-anchor="middle" font-size="12" fill="white" fill-opacity="0.85">RISEN + CLAUDE.md context applied</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 1: Left vague story text                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="1">
+  <g transform="translate(30,88)">
+    <!-- User icon row -->
+    <circle cx="56" cy="112" r="16" fill="#FEE2E2"/>
+    <!-- Person icon -->
+    <circle cx="56" cy="106" r="6" fill="#ef4444"/>
+    <path d="M42,124 C42,116 70,116 70,124" fill="#ef4444"/>
+    <!-- Story text bubble -->
+    <rect x="82" y="95" width="326" height="50" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+    <text x="96" y="115" font-size="12.5" fill="#374151" font-style="italic">"As a</text>
+    <text x="127" y="115" font-size="12.5" fill="#ef4444" font-weight="700">user,</text>
+    <text x="164" y="115" font-size="12.5" fill="#374151" font-style="italic">I want to</text>
+    <text x="96" y="134" font-size="12.5" fill="#374151" font-style="italic">send messages."</text>
+    <!-- Role label -->
+    <text x="56" y="140" text-anchor="middle" font-size="10" fill="#EF4444" font-weight="700">user</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 2: Left AC line "It should be fast."                       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="2">
+  <g transform="translate(30,88)">
+    <!-- AC section label -->
+    <text x="24" y="185" font-size="11" font-weight="700" fill="#9CA3AF" letter-spacing="0.08em">ACCEPTANCE CRITERIA</text>
+    <line x1="24" y1="192" x2="406" y2="192" stroke="#FCA5A5" stroke-width="1" stroke-dasharray="4,3"/>
+    <!-- Single vague AC item -->
+    <rect x="24" y="200" width="382" height="42" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+    <!-- Warning icon -->
+    <path d="M48,214 L58,232 L38,232 Z" fill="none" stroke="#F87171" stroke-width="1.8" stroke-linejoin="round"/>
+    <line x1="48" y1="219" x2="48" y2="225" stroke="#F87171" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="48" cy="228" r="1.3" fill="#F87171"/>
+    <!-- AC text -->
+    <text x="72" y="222" font-size="13" fill="#374151" font-style="italic">"It should be fast."</text>
+    <text x="72" y="237" font-size="11" fill="#9CA3AF">— No measurable threshold defined</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 3: Left quality checks row (all ✗ red)                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="3">
+  <g transform="translate(30,88)">
+    <!-- Divider -->
+    <line x1="24" y1="268" x2="406" y2="268" stroke="#E5E7EB" stroke-width="1"/>
+    <text x="215" y="283" text-anchor="middle" font-size="11" font-weight="600" fill="#9CA3AF" letter-spacing="0.06em">QUALITY CHECKS</text>
+
+    <!-- Observable ✗ -->
+    <rect x="24" y="292" width="118" height="52" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+    <text x="83" y="312" text-anchor="middle" font-size="11.5" fill="#6B7280" font-weight="600">Observable?</text>
+    <text x="83" y="332" text-anchor="middle" font-size="20" fill="#ef4444" font-weight="800">✗</text>
+
+    <!-- Measurable ✗ -->
+    <rect x="156" y="292" width="118" height="52" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+    <text x="215" y="312" text-anchor="middle" font-size="11.5" fill="#6B7280" font-weight="600">Measurable?</text>
+    <text x="215" y="332" text-anchor="middle" font-size="20" fill="#ef4444" font-weight="800">✗</text>
+
+    <!-- Testable ✗ -->
+    <rect x="288" y="292" width="118" height="52" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+    <text x="347" y="312" text-anchor="middle" font-size="11.5" fill="#6B7280" font-weight="600">Testable?</text>
+    <text x="347" y="332" text-anchor="middle" font-size="20" fill="#ef4444" font-weight="800">✗</text>
+
+    <!-- Fail summary badge -->
+    <rect x="80" y="358" width="270" height="28" rx="14" fill="#ef4444"/>
+    <text x="215" y="377" text-anchor="middle" font-size="12" font-weight="700" fill="white">Story rejected — not implementation-ready</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 4: Center arrow + label "RISEN + CLAUDE.md context"       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="4">
+  <!-- Arrow background pill -->
+  <rect x="468" y="268" width="118" height="90" rx="18" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5"/>
+  <!-- Arrow label top -->
+  <text x="527" y="287" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0E7490" letter-spacing="0.06em">RISEN +</text>
+  <text x="527" y="299" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0E7490" letter-spacing="0.04em">CLAUDE.md</text>
+  <text x="527" y="311" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0E7490" letter-spacing="0.04em">context</text>
+  <!-- Drawn arrow using pathLength="1" technique -->
+  <path class="arrow-draw" data-step="4" pathLength="1"
+        d="M476,328 L568,328"
+        fill="none" stroke="#6B7280" stroke-width="3" stroke-linecap="round"
+        marker-end="url(#arrowGray)"/>
+  <!-- Sparkle / transform icon -->
+  <text x="527" y="348" text-anchor="middle" font-size="18">⟹</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 5: Right story text (architecture-specific)               -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="5">
+  <g transform="translate(600,88)">
+    <!-- Headset/support agent icon circle -->
+    <circle cx="56" cy="112" r="18" fill="#DCFCE7"/>
+    <!-- Support agent icon (headset) -->
+    <circle cx="56" cy="108" r="5.5" fill="#16a34a"/>
+    <path d="M45,117 C45,110 67,110 67,117" fill="#16a34a"/>
+    <!-- Headset arc top -->
+    <path d="M49,108 Q49,100 56,100 Q63,100 63,108" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
+    <!-- Headset earpiece left -->
+    <rect x="46" y="107" width="5" height="8" rx="2.5" fill="#16a34a"/>
+    <!-- Headset earpiece right -->
+    <rect x="61" y="107" width="5" height="8" rx="2.5" fill="#16a34a"/>
+    <!-- Role label -->
+    <text x="56" y="142" text-anchor="middle" font-size="10" fill="#16a34a" font-weight="700">support agent</text>
+
+    <!-- Story text bubble -->
+    <rect x="86" y="92" width="462" height="66" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+    <text x="100" y="112" font-size="12" fill="#374151" font-style="italic">"As a</text>
+    <text x="130" y="112" font-size="12" fill="#16a34a" font-weight="700">customer support agent,</text>
+    <text x="100" y="128" font-size="12" fill="#374151" font-style="italic">I want incoming Line messages to appear in the</text>
+    <text x="100" y="144" font-size="12" fill="#374151" font-style="italic">unified inbox</text>
+    <text x="176" y="144" font-size="12" fill="#0891b2" font-weight="700">within 2 seconds.</text>
+    <text x="290" y="144" font-size="12" fill="#374151" font-style="italic">"</text>
+
+    <!-- AC section label -->
+    <text x="18" y="180" font-size="11" font-weight="700" fill="#9CA3AF" letter-spacing="0.08em">ACCEPTANCE CRITERIA</text>
+    <line x1="18" y1="187" x2="548" y2="187" stroke="#86EFAC" stroke-width="1" stroke-dasharray="4,3"/>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 6: Right Given row (blue)                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="6">
+  <g transform="translate(600,88)">
+    <rect x="18" y="196" width="534" height="46" rx="10" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1.5"/>
+    <!-- Given label pill -->
+    <rect x="18" y="196" width="64" height="46" rx="10" fill="#2563eb"/>
+    <rect x="54" y="196" width="28" height="46" fill="#2563eb"/>
+    <!-- Login icon in Given pill -->
+    <g transform="translate(29,207)" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10,14 L10,2 L18,2 L18,14"/>
+      <path d="M6,8 L2,12 L6,16"/>
+      <line x1="2" y1="12" x2="12" y2="12"/>
+    </g>
+    <text x="41" y="224" text-anchor="middle" font-size="10" font-weight="800" fill="white">GIVEN</text>
+    <!-- AC text -->
+    <text x="100" y="214" font-size="13" fill="#1D4ED8" font-weight="700">Given</text>
+    <text x="141" y="214" font-size="13" fill="#374151">operator is logged into the inbox</text>
+    <text x="100" y="232" font-size="11.5" fill="#6B7280">Precondition: authenticated session active</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 7: Right When row (orange)                                 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="7">
+  <g transform="translate(600,88)">
+    <rect x="18" y="252" width="534" height="46" rx="10" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.5"/>
+    <!-- When label pill -->
+    <rect x="18" y="252" width="64" height="46" rx="10" fill="#f59e0b"/>
+    <rect x="54" y="252" width="28" height="46" fill="#f59e0b"/>
+    <!-- Lightning bolt icon -->
+    <g transform="translate(30,260)" fill="none">
+      <path d="M14,2 L6,14 L11,14 L8,24 L18,10 L13,10 Z" fill="white" stroke="white" stroke-width="0.5" stroke-linejoin="round"/>
+    </g>
+    <text x="41" y="280" text-anchor="middle" font-size="10" font-weight="800" fill="white">WHEN</text>
+    <!-- AC text -->
+    <text x="100" y="270" font-size="13" fill="#D97706" font-weight="700">When</text>
+    <text x="140" y="270" font-size="13" fill="#374151">a Line message arrives</text>
+    <text x="100" y="288" font-size="11.5" fill="#6B7280">Trigger event: Line webhook POST received</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 8: Right Then row (teal)                                   -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="8">
+  <g transform="translate(600,88)">
+    <rect x="18" y="308" width="534" height="46" rx="10" fill="#F0FDFA" stroke="#99F6E4" stroke-width="1.5"/>
+    <!-- Then label pill -->
+    <rect x="18" y="308" width="64" height="46" rx="10" fill="#0891b2"/>
+    <rect x="54" y="308" width="28" height="46" fill="#0891b2"/>
+    <!-- Clock icon -->
+    <g transform="translate(30,318)" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="10" cy="10" r="9"/>
+      <line x1="10" y1="5" x2="10" y2="10"/>
+      <line x1="10" y1="10" x2="14" y2="13"/>
+    </g>
+    <text x="41" y="336" text-anchor="middle" font-size="10" font-weight="800" fill="white">THEN</text>
+    <!-- AC text -->
+    <text x="100" y="326" font-size="13" fill="#0E7490" font-weight="700">Then</text>
+    <text x="139" y="326" font-size="13" fill="#374151">message appears in inbox</text>
+    <text x="139" y="326" dx="218" font-size="13" fill="#0891b2" font-weight="700">within 2 seconds</text>
+    <text x="100" y="344" font-size="11.5" fill="#6B7280">Measured: p95 latency ≤ 2000 ms from webhook receipt</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 9: Right And row (purple)                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="9">
+  <g transform="translate(600,88)">
+    <rect x="18" y="364" width="534" height="46" rx="10" fill="#FAF5FF" stroke="#D8B4FE" stroke-width="1.5"/>
+    <!-- And label pill -->
+    <rect x="18" y="364" width="64" height="46" rx="10" fill="#7c3aed"/>
+    <rect x="54" y="364" width="28" height="46" fill="#7c3aed"/>
+    <!-- Audit/list icon -->
+    <g transform="translate(28,372)" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round">
+      <rect x="2" y="2" width="18" height="22" rx="2"/>
+      <line x1="6" y1="8" x2="16" y2="8"/>
+      <line x1="6" y1="13" x2="16" y2="13"/>
+      <line x1="6" y1="18" x2="12" y2="18"/>
+      <circle cx="4.5" cy="8" r="1" fill="white" stroke="none"/>
+      <circle cx="4.5" cy="13" r="1" fill="white" stroke="none"/>
+      <circle cx="4.5" cy="18" r="1" fill="white" stroke="none"/>
+    </g>
+    <text x="41" y="392" text-anchor="middle" font-size="10" font-weight="800" fill="white">AND</text>
+    <!-- AC text -->
+    <text x="100" y="382" font-size="13" fill="#6D28D9" font-weight="700">And</text>
+    <text x="133" y="382" font-size="13" fill="#374151">an audit event is recorded in the event log</text>
+    <text x="100" y="400" font-size="11.5" fill="#6B7280">Verifiable: audit_events table entry with message_id, timestamp, channel</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 10: Right quality checks row (all ✓ green)                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="10">
+  <g transform="translate(600,88)">
+    <!-- Divider -->
+    <line x1="18" y1="424" x2="550" y2="424" stroke="#E5E7EB" stroke-width="1"/>
+    <text x="285" y="440" text-anchor="middle" font-size="11" font-weight="600" fill="#9CA3AF" letter-spacing="0.06em">QUALITY CHECKS</text>
+
+    <!-- Observable ✓ -->
+    <rect x="18" y="448" width="162" height="52" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+    <text x="99" y="468" text-anchor="middle" font-size="11.5" fill="#6B7280" font-weight="600">Observable?</text>
+    <text x="99" y="490" text-anchor="middle" font-size="20" fill="#16a34a" font-weight="800">✓</text>
+
+    <!-- Measurable ✓ -->
+    <rect x="192" y="448" width="162" height="52" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+    <text x="273" y="468" text-anchor="middle" font-size="11.5" fill="#6B7280" font-weight="600">Measurable?</text>
+    <text x="273" y="490" text-anchor="middle" font-size="20" fill="#16a34a" font-weight="800">✓</text>
+
+    <!-- Testable ✓ -->
+    <rect x="366" y="448" width="162" height="52" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+    <text x="447" y="468" text-anchor="middle" font-size="11.5" fill="#6B7280" font-weight="600">Testable?</text>
+    <text x="447" y="490" text-anchor="middle" font-size="20" fill="#16a34a" font-weight="800">✓</text>
+  </g>
+</g>
+
+<!-- Pass badge — also step 10 -->
+<g class="badge-item" data-step="10">
+  <rect x="690" y="602" width="390" height="30" rx="15" fill="#16a34a"/>
+  <text x="885" y="622" text-anchor="middle" font-size="13" font-weight="700" fill="white">Story approved — implementation-ready ✓</text>
+</g>
+
+<!-- Fail reminder badge — step 3 -->
+<g class="step-item" data-step="3">
+  <!-- already rendered inside step 3 group above — left panel footer note -->
+  <text x="245" y="478" text-anchor="middle" font-size="11" fill="#EF4444" fill-opacity="0.7" font-style="italic">Rewrite with RISEN framework →</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- Bottom caption (step 10)                                        -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="10">
+  <text x="600" y="668" text-anchor="middle" font-size="11.5" fill="#6B7280">
+    RISEN prompting + CLAUDE.md context transforms vague stories into testable, architecture-specific acceptance criteria
+  </text>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 10</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+
+<script>
+const TOTAL = 10;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+    else el.classList.remove('visible');
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+
+document.getElementById('slide').addEventListener('contextmenu', e => {
+  e.preventDefault(); prevStep();
+});
+
+buildDots();
+nextStep(); // auto-show step 0
+</script>
+</body>
+</html>

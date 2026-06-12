@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 14.2 — File Ownership Map: Who Owns Which Directory</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+  .step-item { opacity:0; transform:scale(.88); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .5s ease, transform .5s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .badge-item { opacity:0; transform:scale(0); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw   { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+  @keyframes glowPulse { 0%,100%{opacity:.3} 50%{opacity:.8} }
+  #center-pulse.active { animation:glowPulse 2.8s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowSolid" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#374151"/>
+  </marker>
+  <marker id="arrowDash" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#9ca3af"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000022"/>
+  </filter>
+</defs>
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- STEP 0: Title -->
+<g class="step-item" data-step="0">
+  <text x="600" y="34" text-anchor="middle" font-size="21" font-weight="800" fill="#1F2937">File Ownership Map: Who Owns Which Directory</text>
+  <text x="600" y="54" text-anchor="middle" font-size="13" fill="#6B7280">Solid arrow = primary owner · Dashed arrow = can assist (cross-role collaboration)</text>
+</g>
+
+<!-- STEP 1: Team Lead / CLAUDE.md hub -->
+<g class="step-item" data-step="1">
+  <g transform="translate(456,68)">
+    <rect width="288" height="64" rx="14" fill="#fef9c3" stroke="#fde68a" stroke-width="2.5" filter="url(#shadow)"/>
+    <circle id="center-pulse" cx="30" cy="32" r="20" fill="#f59e0b"/>
+    <text x="30" y="38" text-anchor="middle" font-size="16">👑</text>
+    <text x="168" y="28" text-anchor="middle" font-size="14" font-weight="800" fill="#92400e">Team Lead / CLAUDE.md</text>
+    <text x="168" y="48" text-anchor="middle" font-size="10" fill="#78350f">Sets conventions · owns project-wide context</text>
+  </g>
+</g>
+
+<!-- STEP 2: PM Agent -->
+<g class="step-item" data-step="2">
+  <g transform="translate(28,210)">
+    <rect width="160" height="80" rx="12" fill="white" stroke="#86efac" stroke-width="2" filter="url(#shadow)"/>
+    <text x="80" y="28" text-anchor="middle" font-size="18">📋</text>
+    <text x="80" y="48" text-anchor="middle" font-size="12" font-weight="800" fill="#15803d">PM Agent</text>
+    <rect x="10" y="56" width="140" height="18" rx="6" fill="#dcfce7"/>
+    <text x="80" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">owns docs/product/</text>
+  </g>
+</g>
+<!-- Arrow: Lead → PM -->
+<path class="arrow-draw" data-step="2" pathLength="1"
+      d="M490,132 L110,210" fill="none" stroke="#374151" stroke-width="2" marker-end="url(#arrowSolid)"/>
+
+<!-- STEP 3: Architect Agent -->
+<g class="step-item" data-step="3">
+  <g transform="translate(228,210)">
+    <rect width="170" height="80" rx="12" fill="white" stroke="#93c5fd" stroke-width="2" filter="url(#shadow)"/>
+    <text x="85" y="28" text-anchor="middle" font-size="18">🏛️</text>
+    <text x="85" y="48" text-anchor="middle" font-size="12" font-weight="800" fill="#1d4ed8">Architect Agent</text>
+    <rect x="10" y="56" width="150" height="18" rx="6" fill="#dbeafe"/>
+    <text x="85" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#1d4ed8">owns docs/architecture/</text>
+  </g>
+</g>
+<path class="arrow-draw" data-step="3" pathLength="1"
+      d="M530,132 L315,210" fill="none" stroke="#374151" stroke-width="2" marker-end="url(#arrowSolid)"/>
+
+<!-- STEP 4: Developer Agent -->
+<g class="step-item" data-step="4">
+  <g transform="translate(510,210)">
+    <rect width="180" height="80" rx="12" fill="white" stroke="#fde68a" stroke-width="2" filter="url(#shadow)"/>
+    <text x="90" y="28" text-anchor="middle" font-size="18">&lt;/&gt;</text>
+    <text x="90" y="48" text-anchor="middle" font-size="12" font-weight="800" fill="#ca8a04">Developer Agent</text>
+    <rect x="10" y="56" width="160" height="18" rx="6" fill="#fef9c3"/>
+    <text x="90" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#ca8a04">owns internal/</text>
+  </g>
+</g>
+<path class="arrow-draw" data-step="4" pathLength="1"
+      d="M600,132 L600,210" fill="none" stroke="#374151" stroke-width="2" marker-end="url(#arrowSolid)"/>
+
+<!-- STEP 5: Tester Agent -->
+<g class="step-item" data-step="5">
+  <g transform="translate(748,210)">
+    <rect width="170" height="80" rx="12" fill="white" stroke="#f9a8d4" stroke-width="2" filter="url(#shadow)"/>
+    <text x="85" y="28" text-anchor="middle" font-size="18">🧪</text>
+    <text x="85" y="48" text-anchor="middle" font-size="12" font-weight="800" fill="#be185d">Tester Agent</text>
+    <rect x="10" y="56" width="150" height="18" rx="6" fill="#fce7f3"/>
+    <text x="85" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#be185d">owns tests/</text>
+  </g>
+</g>
+<path class="arrow-draw" data-step="5" pathLength="1"
+      d="M672,132 L835,210" fill="none" stroke="#374151" stroke-width="2" marker-end="url(#arrowSolid)"/>
+
+<!-- STEP 6: DevOps Agent -->
+<g class="step-item" data-step="6">
+  <g transform="translate(994,210)">
+    <rect width="178" height="80" rx="12" fill="white" stroke="#fca5a5" stroke-width="2" filter="url(#shadow)"/>
+    <text x="89" y="28" text-anchor="middle" font-size="18">♾️</text>
+    <text x="89" y="48" text-anchor="middle" font-size="12" font-weight="800" fill="#dc2626">DevOps Agent</text>
+    <rect x="10" y="56" width="158" height="18" rx="6" fill="#fef2f2"/>
+    <text x="89" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#dc2626">owns .github/workflows/</text>
+  </g>
+</g>
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M714,132 L1083,210" fill="none" stroke="#374151" stroke-width="2" marker-end="url(#arrowSolid)"/>
+
+<!-- STEP 7: Cross-role dashed assist arrows -->
+<!-- PM ↔ Architect assist -->
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M188,250 L228,250" fill="none" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowDash)"/>
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M228,260 L188,260" fill="none" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowDash)"/>
+<!-- Architect ↔ Developer assist -->
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M398,250 L510,250" fill="none" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowDash)"/>
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M510,260 L398,260" fill="none" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowDash)"/>
+<!-- Developer ↔ Tester assist -->
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M690,250 L748,250" fill="none" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowDash)"/>
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M748,260 L690,260" fill="none" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowDash)"/>
+<!-- Tester ↔ DevOps assist -->
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M918,250 L994,250" fill="none" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowDash)"/>
+<!-- DevOps → Developer assist (long) -->
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M994,280 L690,280" fill="none" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowDash)"/>
+
+<!-- STEP 8: Directory ownership cards row -->
+<g class="step-item" data-step="8">
+  <!-- PM owns -->
+  <g transform="translate(28,340)">
+    <rect width="160" height="70" rx="10" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/>
+    <text x="80" y="22" text-anchor="middle" font-size="16">📁</text>
+    <text x="80" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#15803d">docs/product/</text>
+    <text x="80" y="58" text-anchor="middle" font-size="9" fill="#6b7280">PRD, stories, roadmap</text>
+  </g>
+  <!-- Architect owns -->
+  <g transform="translate(228,340)">
+    <rect width="170" height="70" rx="10" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="85" y="22" text-anchor="middle" font-size="16">📁</text>
+    <text x="85" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">docs/architecture/</text>
+    <text x="85" y="58" text-anchor="middle" font-size="9" fill="#6b7280">ADRs, diagrams, ERDs</text>
+  </g>
+  <!-- Developer owns -->
+  <g transform="translate(510,340)">
+    <rect width="180" height="70" rx="10" fill="#fef9c3" stroke="#fde68a" stroke-width="1.5"/>
+    <text x="90" y="22" text-anchor="middle" font-size="16">📁</text>
+    <text x="90" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#ca8a04">internal/</text>
+    <text x="90" y="58" text-anchor="middle" font-size="9" fill="#6b7280">domain, services, adapters</text>
+  </g>
+  <!-- Tester owns -->
+  <g transform="translate(748,340)">
+    <rect width="170" height="70" rx="10" fill="#fce7f3" stroke="#f9a8d4" stroke-width="1.5"/>
+    <text x="85" y="22" text-anchor="middle" font-size="16">📁</text>
+    <text x="85" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#be185d">tests/</text>
+    <text x="85" y="58" text-anchor="middle" font-size="9" fill="#6b7280">unit, integration, e2e</text>
+  </g>
+  <!-- DevOps owns -->
+  <g transform="translate(994,340)">
+    <rect width="178" height="70" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+    <text x="89" y="22" text-anchor="middle" font-size="16">📁</text>
+    <text x="89" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">.github/workflows/</text>
+    <text x="89" y="58" text-anchor="middle" font-size="9" fill="#6b7280">CI/CD, deploy scripts</text>
+  </g>
+</g>
+
+<!-- Ownership arrows down from agent cards -->
+<path class="arrow-draw" data-step="8" pathLength="1" d="M108,290 L108,340" fill="none" stroke="#15803d" stroke-width="1.5" marker-end="url(#arrowSolid)"/>
+<path class="arrow-draw" data-step="8" pathLength="1" d="M313,290 L313,340" fill="none" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#arrowSolid)"/>
+<path class="arrow-draw" data-step="8" pathLength="1" d="M600,290 L600,340" fill="none" stroke="#ca8a04" stroke-width="1.5" marker-end="url(#arrowSolid)"/>
+<path class="arrow-draw" data-step="8" pathLength="1" d="M833,290 L833,340" fill="none" stroke="#be185d" stroke-width="1.5" marker-end="url(#arrowSolid)"/>
+<path class="arrow-draw" data-step="8" pathLength="1" d="M1083,290 L1083,340" fill="none" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arrowSolid)"/>
+
+<!-- STEP 9: Legend + bottom rule -->
+<g class="step-item" data-step="9">
+  <g transform="translate(28,440)">
+    <rect width="1144" height="120" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="572" y="24" text-anchor="middle" font-size="12" font-weight="800" fill="#1F2937">LEGEND &amp; OWNERSHIP RULES</text>
+    <!-- Legend items -->
+    <line x1="30" y1="46" x2="80" y2="46" stroke="#374151" stroke-width="2"/>
+    <path d="M74,42 L74,50 L82,46 z" fill="#374151"/>
+    <text x="90" y="50" font-size="11" fill="#374151">Solid arrow = owner (primary responsibility)</text>
+    <line x1="30" y1="68" x2="80" y2="68" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>
+    <path d="M74,64 L74,72 L82,68 z" fill="#9ca3af"/>
+    <text x="90" y="72" font-size="11" fill="#6b7280">Dashed arrow = can assist (cross-role collaboration)</text>
+    <!-- Rules -->
+    <text x="500" y="50" font-size="11" font-weight="700" fill="#1F2937">Rule 1:</text>
+    <text x="550" y="50" font-size="11" fill="#374151">Never overwrite another agent's primary directory without review</text>
+    <text x="500" y="70" font-size="11" font-weight="700" fill="#1F2937">Rule 2:</text>
+    <text x="550" y="70" font-size="11" fill="#374151">CLAUDE.md is the single source of ownership truth — update it first</text>
+    <text x="500" y="90" font-size="11" font-weight="700" fill="#1F2937">Rule 3:</text>
+    <text x="550" y="90" font-size="11" fill="#374151">Dashed assist requires explicit request — not autonomous overwrite</text>
+    <rect x="20" y="100" width="1104" height="14" rx="6" fill="#fef9c3"/>
+    <text x="572" y="111" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">Without an ownership map, conflicts happen fast — two agents editing the same file creates merge chaos</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 9</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+<script>
+const TOTAL = 9; let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) { const d = document.createElement('div'); d.className='dot'; d.id='dot-'+i; bar.appendChild(d); }
+}
+function showArrow(el) { el.style.transition='none'; el.style.opacity='0'; el.style.strokeDashoffset='1'; el.getBoundingClientRect(); el.style.transition='opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s'; el.style.opacity='1'; el.style.strokeDashoffset='0'; }
+function hideArrow(el) { el.style.transition='none'; el.style.opacity='0'; el.style.strokeDashoffset='1'; }
+function isArrow(el) { return el.classList.contains('arrow-draw')||el.classList.contains('arrow-dashed'); }
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step)<=step) { if(isArrow(el)) showArrow(el); else el.classList.add('visible'); }
+    else { if(isArrow(el)) hideArrow(el); else el.classList.remove('visible'); }
+  });
+  if (step>=1) document.getElementById('center-pulse')?.classList.add('active');
+  else document.getElementById('center-pulse')?.classList.remove('active');
+  for (let i=0;i<=TOTAL;i++) { const d=document.getElementById('dot-'+i); if(d) d.className='dot'+(i<step?' done':i===step?' active':''); }
+  document.getElementById('step-counter').textContent=`STEP ${step} / ${TOTAL}`;
+}
+function nextStep() { if (step<TOTAL){step++;render();} }
+function prevStep()  { if (step>0){step--;render();} }
+document.addEventListener('keydown', e=>{
+  if(e.key===' '||e.key==='ArrowRight'){e.preventDefault();nextStep();}
+  if(e.key==='ArrowLeft'){e.preventDefault();prevStep();}
+  if(e.key==='Home'){step=0;render();}
+  if(e.key==='End'){step=TOTAL;render();}
+});
+document.getElementById('slide').addEventListener('contextmenu',e=>{e.preventDefault();prevStep();});
+buildDots(); nextStep();
+</script>
+</body>
+</html>

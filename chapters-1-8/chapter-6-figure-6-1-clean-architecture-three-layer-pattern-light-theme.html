@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 6.1 — Clean Architecture: Three-Layer Pattern</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  .arrow-draw  { opacity:0; stroke-dasharray:1;         stroke-dashoffset:1; }
+  .arrow-dashed{ opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+
+  @keyframes dashFlow  { to { stroke-dashoffset:-20; } }
+  @keyframes glowPulse { 0%,100%{opacity:.2;r:52} 50%{opacity:.55;r:62} }
+  @keyframes rotateSlow{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes nodePing  { 0%,100%{opacity:0;r:5} 50%{opacity:.8;r:11} }
+
+  .spoke-line.visible  { animation:dashFlow 1.6s linear infinite; }
+  #center-pulse.active { animation:glowPulse 2.8s ease-in-out infinite; }
+  #center-ring.active  { animation:rotateSlow 12s linear infinite; opacity:.4; }
+  .ping-dot.active     { animation:nodePing 2.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/>
+  </marker>
+  <marker id="arrowPurple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000025"/>
+  </filter>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="4" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- Canvas background -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 0: Title + subtitle
+     ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="0">
+  <text x="430" y="36" text-anchor="middle" font-size="22" font-weight="800" fill="#1F2937">Clean Architecture: Three-Layer Pattern</text>
+  <text x="430" y="57" text-anchor="middle" font-size="13" fill="#6B7280">Handler → Service → Repository · Dependency Inversion</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 1: Outer oval — Handler Layer
+     ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="1">
+  <!-- Outer ellipse teal -->
+  <ellipse cx="420" cy="380" rx="380" ry="280" fill="#f0fdff" stroke="#0891b2" stroke-width="2.5" stroke-dasharray="none"/>
+  <!-- Layer label at top of ellipse -->
+  <rect x="280" y="94" width="280" height="30" rx="8" fill="#0891b2"/>
+  <text x="420" y="114" text-anchor="middle" font-size="12" font-weight="700" fill="white">Handler Layer · HTTP &amp; Delivery Concerns</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 2: Handler nodes — Request Parsing, Response Formatting, Validation
+     Three cards revealed together at same step
+     ═══════════════════════════════════════════════════════════ -->
+<!-- Request Parsing (left) -->
+<g class="step-item" data-step="2">
+  <g transform="translate(50,230)">
+    <rect width="140" height="58" rx="9" fill="white" stroke="#0891b2" stroke-width="2" filter="url(#shadow)"/>
+    <!-- HTTP icon badge -->
+    <rect x="6" y="7" width="36" height="18" rx="4" fill="#0891b2"/>
+    <text x="24" y="20" text-anchor="middle" font-size="8" font-weight="800" fill="white">HTTP</text>
+    <text x="70" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#1F2937">Request Parsing</text>
+    <text x="70" y="46" text-anchor="middle" font-size="9" fill="#6B7280">Parse &amp; validate input</text>
+  </g>
+</g>
+
+<!-- Response Formatting (right) -->
+<g class="step-item" data-step="2">
+  <g transform="translate(650,230)">
+    <rect width="150" height="58" rx="9" fill="white" stroke="#0891b2" stroke-width="2" filter="url(#shadow)"/>
+    <!-- {} icon badge -->
+    <rect x="6" y="7" width="32" height="18" rx="4" fill="#0891b2"/>
+    <text x="22" y="20" text-anchor="middle" font-size="9" font-weight="800" fill="white">{}</text>
+    <text x="75" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#1F2937">Response Format</text>
+    <text x="75" y="46" text-anchor="middle" font-size="9" fill="#6B7280">Serialize &amp; write JSON</text>
+  </g>
+</g>
+
+<!-- Validation (bottom-left of handler) -->
+<g class="step-item" data-step="2">
+  <g transform="translate(50,465)">
+    <rect width="140" height="58" rx="9" fill="white" stroke="#0891b2" stroke-width="2" filter="url(#shadow)"/>
+    <!-- checkmark icon badge -->
+    <rect x="6" y="7" width="32" height="18" rx="4" fill="#0891b2"/>
+    <text x="22" y="20" text-anchor="middle" font-size="10" font-weight="800" fill="white">✓</text>
+    <text x="70" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#1F2937">Validation</text>
+    <text x="70" y="46" text-anchor="middle" font-size="9" fill="#6B7280">Rules &amp; schema checks</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 3: "Depends on" arrow from Handler inward toward Service
+     Top-level path — NEVER inside step-item wrapper
+     ═══════════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="3" pathLength="1"
+      d="M 420,655 Q 420,620 420,590"
+      fill="none" stroke="#0891b2" stroke-width="2.5"
+      marker-end="url(#arrowTeal)"/>
+<!-- "Depends on" label -->
+<g class="step-item" data-step="3">
+  <g transform="translate(345,630)">
+    <rect width="150" height="22" rx="6" fill="#e0f7fa" stroke="#0891b2" stroke-width="1"/>
+    <text x="75" y="15" text-anchor="middle" font-size="10" font-weight="600" fill="#0891b2">Depends on ↑</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 4: Middle oval — Service Layer
+     ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="4">
+  <ellipse cx="420" cy="390" rx="270" ry="190" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+  <rect x="295" y="196" width="250" height="28" rx="8" fill="#2563eb"/>
+  <text x="420" y="215" text-anchor="middle" font-size="12" font-weight="700" fill="white">Service Layer · Business Logic</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 5: Service nodes — Normalization, Routing Logic, Failover Logic
+     Three cards at same step
+     ═══════════════════════════════════════════════════════════ -->
+<!-- Normalization -->
+<g class="step-item" data-step="5">
+  <g transform="translate(190,330)">
+    <rect width="130" height="52" rx="8" fill="white" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="65" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8">Normalization</text>
+    <text x="65" y="40" text-anchor="middle" font-size="9" fill="#6B7280">Canonical format</text>
+  </g>
+</g>
+
+<!-- Routing Logic -->
+<g class="step-item" data-step="5">
+  <g transform="translate(368,312)">
+    <rect width="130" height="52" rx="8" fill="white" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="65" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8">Routing Logic</text>
+    <text x="65" y="40" text-anchor="middle" font-size="9" fill="#6B7280">Dispatch decisions</text>
+  </g>
+</g>
+
+<!-- Failover Logic -->
+<g class="step-item" data-step="5">
+  <g transform="translate(548,330)">
+    <rect width="130" height="52" rx="8" fill="white" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="65" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8">Failover Logic</text>
+    <!-- 200 OK badge on card -->
+    <rect x="15" y="34" width="100" height="14" rx="4" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+    <text x="65" y="44" text-anchor="middle" font-size="8" font-weight="600" fill="#15803d">200 OK / Status Codes</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 6: Interface tags below Normalization and Routing Logic
+     badge-item spring pop
+     ═══════════════════════════════════════════════════════════ -->
+<!-- </> tag under Normalization -->
+<g class="badge-item" data-step="6">
+  <g transform="translate(232,387)">
+    <rect width="50" height="18" rx="5" fill="#0891b2"/>
+    <text x="25" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="white">&lt;/&gt;</text>
+  </g>
+</g>
+
+<!-- </> tag under Routing Logic -->
+<g class="badge-item" data-step="6">
+  <g transform="translate(410,369)">
+    <rect width="50" height="18" rx="5" fill="#0891b2"/>
+    <text x="25" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="white">&lt;/&gt;</text>
+  </g>
+</g>
+<!-- Interface label beside Normalization tag -->
+<g class="badge-item" data-step="6">
+  <g transform="translate(288,387)">
+    <text x="0" y="13" font-size="8" fill="#0891b2" font-style="italic">Interface</text>
+  </g>
+</g>
+<!-- Interface label beside Routing tag -->
+<g class="badge-item" data-step="6">
+  <g transform="translate(466,369)">
+    <text x="0" y="13" font-size="8" fill="#0891b2" font-style="italic">Interface</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 7: "Depends on" dashed arrow from Service inward
+     ═══════════════════════════════════════════════════════════ -->
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M 420,580 Q 420,550 420,516"
+      fill="none" stroke="#2563eb" stroke-width="2.5"
+      marker-end="url(#arrowBlue)"/>
+<!-- "Depends on" label -->
+<g class="step-item" data-step="7">
+  <g transform="translate(345,552)">
+    <rect width="150" height="22" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1"/>
+    <text x="75" y="15" text-anchor="middle" font-size="10" font-weight="600" fill="#2563eb">Depends on ↑</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 8: Inner oval — Repository Layer
+     ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="8">
+  <!-- Glow pulse ring -->
+  <ellipse id="center-pulse" cx="420" cy="410" rx="165" ry="105" fill="none" stroke="#7c3aed" stroke-width="2" opacity=".2"/>
+  <ellipse id="center-ring" cx="420" cy="410" rx="174" ry="112" fill="none" stroke="#7c3aed" stroke-width="1" stroke-dasharray="5 4"/>
+  <!-- Main ellipse -->
+  <ellipse cx="420" cy="410" rx="160" ry="100" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+  <rect x="290" y="307" width="260" height="28" rx="8" fill="#7c3aed"/>
+  <text x="420" y="326" text-anchor="middle" font-size="12" font-weight="700" fill="white">Repository Layer · Data &amp; Infrastructure</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 9: Repository icons — MongoDB, Redis, RabbitMQ
+     ═══════════════════════════════════════════════════════════ -->
+<!-- MongoDB -->
+<g class="step-item" data-step="9">
+  <g transform="translate(292,398)">
+    <circle cx="24" cy="24" r="24" fill="#13aa52" opacity=".15"/>
+    <circle cx="24" cy="24" r="18" fill="#13aa52"/>
+    <text x="24" y="21" text-anchor="middle" font-size="9" font-weight="800" fill="white">M</text>
+    <text x="24" y="32" text-anchor="middle" font-size="7" fill="white">DB</text>
+    <text x="24" y="56" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">MongoDB</text>
+  </g>
+</g>
+
+<!-- Redis -->
+<g class="step-item" data-step="9">
+  <g transform="translate(392,398)">
+    <circle cx="24" cy="24" r="24" fill="#dc2626" opacity=".15"/>
+    <circle cx="24" cy="24" r="18" fill="#dc2626"/>
+    <text x="24" y="21" text-anchor="middle" font-size="9" font-weight="800" fill="white">R</text>
+    <text x="24" y="32" text-anchor="middle" font-size="7" fill="white">DB</text>
+    <text x="24" y="56" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b">Redis</text>
+  </g>
+</g>
+
+<!-- RabbitMQ -->
+<g class="step-item" data-step="9">
+  <g transform="translate(492,398)">
+    <circle cx="24" cy="24" r="24" fill="#f97316" opacity=".15"/>
+    <circle cx="24" cy="24" r="18" fill="#f97316"/>
+    <text x="24" y="21" text-anchor="middle" font-size="9" font-weight="800" fill="white">MQ</text>
+    <text x="24" y="32" text-anchor="middle" font-size="6" fill="white">AMQP</text>
+    <text x="24" y="56" text-anchor="middle" font-size="9" font-weight="600" fill="#9a3412">RabbitMQ</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 10: Go Project Structure panel (right side)
+     ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="10">
+  <g transform="translate(840,75)">
+    <!-- Dark panel bg -->
+    <rect width="335" height="590" rx="12" fill="#1e293b" filter="url(#shadow)"/>
+    <!-- Header bar -->
+    <rect width="335" height="36" rx="12" fill="#0f172a"/>
+    <rect width="335" height="18" y="18" fill="#0f172a"/>
+    <!-- Window dots -->
+    <circle cx="18" cy="18" r="5" fill="#ef4444"/>
+    <circle cx="34" cy="18" r="5" fill="#f59e0b"/>
+    <circle cx="50" cy="18" r="5" fill="#22c55e"/>
+    <!-- Title -->
+    <text x="168" y="23" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">Go Project Structure</text>
+    <!-- File tree content -->
+    <!-- cmd/ -->
+    <text x="16" y="58" font-size="11" font-weight="700" fill="#e2e8f0" font-family="monospace">📁 cmd/</text>
+    <text x="32" y="76" font-size="10" fill="#94a3b8" font-family="monospace">└── main.go</text>
+    <!-- internal/ -->
+    <text x="16" y="100" font-size="11" font-weight="700" fill="#e2e8f0" font-family="monospace">📁 internal/</text>
+    <!-- handler/ -->
+    <text x="32" y="118" font-size="11" font-weight="600" fill="#0891b2" font-family="monospace">📁 handler/</text>
+    <text x="52" y="136" font-size="10" fill="#94a3b8" font-family="monospace">├── handler.go</text>
+    <text x="52" y="152" font-size="10" fill="#94a3b8" font-family="monospace">├── middleware.go</text>
+    <text x="52" y="168" font-size="10" fill="#94a3b8" font-family="monospace">└── dto.go</text>
+    <!-- service/ -->
+    <text x="32" y="192" font-size="11" font-weight="600" fill="#2563eb" font-family="monospace">📁 service/</text>
+    <text x="52" y="210" font-size="10" fill="#94a3b8" font-family="monospace">├── service.go</text>
+    <text x="52" y="226" font-size="10" fill="#94a3b8" font-family="monospace">├── router.go</text>
+    <text x="52" y="242" font-size="10" fill="#94a3b8" font-family="monospace">└── types.go</text>
+    <!-- repository/ -->
+    <text x="32" y="266" font-size="11" font-weight="600" fill="#7c3aed" font-family="monospace">📁 repository/</text>
+    <text x="52" y="284" font-size="10" fill="#94a3b8" font-family="monospace">├── repository.go</text>
+    <text x="52" y="300" font-size="10" fill="#94a3b8" font-family="monospace">├── mongo.go</text>
+    <text x="52" y="316" font-size="10" fill="#94a3b8" font-family="monospace">├── redis.go</text>
+    <text x="52" y="332" font-size="10" fill="#94a3b8" font-family="monospace">└── rabbitmq.go</text>
+    <!-- Divider -->
+    <line x1="16" y1="348" x2="319" y2="348" stroke="#334155" stroke-width="1"/>
+    <!-- Root files -->
+    <text x="16" y="368" font-size="10" fill="#94a3b8" font-family="monospace">📄 Dockerfile</text>
+    <text x="16" y="386" font-size="10" fill="#94a3b8" font-family="monospace">📄 Makefile</text>
+    <!-- Color legend inside panel -->
+    <line x1="16" y1="406" x2="319" y2="406" stroke="#334155" stroke-width="1"/>
+    <rect x="16" y="416" width="10" height="10" rx="2" fill="#0891b2"/>
+    <text x="32" y="426" font-size="9" fill="#94a3b8" font-family="monospace">Handler layer</text>
+    <rect x="16" y="432" width="10" height="10" rx="2" fill="#2563eb"/>
+    <text x="32" y="442" font-size="9" fill="#94a3b8" font-family="monospace">Service layer</text>
+    <rect x="16" y="448" width="10" height="10" rx="2" fill="#7c3aed"/>
+    <text x="32" y="458" font-size="9" fill="#94a3b8" font-family="monospace">Repository layer</text>
+    <!-- File count badge -->
+    <rect x="80" y="472" width="175" height="38" rx="8" fill="#0f172a"/>
+    <text x="168" y="488" text-anchor="middle" font-size="10" fill="#64748b">Generated by one prompt</text>
+    <text x="168" y="503" text-anchor="middle" font-size="13" font-weight="800" fill="#f8fafc">9 production files</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STEP 11: Dependencies legend (bottom-left) + badge
+     ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="11">
+  <!-- Legend panel -->
+  <g transform="translate(32,620)">
+    <rect width="300" height="68" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="150" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#374151">Dependencies Legend</text>
+    <!-- Solid arrow row -->
+    <line x1="12" y1="32" x2="46" y2="32" stroke="#0891b2" stroke-width="2.5"/>
+    <polygon points="46,28 54,32 46,36" fill="#0891b2"/>
+    <text x="60" y="36" font-size="9" fill="#4B5563">Inward Only (Handler → Service)</text>
+    <!-- Dashed arrow row -->
+    <line x1="12" y1="52" x2="46" y2="52" stroke="#2563eb" stroke-width="2" stroke-dasharray="5 3"/>
+    <polygon points="46,48 54,52 46,56" fill="#2563eb"/>
+    <text x="60" y="56" font-size="9" fill="#4B5563">Interface / Dependency Inversion</text>
+  </g>
+</g>
+
+<!-- "One prompt = 9 files" badge (bottom center) -->
+<g class="badge-item" data-step="11">
+  <g transform="translate(350,625)">
+    <rect width="210" height="50" rx="12" fill="#1e293b" filter="url(#shadow)"/>
+    <text x="105" y="22" text-anchor="middle" font-size="14">🚀</text>
+    <text x="105" y="40" text-anchor="middle" font-size="13" font-weight="800" fill="#f8fafc">One prompt = 9 files</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 11</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+
+<script>
+const TOTAL = 11;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function showArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1';
+  el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+}
+function isArrow(el) {
+  return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed');
+}
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) {
+      if (isArrow(el)) showArrow(el); else el.classList.add('visible');
+    } else {
+      if (isArrow(el)) hideArrow(el); else el.classList.remove('visible');
+    }
+  });
+  if (step >= 1) {
+    document.getElementById('center-pulse')?.classList.add('active');
+    document.getElementById('center-ring')?.classList.add('active');
+  } else {
+    document.getElementById('center-pulse')?.classList.remove('active');
+    document.getElementById('center-ring')?.classList.remove('active');
+  }
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 3.1 — Hook Lifecycle: PreToolUse, PostToolUse, and Stop Hook Sequence</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F8F9FA; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  /* step-item: fade + scale for actor boxes */
+  .step-item { opacity:0; transform:scale(.92); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .45s ease, transform .45s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  /* arrow-draw: uses pathLength="1" so dashoffset goes 1→0 regardless of pixel length */
+  .arrow-draw {
+    opacity: 0;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: opacity 0.05s ease, stroke-dashoffset 0.55s ease;
+  }
+  .arrow-draw.visible {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+
+  /* dashed arrows use a different class — visible from start, drawn with pathLength trick */
+  .arrow-dashed {
+    opacity: 0;
+    stroke-dasharray: 0.06 0.03;  /* dash pattern as fraction of pathLength=1 */
+    stroke-dashoffset: 1;
+    transition: opacity 0.05s ease, stroke-dashoffset 0.55s ease;
+  }
+  .arrow-dashed.visible {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .badge-item { opacity:0; transform:scale(0); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  .label-fade { opacity:0; transition:opacity .35s ease .15s; }
+  .label-fade.visible { opacity:1; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr-gray"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#9ca3af"/></marker>
+  <marker id="arr-orange" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#f59e0b"/></marker>
+  <marker id="arr-green"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#22c55e"/></marker>
+  <marker id="arr-red"    markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#ef4444"/></marker>
+  <marker id="arr-blue"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#3b82f6"/></marker>
+  <marker id="arr-teal"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#0891b2"/></marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000018"/>
+  </filter>
+</defs>
+
+<!-- ════ BACKGROUND ════ -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- ════ STEP 0: Title + actors + lifelines ════ -->
+<g class="step-item" data-step="0">
+  <text x="600" y="36" text-anchor="middle" font-size="16" font-weight="800" fill="#111827">Figure 3.1  Hook Lifecycle: PreToolUse, PostToolUse, and Stop Hook Sequence</text>
+</g>
+
+<!-- Actor 1: User x=120 -->
+<g class="step-item" data-step="0">
+  <rect x="72"  y="50" width="96"  height="6" rx="3" fill="#6b7280"/>
+  <rect x="72"  y="56" width="96"  height="56" rx="8" fill="white" stroke="#6b7280" stroke-width="1.5" filter="url(#shadow)"/>
+  <circle cx="120" cy="74" r="10" fill="#6b7280" opacity=".2"/>
+  <circle cx="120" cy="71" r="6"  fill="#6b7280"/>
+  <path d="M106,100 Q109,90 120,90 Q131,90 134,100" fill="#6b7280" opacity=".7"/>
+  <text x="120" y="122" text-anchor="middle" font-size="11" font-weight="700" fill="#374151">User</text>
+  <line x1="120" y1="112" x2="120" y2="620" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="5,4"/>
+</g>
+
+<!-- Actor 2: Claude Code x=310 -->
+<g class="step-item" data-step="0">
+  <rect x="258" y="50" width="104" height="6" rx="3" fill="#3b82f6"/>
+  <rect x="258" y="56" width="104" height="56" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="310" y="88" text-anchor="middle" font-size="20" fill="#3b82f6" font-family="monospace" font-weight="700">&lt;/&gt;</text>
+  <text x="310" y="122" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Claude Code</text>
+  <line x1="310" y1="112" x2="310" y2="620" stroke="#bfdbfe" stroke-width="1.5" stroke-dasharray="5,4"/>
+</g>
+
+<!-- Actor 3: PreToolUse Hook x=500 -->
+<g class="step-item" data-step="0">
+  <rect x="440" y="50" width="120" height="6" rx="3" fill="#f59e0b"/>
+  <rect x="440" y="56" width="120" height="56" rx="8" fill="white" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
+  <path d="M500,63 L514,68 L514,77 Q514,87 500,93 Q486,87 486,77 L486,68 Z" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <path d="M495,77 L499,81 L507,73" stroke="#f59e0b" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <text x="500" y="122" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">PreToolUse Hook</text>
+  <line x1="500" y1="112" x2="500" y2="620" stroke="#fde68a" stroke-width="1.5" stroke-dasharray="5,4"/>
+</g>
+
+<!-- Actor 4: Tool Execution x=700 -->
+<g class="step-item" data-step="0">
+  <rect x="642" y="50" width="116" height="6" rx="3" fill="#6b7280"/>
+  <rect x="642" y="56" width="116" height="56" rx="8" fill="white" stroke="#6b7280" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="676" y="60" width="48" height="34" rx="4" fill="#1f2937"/>
+  <text x="700" y="74" text-anchor="middle" font-size="10" fill="#4ade80" font-family="monospace">&gt;_</text>
+  <line x1="680" y1="80" x2="720" y2="80" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="700" y="122" text-anchor="middle" font-size="10" font-weight="700" fill="#374151">Tool Execution</text>
+  <line x1="700" y1="112" x2="700" y2="620" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="5,4"/>
+</g>
+
+<!-- Actor 5: PostToolUse Hook x=890 -->
+<g class="step-item" data-step="0">
+  <rect x="828" y="50" width="124" height="6" rx="3" fill="#0891b2"/>
+  <rect x="828" y="56" width="124" height="56" rx="8" fill="white" stroke="#0891b2" stroke-width="1.5" filter="url(#shadow)"/>
+  <path d="M890,63 L904,68 L904,77 Q904,87 890,93 Q876,87 876,77 L876,68 Z" fill="#cffafe" stroke="#0891b2" stroke-width="1.5"/>
+  <path d="M884,77 L888,82 L896,72" stroke="#0891b2" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="890" y="122" text-anchor="middle" font-size="10" font-weight="700" fill="#0e7490">PostToolUse Hook</text>
+  <line x1="890" y1="112" x2="890" y2="620" stroke="#a5f3fc" stroke-width="1.5" stroke-dasharray="5,4"/>
+</g>
+
+<!-- Actor 6: Stop Hook x=1080 -->
+<g class="step-item" data-step="0">
+  <rect x="1024" y="50" width="112" height="6" rx="3" fill="#ef4444"/>
+  <rect x="1024" y="56" width="112" height="56" rx="8" fill="white" stroke="#ef4444" stroke-width="1.5" filter="url(#shadow)"/>
+  <polygon points="1069,63 1091,63 1100,72 1100,93 1091,102 1069,102 1060,93 1060,72" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+  <rect x="1077" y="74" width="6" height="14" rx="3" fill="#ef4444"/>
+  <rect x="1077" y="92" width="6" height="5"  rx="2.5" fill="#ef4444"/>
+  <text x="1080" y="122" text-anchor="middle" font-size="11" font-weight="700" fill="#b91c1c">Stop Hook</text>
+  <line x1="1080" y1="112" x2="1080" y2="620" stroke="#fca5a5" stroke-width="1.5" stroke-dasharray="5,4"/>
+</g>
+
+<!-- ════ STEP 1: User → Claude Code "Request" ════ -->
+<!-- path uses pathLength="1" so dashoffset 1→0 draws the line regardless of pixel length -->
+<path class="arrow-draw" data-step="1"
+      d="M125,170 L302,170" pathLength="1"
+      stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#arr-gray)"/>
+<text class="label-fade" data-step="1"
+      x="213" y="163" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="600">Request</text>
+
+<!-- ════ STEP 2: Claude Code → PreToolUse "Validate" ════ -->
+<path class="arrow-draw" data-step="2"
+      d="M315,205 L492,205" pathLength="1"
+      stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arr-orange)"/>
+<text class="label-fade" data-step="2"
+      x="403" y="198" text-anchor="middle" font-size="11" fill="#d97706" font-weight="600">Validate</text>
+
+<!-- ════ STEP 3: PreToolUse → Claude Code "Allow" (green) ════ -->
+<path class="arrow-draw" data-step="3"
+      d="M492,242 L318,242" pathLength="1"
+      stroke="#22c55e" stroke-width="2" fill="none" marker-end="url(#arr-green)"/>
+<text class="label-fade" data-step="3"
+      x="403" y="235" text-anchor="middle" font-size="11" fill="#16a34a" font-weight="600">Allow</text>
+<g class="badge-item" data-step="3">
+  <circle cx="455" cy="242" r="10" fill="#22c55e"/>
+  <path d="M450,242 L454,246 L461,238" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+
+<!-- ════ STEP 4: PreToolUse → Claude Code "Block" (red dashed) ════ -->
+<!-- dashed style: use stroke-dasharray as repeating pattern, pathLength drives draw-on -->
+<path class="arrow-dashed" data-step="4"
+      d="M492,278 L318,278" pathLength="1"
+      stroke="#ef4444" stroke-width="2" fill="none" marker-end="url(#arr-red)"/>
+<text class="label-fade" data-step="4"
+      x="403" y="271" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="600">Block</text>
+<g class="badge-item" data-step="4">
+  <circle cx="455" cy="278" r="10" fill="#ef4444"/>
+  <path d="M451,274 L459,282 M459,274 L451,282" stroke="white" stroke-width="2" stroke-linecap="round"/>
+</g>
+
+<!-- ════ STEP 5: Claude Code → Tool Execution "Execute" ════ -->
+<path class="arrow-draw" data-step="5"
+      d="M315,318 L692,318" pathLength="1"
+      stroke="#3b82f6" stroke-width="2" fill="none" marker-end="url(#arr-blue)"/>
+<text class="label-fade" data-step="5"
+      x="503" y="311" text-anchor="middle" font-size="11" fill="#2563eb" font-weight="600">Execute</text>
+
+<!-- ════ STEP 6: Tool Execution → PostToolUse "Result" ════ -->
+<path class="arrow-draw" data-step="6"
+      d="M708,355 L882,355" pathLength="1"
+      stroke="#0891b2" stroke-width="2" fill="none" marker-end="url(#arr-teal)"/>
+<text class="label-fade" data-step="6"
+      x="795" y="348" text-anchor="middle" font-size="11" fill="#0e7490" font-weight="600">Result</text>
+
+<!-- ════ STEP 7: PostToolUse → Claude Code "Auto-test" ════ -->
+<path class="arrow-draw" data-step="7"
+      d="M882,392 L318,392" pathLength="1"
+      stroke="#0891b2" stroke-width="2" fill="none" marker-end="url(#arr-teal)"/>
+<text class="label-fade" data-step="7"
+      x="598" y="385" text-anchor="middle" font-size="11" fill="#0e7490" font-weight="600">Auto-test</text>
+
+<!-- ════ STEP 8: PostToolUse → Claude Code "Pass/Fail" (dashed teal) ════ -->
+<path class="arrow-dashed" data-step="8"
+      d="M882,428 L318,428" pathLength="1"
+      stroke="#0891b2" stroke-width="2" fill="none" marker-end="url(#arr-teal)"/>
+<text class="label-fade" data-step="8"
+      x="598" y="421" text-anchor="middle" font-size="11" fill="#0e7490" font-weight="600">Pass / Fail</text>
+
+<!-- ════ STEP 9: Claude Code → Stop Hook "Quality gate" ════ -->
+<path class="arrow-draw" data-step="9"
+      d="M318,465 L1072,465" pathLength="1"
+      stroke="#ef4444" stroke-width="2" fill="none" marker-end="url(#arr-red)"/>
+<text class="label-fade" data-step="9"
+      x="693" y="458" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="600">Quality gate</text>
+
+<!-- ════ STEP 10: Stop Hook → Claude Code "Gate Passed" (green) ════ -->
+<path class="arrow-draw" data-step="10"
+      d="M1072,503 L318,503" pathLength="1"
+      stroke="#22c55e" stroke-width="2" fill="none" marker-end="url(#arr-green)"/>
+<text class="label-fade" data-step="10"
+      x="693" y="496" text-anchor="middle" font-size="11" fill="#16a34a" font-weight="600">Gate Passed</text>
+<g class="badge-item" data-step="10">
+  <circle cx="1040" cy="503" r="10" fill="#22c55e"/>
+  <path d="M1035,503 L1039,507 L1046,499" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+
+<!-- ════ STEP 11: Stop Hook → Claude Code "Gate Failed" (red dashed) ════ -->
+<path class="arrow-dashed" data-step="11"
+      d="M1072,538 L318,538" pathLength="1"
+      stroke="#ef4444" stroke-width="2" fill="none" marker-end="url(#arr-red)"/>
+<text class="label-fade" data-step="11"
+      x="693" y="531" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="600">Gate Failed</text>
+<g class="badge-item" data-step="11">
+  <circle cx="1040" cy="538" r="10" fill="#ef4444"/>
+  <path d="M1036,534 L1044,542 M1044,534 L1036,542" stroke="white" stroke-width="2" stroke-linecap="round"/>
+</g>
+
+<!-- ════ STEP 12: Summary banner ════ -->
+<g class="step-item" data-step="12">
+  <rect x="100" y="585" width="1000" height="50" rx="10" fill="#f0f9ff" stroke="#0891b2" stroke-width="1.5" filter="url(#shadow)"/>
+  <circle cx="132" cy="610" r="13" fill="#0891b2"/>
+  <text x="132" y="615" text-anchor="middle" font-size="13" fill="white" font-weight="800">i</text>
+  <text x="620" y="606" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7490">Hooks intercept every tool call — validate before, audit after, gate at stop</text>
+  <text x="620" y="624" text-anchor="middle" font-size="11" fill="#64748b">PreToolUse blocks · PostToolUse auto-tests · Stop Hook enforces quality gates</text>
+</g>
+
+</svg>
+</div>
+
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 12</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+
+<script>
+const TOTAL = 12;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+    else el.classList.remove('visible');
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+
+document.getElementById('slide').addEventListener('contextmenu', e => {
+  e.preventDefault(); prevStep();
+});
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

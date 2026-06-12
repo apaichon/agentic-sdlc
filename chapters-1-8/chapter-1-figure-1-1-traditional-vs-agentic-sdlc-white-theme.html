@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traditional SDLC vs. Agentic SDLC Pipeline Comparison</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#1a1a2e; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  #click-hint { margin-top:14px; font-size:13px; color:#94a3b8; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#334155; border:1px solid #475569; border-radius:6px; padding:2px 10px; font-size:12px; color:#cbd5e1; }
+  #step-counter { font-size:12px; color:#64748b; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#334155; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#38BDF8; transform:scale(1.4); }
+
+  /* ── reveal classes ── */
+  .step-item { opacity:0; transform:scale(.88); transform-origin:center; transition:opacity .5s ease, transform .5s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .arrow-draw { opacity:0; stroke-dashoffset:200; transition:opacity .1s, stroke-dashoffset .6s ease; }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+
+  .badge-item { opacity:0; transform:scale(0); transform-origin:center; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  /* ── continuous ── */
+  @keyframes dashFlow   { to { stroke-dashoffset:-24; } }
+  @keyframes glowPulse  { 0%,100%{opacity:.15} 50%{opacity:.5} }
+  @keyframes rotateSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes nodePing   { 0%,100%{opacity:0;r:6} 50%{opacity:.7;r:13} }
+  @keyframes slideDown  { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeRight  { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+
+  .spoke-line.visible { animation:dashFlow 1.8s linear infinite; }
+  #ai-glow.active     { animation:glowPulse 2.8s ease-in-out infinite; }
+  #ai-ring.active     { animation:rotateSlow 10s linear infinite; opacity:.35; }
+  .ping-dot.active    { animation:nodePing 2.4s ease-in-out infinite; }
+
+  .trad-arrow.visible { animation:none; } /* static draw-on only */
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Traditional side arrows (gray) -->
+  <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#9CA3AF"/>
+  </marker>
+  <!-- Agentic side arrows (teal) -->
+  <marker id="arrowTeal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowTealR" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto-start-reverse">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <!-- filters -->
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000025"/>
+  </filter>
+  <filter id="glowF" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glowSm" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="4" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- ════════════════════════════════════
+     BACKGROUND
+════════════════════════════════════ -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+<!-- Left column bg -->
+<rect x="20" y="70" width="540" height="610" rx="18" fill="white" stroke="#E5E7EB" stroke-width="1.5" opacity=".7"/>
+<!-- Right column bg -->
+<rect x="640" y="70" width="540" height="610" rx="18" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="1.5" opacity=".7"/>
+<!-- Divider -->
+<line x1="600" y1="80" x2="600" y2="670" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="6 4"/>
+
+<!-- ════════════════════════════════════
+     STEP 0 — TITLE
+════════════════════════════════════ -->
+<g id="title-group" class="step-item" data-step="0">
+  <text x="600" y="38" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="24" font-weight="800" fill="#1F2937">
+    Traditional SDLC vs. Agentic SDLC Pipeline Comparison
+  </text>
+  <!-- Column headers -->
+  <rect x="20" y="70" width="540" height="36" rx="18" fill="#F3F4F6"/>
+  <text x="290" y="93" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="15" font-weight="700" fill="#4B5563">Traditional SDLC</text>
+
+  <rect x="640" y="70" width="540" height="36" rx="18" fill="#0891b2"/>
+  <text x="910" y="93" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="15" font-weight="700" fill="white">Agentic SDLC</text>
+
+  <!-- Legend -->
+  <rect x="30" y="648" width="14" height="14" rx="3" fill="#9CA3AF"/>
+  <text x="50" y="660" font-size="11" fill="#6B7280" font-family="system-ui,-apple-system,sans-serif">Traditional: Sequential, Siloed, Handoffs</text>
+  <rect x="340" y="648" width="14" height="14" rx="3" fill="#0891b2"/>
+  <text x="360" y="660" font-size="11" fill="#6B7280" font-family="system-ui,-apple-system,sans-serif">Agentic: Collaborative, AI-Augmented, Parallel</text>
+  <circle cx="660" cy="655" r="5" fill="#38BDF8"/>
+  <text x="672" y="660" font-size="11" fill="#6B7280" font-family="system-ui,-apple-system,sans-serif">AI Sub-Agent Assist</text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 1 — LEFT COLUMN SHELL: "Linear / Siloed" label
+════════════════════════════════════ -->
+<g id="trad-shell" class="step-item" data-step="1">
+  <text x="55" y="185" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#9CA3AF" font-weight="600" letter-spacing=".06em">LINEAR</text>
+  <text x="55" y="200" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#9CA3AF" font-weight="600" letter-spacing=".06em">HANDOFFS</text>
+  <text x="55" y="350" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#9CA3AF" font-weight="600" letter-spacing=".06em">SILOED</text>
+  <text x="55" y="365" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#9CA3AF" font-weight="600" letter-spacing=".06em">WORK</text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 2 — TRADITIONAL: PM node
+════════════════════════════════════ -->
+<g id="trad-pm" class="step-item" data-step="2" filter="url(#shadow)">
+  <rect x="150" y="115" width="280" height="80" rx="14" fill="white" stroke="#D1D5DB" stroke-width="2"/>
+  <rect x="150" y="115" width="280" height="36" rx="14" fill="#6B7280"/>
+  <rect x="150" y="135" width="280" height="16" fill="#6B7280"/>
+  <!-- clipboard icon -->
+  <rect x="168" y="122" width="18" height="22" rx="3" fill="none" stroke="white" stroke-width="1.5"/>
+  <rect x="173" y="119" width="8" height="6" rx="2" fill="white"/>
+  <line x1="171" y1="130" x2="183" y2="130" stroke="white" stroke-width="1.1"/>
+  <line x1="171" y1="135" x2="183" y2="135" stroke="white" stroke-width="1.1"/>
+  <line x1="171" y1="140" x2="179" y2="140" stroke="white" stroke-width="1.1"/>
+  <text x="198" y="133" font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" font-weight="700" fill="white">PM</text>
+  <text x="198" y="147" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#D1D5DB">Requirements &amp; Planning</text>
+  <!-- body text -->
+  <text x="175" y="170" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#6B7280">• Waterfall planning</text>
+  <text x="175" y="185" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#6B7280">• Static requirements doc</text>
+</g>
+
+<!-- STEP 3 — trad arrow PM→Dev -->
+<line id="arr-trad-1" class="arrow-draw trad-arrow" data-step="3"
+      x1="290" y1="195" x2="290" y2="225"
+      stroke="#9CA3AF" stroke-width="2.5" stroke-dasharray="200"
+      marker-end="url(#arrowGray)"/>
+
+<!-- STEP 3 — TRADITIONAL: Developer node -->
+<g id="trad-dev" class="step-item" data-step="3" filter="url(#shadow)">
+  <rect x="150" y="225" width="280" height="80" rx="14" fill="white" stroke="#D1D5DB" stroke-width="2"/>
+  <rect x="150" y="225" width="280" height="36" rx="14" fill="#4B5563"/>
+  <rect x="150" y="245" width="280" height="16" fill="#4B5563"/>
+  <text x="168" y="244" font-family="monospace" font-size="18" fill="white" font-weight="700">&lt;/&gt;</text>
+  <text x="198" y="242" font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" font-weight="700" fill="white">Developer</text>
+  <text x="198" y="257" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#D1D5DB">Implementation &amp; Coding</text>
+  <text x="175" y="280" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#6B7280">• Sequential sprints</text>
+  <text x="175" y="295" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#6B7280">• Manual code review</text>
+</g>
+
+<!-- STEP 4 — trad arrow Dev→Tester -->
+<line id="arr-trad-2" class="arrow-draw trad-arrow" data-step="4"
+      x1="290" y1="305" x2="290" y2="335"
+      stroke="#9CA3AF" stroke-width="2.5" stroke-dasharray="200"
+      marker-end="url(#arrowGray)"/>
+
+<!-- STEP 4 — TRADITIONAL: Tester node -->
+<g id="trad-test" class="step-item" data-step="4" filter="url(#shadow)">
+  <rect x="150" y="335" width="280" height="80" rx="14" fill="white" stroke="#D1D5DB" stroke-width="2"/>
+  <rect x="150" y="335" width="280" height="36" rx="14" fill="#374151"/>
+  <rect x="150" y="355" width="280" height="16" fill="#374151"/>
+  <!-- checkmark icon -->
+  <circle cx="178" cy="350" r="10" fill="none" stroke="white" stroke-width="1.8"/>
+  <polyline points="172,350 176,354 185,344" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <text x="198" y="352" font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" font-weight="700" fill="white">Tester</text>
+  <text x="198" y="367" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#D1D5DB">Testing &amp; Quality Assurance</text>
+  <text x="175" y="390" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#6B7280">• Manual test cycles</text>
+  <text x="175" y="405" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#6B7280">• Late-stage bug discovery</text>
+</g>
+
+<!-- STEP 5 — trad arrow Tester→DevOps -->
+<line id="arr-trad-3" class="arrow-draw trad-arrow" data-step="5"
+      x1="290" y1="415" x2="290" y2="445"
+      stroke="#9CA3AF" stroke-width="2.5" stroke-dasharray="200"
+      marker-end="url(#arrowGray)"/>
+
+<!-- STEP 5 — TRADITIONAL: DevOps node -->
+<g id="trad-devops" class="step-item" data-step="5" filter="url(#shadow)">
+  <rect x="150" y="445" width="280" height="80" rx="14" fill="white" stroke="#D1D5DB" stroke-width="2"/>
+  <rect x="150" y="445" width="280" height="36" rx="14" fill="#1F2937"/>
+  <rect x="150" y="465" width="280" height="16" fill="#1F2937"/>
+  <!-- gear icon rough -->
+  <circle cx="178" cy="460" r="9" fill="none" stroke="white" stroke-width="2"/>
+  <circle cx="178" cy="460" r="4" fill="white"/>
+  <text x="198" y="462" font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" font-weight="700" fill="white">DevOps</text>
+  <text x="198" y="477" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#D1D5DB">Deployment &amp; Operations</text>
+  <text x="175" y="500" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#6B7280">• Siloed deployments</text>
+  <text x="175" y="515" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#6B7280">• Manual pipelines</text>
+</g>
+
+<!-- STEP 5 — pain label -->
+<g id="trad-pain" class="badge-item" data-step="5">
+  <rect x="40" y="545" width="520" height="32" rx="8" fill="#FEF3C7" stroke="#FCD34D" stroke-width="1.2"/>
+  <text x="300" y="565" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#92400E">
+    ⚠ Slow feedback loops · Late bug discovery · Integration failures at handoffs
+  </text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 6 — AGENTIC: Claude Code hub
+════════════════════════════════════ -->
+<!-- idle glow ring -->
+<circle id="ai-glow" cx="910" cy="370" r="58" fill="#0891b2" opacity="0"/>
+<!-- idle rotate ring -->
+<g transform="translate(910,370)">
+  <circle id="ai-ring" r="62" fill="none" stroke="#0891b2" stroke-width="1.2"
+          stroke-dasharray="10 18" opacity="0" transform-origin="0 0"/>
+</g>
+
+<g id="ai-hub" class="step-item" data-step="6" filter="url(#glowF)">
+  <circle cx="910" cy="370" r="54" fill="#0C4A6E"/>
+  <circle cx="910" cy="370" r="54" fill="none" stroke="#0891b2" stroke-width="3"/>
+  <!-- brain / AI icon -->
+  <circle cx="910" cy="362" r="20" fill="#0891b2" opacity=".9"/>
+  <text x="910" y="369" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="900" fill="white">AI</text>
+  <!-- chip pins -->
+  <line x1="886" y1="360" x2="880" y2="360" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="886" y1="368" x2="880" y2="368" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="886" y1="376" x2="880" y2="376" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="934" y1="360" x2="940" y2="360" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="934" y1="368" x2="940" y2="368" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="934" y1="376" x2="940" y2="376" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="900" y1="338" x2="900" y2="332" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="910" y1="338" x2="910" y2="332" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="920" y1="338" x2="920" y2="332" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="900" y1="402" x2="900" y2="408" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="910" y1="402" x2="910" y2="408" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="920" y1="402" x2="920" y2="408" stroke="#38BDF8" stroke-width="2"/>
+  <text x="910" y="424" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="800" fill="#38BDF8">Claude Code</text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 7 — AGENTIC: PM spoke + node
+════════════════════════════════════ -->
+<!-- spoke -->
+<line id="spoke-ai-pm" class="arrow-draw spoke-line" data-step="7"
+      x1="876" y1="337" x2="770" y2="215"
+      stroke="#0891b2" stroke-width="2.2" stroke-dasharray="200"
+      marker-end="url(#arrowTeal)" marker-start="url(#arrowTealR)"/>
+<!-- ping dot -->
+<circle class="ping-dot" cx="770" cy="215" r="6" fill="#38BDF8" opacity="0" data-step="7"/>
+
+<g id="ai-pm" class="step-item" data-step="7" filter="url(#shadow)">
+  <rect x="660" y="115" width="220" height="80" rx="14" fill="white" stroke="#0891b2" stroke-width="2"/>
+  <rect x="660" y="115" width="220" height="36" rx="14" fill="#0891b2"/>
+  <rect x="660" y="135" width="220" height="16" fill="#0891b2"/>
+  <!-- clipboard -->
+  <rect x="676" y="122" width="16" height="20" rx="3" fill="none" stroke="white" stroke-width="1.5"/>
+  <rect x="681" y="119" width="6" height="6" rx="2" fill="white"/>
+  <text x="700" y="133" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="white">PM</text>
+  <text x="700" y="147" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#BAE6FD">Requirements &amp; Planning</text>
+  <text x="676" y="170" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#0891b2">• AI-drafted PRDs</text>
+  <text x="676" y="184" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#0891b2">• Live requirement updates</text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 8 — AGENTIC: Developer spoke + node
+════════════════════════════════════ -->
+<line id="spoke-ai-dev" class="arrow-draw spoke-line" data-step="8"
+      x1="858" y1="370" x2="760" y2="370"
+      stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="200"
+      marker-end="url(#arrowTeal)" marker-start="url(#arrowTealR)"/>
+<circle class="ping-dot" cx="700" cy="370" r="6" fill="#60A5FA" opacity="0" data-step="8"/>
+
+<g id="ai-dev" class="step-item" data-step="8" filter="url(#shadow)">
+  <rect x="660" y="320" width="220" height="98" rx="14" fill="white" stroke="#3b82f6" stroke-width="2"/>
+  <rect x="660" y="320" width="220" height="36" rx="14" fill="#3b82f6"/>
+  <rect x="660" y="340" width="220" height="16" fill="#3b82f6"/>
+  <text x="676" y="339" font-family="monospace" font-size="16" fill="white" font-weight="700">&lt;/&gt;</text>
+  <text x="700" y="338" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="white">Developer</text>
+  <text x="700" y="352" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#BFDBFE">Implementation &amp; Coding</text>
+  <text x="676" y="375" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#3b82f6">• AI pair-programming</text>
+  <text x="676" y="389" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#3b82f6">• Auto code review</text>
+  <text x="676" y="403" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#3b82f6">• Continuous refactoring</text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 9 — AGENTIC: Tester spoke + node
+════════════════════════════════════ -->
+<line id="spoke-ai-test" class="arrow-draw spoke-line" data-step="9"
+      x1="944" y1="337" x2="1030" y2="215"
+      stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="200"
+      marker-end="url(#arrowTeal)" marker-start="url(#arrowTealR)"/>
+<circle class="ping-dot" cx="1030" cy="215" r="6" fill="#FCD34D" opacity="0" data-step="9"/>
+
+<g id="ai-test" class="step-item" data-step="9" filter="url(#shadow)">
+  <rect x="920" y="115" width="220" height="80" rx="14" fill="white" stroke="#f59e0b" stroke-width="2"/>
+  <rect x="920" y="115" width="220" height="36" rx="14" fill="#f59e0b"/>
+  <rect x="920" y="135" width="220" height="16" fill="#f59e0b"/>
+  <circle cx="938" cy="131" r="9" fill="none" stroke="white" stroke-width="1.8"/>
+  <polyline points="933,131 937,135 944,125" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <text x="955" y="133" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="white">Tester</text>
+  <text x="955" y="147" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#FEF3C7">Requirements &amp; QA</text>
+  <text x="936" y="170" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#92400E">• AI-generated test suites</text>
+  <text x="936" y="184" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#92400E">• Continuous test runs</text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 10 — AGENTIC: DevOps spoke + node
+════════════════════════════════════ -->
+<line id="spoke-ai-devops" class="arrow-draw spoke-line" data-step="10"
+      x1="944" y1="403" x2="1030" y2="510"
+      stroke="#ef4444" stroke-width="2.2" stroke-dasharray="200"
+      marker-end="url(#arrowTeal)" marker-start="url(#arrowTealR)"/>
+<circle class="ping-dot" cx="1030" cy="510" r="6" fill="#FCA5A5" opacity="0" data-step="10"/>
+
+<g id="ai-devops" class="step-item" data-step="10" filter="url(#shadow)">
+  <rect x="920" y="455" width="220" height="80" rx="14" fill="white" stroke="#ef4444" stroke-width="2"/>
+  <rect x="920" y="455" width="220" height="36" rx="14" fill="#ef4444"/>
+  <rect x="920" y="475" width="220" height="16" fill="#ef4444"/>
+  <circle cx="938" cy="471" r="9" fill="none" stroke="white" stroke-width="2"/>
+  <circle cx="938" cy="471" r="4" fill="white"/>
+  <text x="955" y="472" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="white">DevOps</text>
+  <text x="955" y="487" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#FECACA">Deployment &amp; Operations</text>
+  <text x="936" y="510" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#7F1D1D">• Auto CI/CD pipelines</text>
+  <text x="936" y="524" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#7F1D1D">• AI incident response</text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 11 — AGENTIC: Benefit badges
+════════════════════════════════════ -->
+<g id="badge-parallel" class="badge-item" data-step="11">
+  <rect x="648" y="575" width="160" height="34" rx="17" fill="#0891b2"/>
+  <text x="728" y="597" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="700" fill="white">⚡ Parallel Delivery</text>
+</g>
+
+<g id="badge-collab" class="badge-item" data-step="11">
+  <rect x="820" y="575" width="176" height="34" rx="17" fill="#0891b2"/>
+  <text x="908" y="597" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="700" fill="white">🤝 AI Collaboration</text>
+</g>
+
+<g id="badge-augment" class="badge-item" data-step="11">
+  <rect x="1008" y="575" width="160" height="34" rx="17" fill="#0891b2"/>
+  <text x="1088" y="597" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="700" fill="white">🚀 AI-Augmented</text>
+</g>
+
+<!-- ════════════════════════════════════
+     STEP 12 — VS comparison callout
+════════════════════════════════════ -->
+<g id="vs-badge" class="badge-item" data-step="12">
+  <circle cx="600" cy="370" r="28" fill="#1F2937" filter="url(#glowSm)"/>
+  <circle cx="600" cy="370" r="28" fill="none" stroke="#38BDF8" stroke-width="2"/>
+  <text x="600" y="376" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="16" font-weight="900" fill="white">VS</text>
+</g>
+
+<!-- gain callout -->
+<g id="gain-callout" class="step-item" data-step="12">
+  <rect x="490" y="590" width="220" height="50" rx="12" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="1.5"/>
+  <text x="600" y="610" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="700" fill="#065F46">10× Faster Delivery</text>
+  <text x="600" y="628" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#047857">Continuous feedback · Zero handoff lag</text>
+</g>
+
+</svg>
+</div>
+
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 12</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> or <span class="key">SPACE</span> to advance
+  &nbsp;·&nbsp;
+  <span class="key">HOME</span> reset &nbsp;·&nbsp; <span class="key">END</span> skip to end
+</div>
+
+<script>
+const TOTAL = 12;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function nextStep() {
+  if (step >= TOTAL) return;
+  step++;
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+  });
+  if (step >= 6) {
+    document.getElementById('ai-glow')?.classList.add('active');
+    document.getElementById('ai-ring')?.classList.add('active');
+    document.querySelectorAll('.ping-dot').forEach(d => d.classList.add('active'));
+  }
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'Home') location.reload();
+  if (e.key === 'End') { while (step < TOTAL) nextStep(); }
+});
+
+buildDots();
+nextStep(); // show step 0 immediately
+</script>
+</body>
+</html>

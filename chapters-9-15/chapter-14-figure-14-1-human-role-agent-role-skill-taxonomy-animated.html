@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 14.1 — Human Role · Agent Role · Skill: Three-Layer Taxonomy</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+  .step-item { opacity:0; transform:scale(.88); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .5s ease, transform .5s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .badge-item { opacity:0; transform:scale(0); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw   { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#00000018"/>
+  </filter>
+</defs>
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- STEP 0: Title -->
+<g class="step-item" data-step="0">
+  <text x="600" y="34" text-anchor="middle" font-size="21" font-weight="800" fill="#1F2937">Human Role · Agent Role · Skill: Three-Layer Taxonomy</text>
+  <text x="600" y="54" text-anchor="middle" font-size="13" fill="#6B7280">Agent produces artifact — Human owns the decision · Click to reveal each layer</text>
+</g>
+
+<!-- STEP 1: Column headers -->
+<g class="step-item" data-step="1">
+  <!-- Human Role header -->
+  <rect x="24" y="64" width="346" height="44" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="197" y="82" text-anchor="middle" font-size="13" font-weight="800" fill="#1d4ed8">👤 Human Role</text>
+  <text x="197" y="100" text-anchor="middle" font-size="10" fill="#3b82f6">Accountable for outcomes, context, decisions</text>
+  <!-- Agent Role header -->
+  <rect x="428" y="64" width="346" height="44" rx="10" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="2"/>
+  <text x="601" y="82" text-anchor="middle" font-size="13" font-weight="800" fill="#7c3aed">🤖 Agent Role</text>
+  <text x="601" y="100" text-anchor="middle" font-size="10" fill="#8b5cf6">Executes tasks, produces artifacts, surfaces options</text>
+  <!-- Skill header -->
+  <rect x="832" y="64" width="344" height="44" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
+  <text x="1004" y="82" text-anchor="middle" font-size="13" font-weight="800" fill="#15803d">&lt;/&gt; Skill</text>
+  <text x="1004" y="100" text-anchor="middle" font-size="10" fill="#16a34a">Specific capability the agent provides (example)</text>
+</g>
+
+<!-- STEP 2: PM row -->
+<g class="step-item" data-step="2">
+  <g transform="translate(24,116)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="16">👔</text>
+    <text x="40" y="24" font-size="13" font-weight="800" fill="#1F2937">PM</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Defines goals, priorities,</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">and trade-offs.</text>
+  </g>
+  <g transform="translate(428,116)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#c4b5fd" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="14">🤖</text>
+    <text x="36" y="24" font-size="13" font-weight="800" fill="#7c3aed">PM Agent</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Researches, analyzes, and drafts</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">requirements and plans.</text>
+  </g>
+  <g transform="translate(832,116)">
+    <rect width="344" height="88" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="10" y="10" width="180" height="22" rx="6" fill="#dcfce7"/>
+    <text x="100" y="25" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">requirement-refinement</text>
+    <text x="16" y="52" font-size="10" fill="#6b7280">Elicits requirements, clarifies scope,</text>
+    <text x="16" y="66" font-size="10" fill="#6b7280">creates user stories and acceptance</text>
+    <text x="16" y="80" font-size="10" fill="#6b7280">criteria.</text>
+  </g>
+</g>
+
+<!-- STEP 3: Architect row -->
+<g class="step-item" data-step="3">
+  <g transform="translate(24,212)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="16">🏛️</text>
+    <text x="40" y="24" font-size="13" font-weight="800" fill="#1F2937">Architect</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Sets direction, evaluates</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">designs, manages risk.</text>
+  </g>
+  <g transform="translate(428,212)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#c4b5fd" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="14">🤖</text>
+    <text x="36" y="24" font-size="13" font-weight="800" fill="#7c3aed">Architecture Agent</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Explores options, creates diagrams,</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">and reviews designs.</text>
+  </g>
+  <g transform="translate(832,212)">
+    <rect width="344" height="88" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="10" y="10" width="150" height="22" rx="6" fill="#dcfce7"/>
+    <text x="85" y="25" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">design-review</text>
+    <text x="16" y="52" font-size="10" fill="#6b7280">Evaluates architecture proposals,</text>
+    <text x="16" y="66" font-size="10" fill="#6b7280">ADR drafts, and trade-off analyses.</text>
+  </g>
+</g>
+
+<!-- STEP 4: Developer row -->
+<g class="step-item" data-step="4">
+  <g transform="translate(24,308)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="16">&lt;/&gt;</text>
+    <text x="44" y="24" font-size="13" font-weight="800" fill="#1F2937">Developer</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Owns implementation,</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">quality, and refactoring.</text>
+  </g>
+  <g transform="translate(428,308)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#c4b5fd" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="14">🤖</text>
+    <text x="36" y="24" font-size="13" font-weight="800" fill="#7c3aed">Developer Agent</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Writes code, refactors, and</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">creates supporting artifacts.</text>
+  </g>
+  <g transform="translate(832,308)">
+    <rect width="344" height="88" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="10" y="10" width="80" height="22" rx="6" fill="#dcfce7"/>
+    <text x="50" y="25" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">TDD</text>
+    <text x="16" y="52" font-size="10" fill="#6b7280">Implements via test-driven development,</text>
+    <text x="16" y="66" font-size="10" fill="#6b7280">generates unit tests and code.</text>
+  </g>
+</g>
+
+<!-- STEP 5: Tester row -->
+<g class="step-item" data-step="5">
+  <g transform="translate(24,404)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="16">🧪</text>
+    <text x="40" y="24" font-size="13" font-weight="800" fill="#1F2937">Tester</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Ensures quality, finds edge</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">cases, validates behaviour.</text>
+  </g>
+  <g transform="translate(428,404)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#c4b5fd" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="14">🤖</text>
+    <text x="36" y="24" font-size="13" font-weight="800" fill="#7c3aed">Tester Agent</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Designs tests, generates cases,</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">and reports results.</text>
+  </g>
+  <g transform="translate(832,404)">
+    <rect width="344" height="88" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="10" y="10" width="130" height="22" rx="6" fill="#dcfce7"/>
+    <text x="75" y="25" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">test-strategy</text>
+    <text x="16" y="52" font-size="10" fill="#6b7280">Creates test plans, test cases,</text>
+    <text x="16" y="66" font-size="10" fill="#6b7280">and risk-based test matrices.</text>
+  </g>
+</g>
+
+<!-- STEP 6: DevOps row -->
+<g class="step-item" data-step="6">
+  <g transform="translate(24,500)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="16">🔧</text>
+    <text x="40" y="24" font-size="13" font-weight="800" fill="#1F2937">DevOps</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Ensures reliability, security,</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">and deployability.</text>
+  </g>
+  <g transform="translate(428,500)">
+    <rect width="346" height="88" rx="8" fill="white" stroke="#c4b5fd" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="24" font-size="14">🤖</text>
+    <text x="36" y="24" font-size="13" font-weight="800" fill="#7c3aed">DevOps Agent</text>
+    <text x="16" y="42" font-size="10" fill="#6b7280">Automates pipelines, monitors,</text>
+    <text x="16" y="56" font-size="10" fill="#6b7280">and handles operations tasks.</text>
+  </g>
+  <g transform="translate(832,500)">
+    <rect width="344" height="88" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="16" y="30" font-size="10" fill="#6b7280">Builds pipelines, IaC, observability</text>
+    <text x="16" y="46" font-size="10" fill="#6b7280">dashboards, and runbooks.</text>
+  </g>
+</g>
+
+<!-- STEP 7: Bottom principle banner -->
+<g class="step-item" data-step="7">
+  <g transform="translate(24,600)">
+    <rect width="1152" height="60" rx="12" fill="#fef2f2" stroke="#fca5a5" stroke-width="2"/>
+    <text x="26" y="22" font-size="14">⚠️</text>
+    <text x="576" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="#dc2626">Agent produces artifact — Human owns the decision</text>
+    <text x="160" y="46" font-size="11" fill="#374151">👤 Human decides: what and why</text>
+    <text x="500" y="46" font-size="11" fill="#374151">🤖 Human accountable for impact</text>
+    <text x="840" y="46" font-size="11" fill="#374151">✅ Human signs off before action</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 7</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+<script>
+const TOTAL = 7; let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) { const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i; bar.appendChild(d); }
+}
+function showArrow(el) { el.style.transition='none'; el.style.opacity='0'; el.style.strokeDashoffset='1'; el.getBoundingClientRect(); el.style.transition='opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s'; el.style.opacity='1'; el.style.strokeDashoffset='0'; }
+function hideArrow(el) { el.style.transition='none'; el.style.opacity='0'; el.style.strokeDashoffset='1'; }
+function isArrow(el) { return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed'); }
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) { if (isArrow(el)) showArrow(el); else el.classList.add('visible'); }
+    else { if (isArrow(el)) hideArrow(el); else el.classList.remove('visible'); }
+  });
+  for (let i = 0; i <= TOTAL; i++) { const d = document.getElementById('dot-'+i); if (d) d.className = 'dot'+(i<step?' done':i===step?' active':''); }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+document.addEventListener('keydown', e => {
+  if (e.key===' '||e.key==='ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key==='ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key==='Home') { step=0; render(); }
+  if (e.key==='End')  { step=TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+buildDots(); nextStep();
+</script>
+</body>
+</html>

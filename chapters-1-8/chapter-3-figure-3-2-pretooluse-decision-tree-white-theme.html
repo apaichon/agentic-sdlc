@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 3.2 — PreToolUse Hook: Command Validation Decision Tree</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F8F9FA; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  /* ── chrome ── */
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  /* ── step-item: fade + scale ── */
+  .step-item { opacity:0; transform:scale(.88); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .45s ease, transform .45s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  /* ── arrow-draw: pathLength="1" trick — solid line draw-on ── */
+  .arrow-draw {
+    opacity:0;
+    stroke-dasharray:1;
+    stroke-dashoffset:1;
+    transition:opacity .05s ease, stroke-dashoffset .55s ease;
+  }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+
+  /* ── arrow-dashed: dashed line draw-on ── */
+  .arrow-dashed {
+    opacity:0;
+    stroke-dasharray:0.06 0.03;
+    stroke-dashoffset:1;
+    transition:opacity .05s ease, stroke-dashoffset .7s ease;
+  }
+  .arrow-dashed.visible { opacity:1; stroke-dashoffset:0; }
+
+  /* ── badge spring pop ── */
+  .badge-item { opacity:0; transform:scale(0); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  /* ── label fade ── */
+  .label-fade { opacity:0; transition:opacity .35s ease .15s; }
+  .label-fade.visible { opacity:1; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#f59e0b"/></marker>
+  <marker id="arr-red"    markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#ef4444"/></marker>
+  <marker id="arr-green"  markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#16a34a"/></marker>
+  <marker id="arr-blue"   markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#3b82f6"/></marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000020"/>
+  </filter>
+</defs>
+
+<!-- background -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- ═══ STEP 0: Title ═══ -->
+<g class="step-item" data-step="0">
+  <rect x="80" y="14" width="1040" height="48" rx="10" fill="white" stroke="#E5E7EB" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="80" y="14" width="6"    height="48" rx="3"  fill="#f59e0b"/>
+  <text x="620" y="34" text-anchor="middle" font-size="13" font-weight="700" fill="#374151">Figure 3.2</text>
+  <text x="620" y="52" text-anchor="middle" font-size="12" fill="#6B7280">PreToolUse Hook: Command Validation Decision Tree</text>
+</g>
+
+<!-- ═══ STEP 1: Entry node — "Claude Code proposes Bash command" (top-right) ═══ -->
+<g class="step-item" data-step="1" filter="url(#shadow)">
+  <rect x="750" y="80" width="310" height="66" rx="12" fill="#2563eb"/>
+  <!-- terminal icon -->
+  <rect x="764" y="94" width="24" height="18" rx="3" fill="none" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="769" y="107" font-size="9" fill="#93c5fd" font-family="monospace">&gt;_</text>
+  <text x="910" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="white">Claude Code proposes</text>
+  <text x="910" y="124" text-anchor="middle" font-size="12" fill="#bfdbfe">Bash command.</text>
+</g>
+
+<!-- ═══ STEP 2: Arrow entry→diamond + decision diamond ═══ -->
+<!-- Arrow from entry bottom-center down-left to diamond top vertex -->
+<path class="arrow-draw" data-step="2"
+      d="M840,146 L648,242" pathLength="1"
+      stroke="#f59e0b" stroke-width="2.5" fill="none" marker-end="url(#arr-orange)"/>
+
+<!-- Decision diamond (rhombus via polygon) -->
+<g class="step-item" data-step="2" filter="url(#shadow)">
+  <!-- shadow poly -->
+  <polygon points="548,180 680,255 548,330 416,255" fill="#fef3c7" stroke="none" opacity=".5"/>
+  <!-- main poly -->
+  <polygon points="548,182 676,257 548,332 420,257" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+  <!-- shield icon -->
+  <path d="M548,218 L562,223 L562,234 Q562,244 548,250 Q534,244 534,234 L534,223 Z"
+        fill="#92400e" opacity=".5"/>
+  <path d="M548,220 L560,225 L560,234 Q560,243 548,248 Q536,243 536,234 L536,225 Z"
+        fill="#fde68a"/>
+  <path d="M547,237 L543,233 L545,231 L547,233 L552,228 L554,230 Z" fill="#92400e"/>
+  <text x="548" y="248" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1c1917">PreToolUse Hook:</text>
+  <text x="548" y="262" text-anchor="middle" font-size="10"   font-weight="600" fill="#292524" font-family="monospace">validate_cmd.py</text>
+</g>
+
+<!-- ═══ STEP 3: "Match blocked pattern" label + red arrow branch left ═══ -->
+<path class="arrow-draw" data-step="3"
+      d="M420,257 L250,330" pathLength="1"
+      stroke="#ef4444" stroke-width="2.5" fill="none" marker-end="url(#arr-red)"/>
+<g class="step-item" data-step="3">
+  <rect x="110" y="218" width="210" height="28" rx="14" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="215" y="237" text-anchor="middle" font-size="11" font-weight="600" fill="#b91c1c">Match blocked pattern</text>
+</g>
+
+<!-- ═══ STEP 4: Blocked command pills ═══ -->
+<g class="step-item" data-step="4">
+  <!-- pill 1 -->
+  <rect x="60" y="338" width="246" height="32" rx="6" fill="white" stroke="#ef4444" stroke-width="1.8" filter="url(#shadow)"/>
+  <rect x="60" y="338" width="5"   height="32" rx="3" fill="#ef4444"/>
+  <text x="80" y="359" font-size="12" font-weight="600" fill="#dc2626" font-family="monospace">rm -rf /</text>
+  <!-- pill 2 -->
+  <rect x="60" y="378" width="246" height="32" rx="6" fill="white" stroke="#ef4444" stroke-width="1.8" filter="url(#shadow)"/>
+  <rect x="60" y="378" width="5"   height="32" rx="3" fill="#ef4444"/>
+  <text x="80" y="399" font-size="12" font-weight="600" fill="#dc2626" font-family="monospace">DROP DATABASE</text>
+  <!-- pill 3 -->
+  <rect x="60" y="418" width="246" height="32" rx="6" fill="white" stroke="#ef4444" stroke-width="1.8" filter="url(#shadow)"/>
+  <rect x="60" y="418" width="5"   height="32" rx="3" fill="#ef4444"/>
+  <text x="80" y="439" font-size="11" font-weight="600" fill="#dc2626" font-family="monospace">git push --force main</text>
+  <!-- pill 4 -->
+  <rect x="60" y="458" width="246" height="32" rx="6" fill="white" stroke="#ef4444" stroke-width="1.8" filter="url(#shadow)"/>
+  <rect x="60" y="458" width="5"   height="32" rx="3" fill="#ef4444"/>
+  <text x="80" y="479" font-size="11" font-weight="600" fill="#dc2626" font-family="monospace">docker system prune -a</text>
+  <!-- pill 5 -->
+  <rect x="60" y="498" width="246" height="32" rx="6" fill="white" stroke="#ef4444" stroke-width="1.8" filter="url(#shadow)"/>
+  <rect x="60" y="498" width="5"   height="32" rx="3" fill="#ef4444"/>
+  <text x="80" y="519" font-size="12" font-weight="600" fill="#dc2626" font-family="monospace">curl | bash</text>
+</g>
+
+<!-- ═══ STEP 5: BLOCKED badge (octagon spring pop) ═══ -->
+<g class="badge-item" data-step="5">
+  <polygon points="108,556 152,538 218,538 262,556 262,608 218,626 152,626 108,608"
+           fill="#ef4444" stroke="#b91c1c" stroke-width="2" filter="url(#shadow)"/>
+  <polygon points="113,558 154,542 216,542 257,558 257,606 216,622 154,622 113,606"
+           fill="none" stroke="#fca5a5" stroke-width="1" opacity=".5"/>
+  <!-- stop bar icon -->
+  <rect x="178" y="562" width="28" height="5" rx="2.5" fill="white"/>
+  <text x="185" y="586" text-anchor="middle" font-size="12" font-weight="800" fill="white">BLOCKED</text>
+  <text x="185" y="602" text-anchor="middle" font-size="10" fill="#fecaca">Command rejected</text>
+</g>
+
+<!-- ═══ STEP 6: "AI adjusts and retries" curved dashed arrow ═══ -->
+<!-- Curved path from BLOCKED badge top (185,538) back up to entry node left (750,113) -->
+<path class="arrow-dashed" data-step="6"
+      d="M185,538 C185,440 500,90 750,113" pathLength="1"
+      stroke="#3b82f6" stroke-width="2" fill="none" marker-end="url(#arr-blue)"/>
+<g class="label-fade" data-step="6">
+  <rect x="304" y="302" width="198" height="26" rx="13" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="403" y="320" text-anchor="middle" font-size="11" font-weight="600" fill="#1d4ed8">AI adjusts and retries</text>
+</g>
+
+<!-- ═══ STEP 7: "No match" label + green arrow + ALLOWED badge ═══ -->
+<!-- Arrow: diamond right vertex → ALLOWED box -->
+<path class="arrow-draw" data-step="7"
+      d="M676,257 L790,350" pathLength="1"
+      stroke="#16a34a" stroke-width="2.5" fill="none" marker-end="url(#arr-green)"/>
+<g class="label-fade" data-step="7">
+  <rect x="700" y="272" width="116" height="26" rx="13" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="758" y="290" text-anchor="middle" font-size="11" font-weight="600" fill="#15803d">No match</text>
+</g>
+
+<!-- ALLOWED badge -->
+<g class="badge-item" data-step="7" filter="url(#shadow)">
+  <rect x="760" y="350" width="300" height="66" rx="12" fill="#16a34a" stroke="#15803d" stroke-width="1.5"/>
+  <!-- checkmark circle -->
+  <circle cx="790" cy="383" r="16" fill="white" opacity=".15"/>
+  <circle cx="790" cy="383" r="13" fill="none" stroke="#bbf7d0" stroke-width="1.5"/>
+  <path d="M783,383 L788,388 L798,376" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="920" y="378" text-anchor="middle" font-size="14" font-weight="800" fill="white">ALLOWED</text>
+  <text x="920" y="396" text-anchor="middle" font-size="11" fill="#bbf7d0">Proceeds to execution</text>
+</g>
+
+<!-- ═══ STEP 8: Arrow ALLOWED→Tool Execution + Tool Execution node ═══ -->
+<path class="arrow-draw" data-step="8"
+      d="M910,416 L910,464" pathLength="1"
+      stroke="#3b82f6" stroke-width="2.5" fill="none" marker-end="url(#arr-blue)"/>
+
+<g class="step-item" data-step="8" filter="url(#shadow)">
+  <rect x="760" y="468" width="300" height="66" rx="12" fill="white" stroke="#3b82f6" stroke-width="2"/>
+  <!-- gear icon -->
+  <circle cx="790" cy="501" r="10" fill="none" stroke="#3b82f6" stroke-width="2"/>
+  <circle cx="790" cy="501" r="4"  fill="#3b82f6"/>
+  <line x1="790" y1="487" x2="790" y2="491" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="790" y1="511" x2="790" y2="515" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="776" y1="501" x2="780" y2="501" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="800" y1="501" x2="804" y2="501" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="920" y="496" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">Tool Execution</text>
+  <text x="920" y="514" text-anchor="middle" font-size="11" fill="#6B7280">Command runs successfully</text>
+</g>
+
+</svg>
+</div>
+
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 8</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+
+<script>
+const TOTAL = 8;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+    else el.classList.remove('visible');
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+
+document.getElementById('slide').addEventListener('contextmenu', e => {
+  e.preventDefault(); prevStep();
+});
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

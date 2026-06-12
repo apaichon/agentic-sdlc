@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.2 — CLAUDE.md as the AI Constitution</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#F8F9FA; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:system-ui,-apple-system,sans-serif; user-select:none; }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#94a3b8; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#334155; border:1px solid #475569; border-radius:6px; padding:2px 10px; font-size:12px; color:#cbd5e1; }
+  #step-counter { font-size:12px; color:#64748b; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#334155; transition:background .3s, transform .3s; }
+  .dot.done { background:#0E7490; }
+  .dot.active { background:#38BDF8; transform:scale(1.4); }
+  .step-item { opacity:0; transform:scale(.88); transform-origin:center; transition:opacity .5s ease, transform .5s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw { opacity:0; stroke-dashoffset:200; transition:opacity .1s, stroke-dashoffset .55s ease; }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+  .badge-item { opacity:0; transform:scale(0); transform-origin:center; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  @keyframes glowPulse { 0%,100%{opacity:.2} 50%{opacity:.55} }
+  @keyframes hubPulse { 0%,100%{opacity:.15;rx:84;ry:30} 50%{opacity:.4;rx:92;ry:36} }
+  .hub-glow { animation:hubPulse 2.8s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Teal arrow marker for PM -->
+  <marker id="arrowTeal" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#0891b2"/>
+  </marker>
+  <!-- Blue arrow marker for Dev -->
+  <marker id="arrowBlue" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
+  </marker>
+  <!-- Orange arrow marker for Tester -->
+  <marker id="arrowOrange" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
+  </marker>
+  <!-- Red arrow marker for DevOps -->
+  <marker id="arrowRed" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
+  </marker>
+  <!-- Drop shadow -->
+  <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000018"/>
+  </filter>
+  <!-- Card glow filter -->
+  <filter id="cardGlow" x="-10%" y="-10%" width="120%" height="120%">
+    <feDropShadow dx="0" dy="2" stdDeviation="8" flood-color="#2563eb22"/>
+  </filter>
+  <!-- Background pattern -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E5E7EB" stroke-width="0.5"/>
+  </pattern>
+</defs>
+
+<!-- Canvas background with subtle grid -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+<rect width="1200" height="700" fill="url(#grid)" opacity="0.6"/>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 0: Title -->
+<!-- ═══════════════════════════════════════════════ -->
+<g id="title-group" class="step-item" data-step="0">
+  <text x="600" y="38" text-anchor="middle" font-size="22" font-weight="800" fill="#1F2937" letter-spacing="-0.3">Figure 2.2 — CLAUDE.md as the AI Constitution</text>
+  <text x="600" y="60" text-anchor="middle" font-size="13" fill="#6B7280">Context Flow to All Roles</text>
+  <!-- decorative underline -->
+  <rect x="460" y="68" width="280" height="2" rx="1" fill="#2563eb" opacity="0.3"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 1: CLAUDE.md top node (center hub) -->
+<!-- ═══════════════════════════════════════════════ -->
+<g class="step-item" data-step="1">
+  <!-- Glow halo behind card -->
+  <ellipse class="hub-glow" cx="600" cy="148" rx="84" ry="30" fill="#2563eb"/>
+  <!-- Card background -->
+  <rect x="390" y="95" width="420" height="90" rx="14" fill="#1D4ED8" filter="url(#shadow)"/>
+  <!-- Card highlight strip -->
+  <rect x="390" y="95" width="420" height="4" rx="2" fill="#60A5FA" opacity="0.6"/>
+  <!-- Inner card surface -->
+  <rect x="396" y="103" width="408" height="76" rx="10" fill="#2563EB"/>
+
+  <!-- Document icon (left side) -->
+  <!-- Page body -->
+  <rect x="422" y="112" width="28" height="36" rx="3" fill="white" opacity="0.95"/>
+  <!-- Page fold corner -->
+  <polygon points="440,112 450,112 450,122" fill="#93C5FD" opacity="0.8"/>
+  <!-- Page lines -->
+  <line x1="427" y1="122" x2="443" y2="122" stroke="#BFDBFE" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="427" y1="128" x2="445" y2="128" stroke="#BFDBFE" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="427" y1="134" x2="441" y2="134" stroke="#BFDBFE" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="427" y1="140" x2="444" y2="140" stroke="#BFDBFE" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Label -->
+  <text x="600" y="131" text-anchor="middle" font-size="17" font-weight="800" fill="white" letter-spacing="0.2">CLAUDE.md</text>
+  <text x="600" y="151" text-anchor="middle" font-size="13" font-weight="600" fill="#BFDBFE" letter-spacing="0.5">AI CONSTITUTION</text>
+  <text x="600" y="168" text-anchor="middle" font-size="11" fill="#93C5FD" opacity="0.9">Shared context · Single source of truth · Every session</text>
+
+  <!-- Bottom connector dot -->
+  <circle cx="600" cy="185" r="4" fill="#60A5FA" opacity="0.9"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 2: Arrow + PM Session card (x=150) -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Arrow from hub to PM -->
+<g data-step="2">
+  <line class="arrow-draw"
+    x1="600" y1="185" x2="150" y2="288"
+    stroke="#0891b2" stroke-width="2.2" stroke-dasharray="200"
+    marker-end="url(#arrowTeal)" stroke-linecap="round"/>
+</g>
+
+<!-- PM Session card -->
+<g class="step-item" data-step="2">
+  <!-- Card -->
+  <rect x="60" y="290" width="180" height="175" rx="12" fill="white" filter="url(#shadow)"/>
+  <!-- Color header band -->
+  <rect x="60" y="290" width="180" height="40" rx="12" fill="#0891b2"/>
+  <rect x="60" y="316" width="180" height="14" fill="#0891b2"/>
+
+  <!-- Person icon -->
+  <!-- Head -->
+  <circle cx="92" cy="306" r="8" fill="white" opacity="0.95"/>
+  <!-- Body -->
+  <path d="M80,326 Q80,318 92,318 Q104,318 104,326" fill="white" opacity="0.95"/>
+
+  <!-- Label in header -->
+  <text x="148" y="308" text-anchor="middle" font-size="13" font-weight="700" fill="white">PM Session</text>
+  <text x="148" y="322" text-anchor="middle" font-size="10" fill="#CFFAFE" opacity="0.9">Project Manager</text>
+
+  <!-- Divider -->
+  <line x1="72" y1="334" x2="228" y2="334" stroke="#E0F2FE" stroke-width="1"/>
+
+  <!-- Bullet points -->
+  <circle cx="80" cy="354" r="3.5" fill="#0891b2"/>
+  <text x="92" y="358" font-size="11.5" fill="#374151" font-weight="500">Project scope</text>
+
+  <circle cx="80" cy="378" r="3.5" fill="#0891b2"/>
+  <text x="92" y="382" font-size="11.5" fill="#374151" font-weight="500">API conventions</text>
+
+  <circle cx="80" cy="402" r="3.5" fill="#0891b2"/>
+  <text x="92" y="406" font-size="11.5" fill="#374151" font-weight="500">Glossary terms</text>
+
+  <!-- Bottom accent bar -->
+  <rect x="60" y="449" width="180" height="16" rx="8" fill="#CFFAFE"/>
+  <text x="150" y="460" text-anchor="middle" font-size="9.5" fill="#0E7490" font-weight="600">PLANNING · SCOPE</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 3: Arrow + Dev Session card (x=390) -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Arrow from hub to Dev -->
+<g data-step="3">
+  <line class="arrow-draw"
+    x1="600" y1="185" x2="390" y2="288"
+    stroke="#3b82f6" stroke-width="2.2" stroke-dasharray="200"
+    marker-end="url(#arrowBlue)" stroke-linecap="round"/>
+</g>
+
+<!-- Dev Session card -->
+<g class="step-item" data-step="3">
+  <rect x="300" y="290" width="180" height="175" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="300" y="290" width="180" height="40" rx="12" fill="#3b82f6"/>
+  <rect x="300" y="316" width="180" height="14" fill="#3b82f6"/>
+
+  <!-- Code brackets icon -->
+  <text x="332" y="318" text-anchor="middle" font-size="20" font-weight="800" fill="white" opacity="0.95">&lt;/&gt;</text>
+
+  <text x="388" y="308" text-anchor="middle" font-size="13" font-weight="700" fill="white">Dev Session</text>
+  <text x="388" y="322" text-anchor="middle" font-size="10" fill="#DBEAFE" opacity="0.9">Developer</text>
+
+  <line x1="312" y1="334" x2="468" y2="334" stroke="#DBEAFE" stroke-width="1"/>
+
+  <circle cx="320" cy="354" r="3.5" fill="#3b82f6"/>
+  <text x="332" y="358" font-size="11.5" fill="#374151" font-weight="500">Architecture layers</text>
+
+  <circle cx="320" cy="378" r="3.5" fill="#3b82f6"/>
+  <text x="332" y="382" font-size="11.5" fill="#374151" font-weight="500">Coding standards</text>
+
+  <circle cx="320" cy="402" r="3.5" fill="#3b82f6"/>
+  <text x="332" y="406" font-size="11.5" fill="#374151" font-weight="500">Error patterns</text>
+
+  <rect x="300" y="449" width="180" height="16" rx="8" fill="#DBEAFE"/>
+  <text x="390" y="460" text-anchor="middle" font-size="9.5" fill="#1D4ED8" font-weight="600">CODE · ARCHITECTURE</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 4: Arrow + Tester Session card (x=630) -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Arrow from hub to Tester -->
+<g data-step="4">
+  <line class="arrow-draw"
+    x1="600" y1="185" x2="630" y2="288"
+    stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="200"
+    marker-end="url(#arrowOrange)" stroke-linecap="round"/>
+</g>
+
+<!-- Tester Session card -->
+<g class="step-item" data-step="4">
+  <rect x="540" y="290" width="180" height="175" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="540" y="290" width="180" height="40" rx="12" fill="#f59e0b"/>
+  <rect x="540" y="316" width="180" height="14" fill="#f59e0b"/>
+
+  <!-- Flask icon -->
+  <!-- Flask body -->
+  <path d="M566,297 L566,312 L558,328 Q557,332 563,332 L579,332 Q585,332 584,328 L576,312 L576,297 Z" fill="white" opacity="0.95"/>
+  <!-- Flask neck line -->
+  <rect x="564" y="296" width="14" height="2" rx="1" fill="#FDE68A"/>
+  <!-- Liquid inside -->
+  <path d="M558,323 L584,323 Q585,332 579,332 L563,332 Q557,332 558,323 Z" fill="#FDE68A" opacity="0.8"/>
+
+  <text x="628" y="308" text-anchor="middle" font-size="13" font-weight="700" fill="white">Tester Session</text>
+  <text x="628" y="322" text-anchor="middle" font-size="10" fill="#FEF3C7" opacity="0.9">QA Engineer</text>
+
+  <line x1="552" y1="334" x2="708" y2="334" stroke="#FEF3C7" stroke-width="1"/>
+
+  <circle cx="560" cy="354" r="3.5" fill="#f59e0b"/>
+  <text x="572" y="358" font-size="11.5" fill="#374151" font-weight="500">Test conventions</text>
+
+  <circle cx="560" cy="378" r="3.5" fill="#f59e0b"/>
+  <text x="572" y="382" font-size="11.5" fill="#374151" font-weight="500">Coverage targets</text>
+
+  <circle cx="560" cy="402" r="3.5" fill="#f59e0b"/>
+  <text x="572" y="406" font-size="11.5" fill="#374151" font-weight="500">Naming rules</text>
+
+  <rect x="540" y="449" width="180" height="16" rx="8" fill="#FEF3C7"/>
+  <text x="630" y="460" text-anchor="middle" font-size="9.5" fill="#B45309" font-weight="600">TESTING · QUALITY</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 5: Arrow + DevOps Session card (x=870) -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Arrow from hub to DevOps -->
+<g data-step="5">
+  <line class="arrow-draw"
+    x1="600" y1="185" x2="870" y2="288"
+    stroke="#ef4444" stroke-width="2.2" stroke-dasharray="200"
+    marker-end="url(#arrowRed)" stroke-linecap="round"/>
+</g>
+
+<!-- DevOps Session card -->
+<g class="step-item" data-step="5">
+  <rect x="780" y="290" width="180" height="175" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="780" y="290" width="180" height="40" rx="12" fill="#ef4444"/>
+  <rect x="780" y="316" width="180" height="14" fill="#ef4444"/>
+
+  <!-- Gear icon -->
+  <circle cx="812" cy="311" r="7" fill="none" stroke="white" stroke-width="2.2" opacity="0.95"/>
+  <circle cx="812" cy="311" r="3" fill="white" opacity="0.95"/>
+  <!-- Gear teeth (8 teeth) -->
+  <line x1="812" y1="300" x2="812" y2="297" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+  <line x1="812" y1="322" x2="812" y2="325" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+  <line x1="801" y1="311" x2="798" y2="311" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+  <line x1="823" y1="311" x2="826" y2="311" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+  <line x1="804" y1="303" x2="802" y2="301" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+  <line x1="820" y1="319" x2="822" y2="321" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+  <line x1="820" y1="303" x2="822" y2="301" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+  <line x1="804" y1="319" x2="802" y2="321" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+
+  <text x="868" y="308" text-anchor="middle" font-size="13" font-weight="700" fill="white">DevOps Session</text>
+  <text x="868" y="322" text-anchor="middle" font-size="10" fill="#FEE2E2" opacity="0.9">DevOps Engineer</text>
+
+  <line x1="792" y1="334" x2="948" y2="334" stroke="#FEE2E2" stroke-width="1"/>
+
+  <circle cx="800" cy="354" r="3.5" fill="#ef4444"/>
+  <text x="812" y="358" font-size="11.5" fill="#374151" font-weight="500">Infra patterns</text>
+
+  <circle cx="800" cy="378" r="3.5" fill="#ef4444"/>
+  <text x="812" y="382" font-size="11.5" fill="#374151" font-weight="500">Git conventions</text>
+
+  <circle cx="800" cy="402" r="3.5" fill="#ef4444"/>
+  <text x="812" y="406" font-size="11.5" fill="#374151" font-weight="500">Deployment rules</text>
+
+  <rect x="780" y="449" width="180" height="16" rx="8" fill="#FEE2E2"/>
+  <text x="870" y="460" text-anchor="middle" font-size="9.5" fill="#B91C1C" font-weight="600">INFRA · DELIVERY</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 6: Consistent Output banner + footnote -->
+<!-- ═══════════════════════════════════════════════ -->
+<g class="step-item" data-step="6">
+  <!-- Banner background -->
+  <rect x="60" y="490" width="1080" height="56" rx="12" fill="#0E7490" filter="url(#shadow)"/>
+  <!-- Highlight top strip -->
+  <rect x="60" y="490" width="1080" height="4" rx="2" fill="#22D3EE" opacity="0.5"/>
+  <!-- Inner lighter surface -->
+  <rect x="64" y="496" width="1072" height="44" rx="9" fill="#0891b2"/>
+
+  <!-- Bullseye / target icon (left) -->
+  <!-- Outer ring -->
+  <circle cx="110" cy="518" r="16" fill="none" stroke="white" stroke-width="2.5" opacity="0.9"/>
+  <!-- Middle ring -->
+  <circle cx="110" cy="518" r="10" fill="none" stroke="white" stroke-width="2.5" opacity="0.75"/>
+  <!-- Inner dot -->
+  <circle cx="110" cy="518" r="4" fill="white" opacity="0.95"/>
+  <!-- Crosshair lines -->
+  <line x1="110" y1="498" x2="110" y2="505" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="110" y1="531" x2="110" y2="538" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="90" y1="518" x2="97" y2="518" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="123" y1="518" x2="130" y2="518" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Bullseye (right side mirror) -->
+  <circle cx="1090" cy="518" r="16" fill="none" stroke="white" stroke-width="2.5" opacity="0.9"/>
+  <circle cx="1090" cy="518" r="10" fill="none" stroke="white" stroke-width="2.5" opacity="0.75"/>
+  <circle cx="1090" cy="518" r="4" fill="white" opacity="0.95"/>
+  <line x1="1090" y1="498" x2="1090" y2="505" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="1090" y1="531" x2="1090" y2="538" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="1070" y1="518" x2="1077" y2="518" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="1103" y1="518" x2="1110" y2="518" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Banner text -->
+  <text x="600" y="512" text-anchor="middle" font-size="18" font-weight="800" fill="white" letter-spacing="1">Consistent Output</text>
+  <text x="600" y="530" text-anchor="middle" font-size="11.5" fill="#CFFAFE" opacity="0.9">Uniform conventions · Predictable behavior · Team alignment</text>
+
+  <!-- Footnote -->
+  <text x="600" y="572" text-anchor="middle" font-size="12.5" fill="#374151">
+    <tspan font-weight="600" fill="#0E7490">✓</tspan>
+    <tspan> Same CLAUDE.md = Same conventions in every session.</tspan>
+  </text>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 6</div>
+<div id="click-hint"><span class="key">CLICK</span> or <span class="key">SPACE</span> to advance &nbsp;·&nbsp; <span class="key">Home</span> to reset &nbsp;·&nbsp; <span class="key">End</span> to show all</div>
+
+<script>
+const TOTAL = 6;
+let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) { const d=document.createElement('div'); d.className='dot'; d.id='dot-'+i; bar.appendChild(d); }
+}
+function nextStep() {
+  if (step >= TOTAL) return; step++;
+  document.querySelectorAll('[data-step]').forEach(el => { if (parseInt(el.dataset.step) <= step) el.classList.add('visible'); });
+  for (let i = 0; i <= TOTAL; i++) { const d=document.getElementById('dot-'+i); if(d) d.className='dot'+(i<step?' done':i===step?' active':''); }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+document.addEventListener('keydown', e => {
+  if (e.key===' '||e.key==='ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key==='Home') location.reload();
+  if (e.key==='End') { while(step<TOTAL) nextStep(); }
+});
+buildDots(); nextStep();
+</script>
+</body>
+</html>

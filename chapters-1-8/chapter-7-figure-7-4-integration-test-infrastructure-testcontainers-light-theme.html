@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integration Test Infrastructure — testcontainers-go</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  .arrow-draw   { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Arrow markers -->
+  <marker id="arrowTeal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowOrange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#f97316"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+  </marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+  </marker>
+  <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000020"/>
+  </filter>
+</defs>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 0: Title + Subtitle -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="0">
+  <g transform="translate(0,0)">
+    <text x="600" y="38" text-anchor="middle" font-size="24" font-weight="800" fill="#1F2937">Integration Test Infrastructure</text>
+    <text x="600" y="60" text-anchor="middle" font-size="13" fill="#6B7280">testcontainers-go · Real Services, Zero Mocks</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 1: Go Test Runner panel + logo + label -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="1">
+  <g transform="translate(20,75)">
+    <!-- Panel background -->
+    <rect width="290" height="370" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+    <!-- Go logo circle -->
+    <circle cx="135" cy="40" r="25" fill="#2563eb"/>
+    <text x="135" y="46" text-anchor="middle" font-size="20" font-weight="800" fill="white">G</text>
+    <!-- Label -->
+    <text x="135" y="80" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">Go Test Runner</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 2: rabbitmq_flow_test.go file card (orange) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="2">
+  <g transform="translate(50,245)">
+    <!-- Card -->
+    <rect width="250" height="65" rx="6" fill="white" stroke="#f97316" stroke-width="2" filter="url(#shadow)"/>
+    <!-- Orange left accent bar -->
+    <rect width="5" height="65" rx="3" fill="#f97316"/>
+    <!-- File icon -->
+    <rect x="14" y="12" width="22" height="26" rx="2" fill="#fff7ed" stroke="#f97316" stroke-width="1.5"/>
+    <line x1="18" y1="20" x2="32" y2="20" stroke="#f97316" stroke-width="1"/>
+    <line x1="18" y1="25" x2="32" y2="25" stroke="#f97316" stroke-width="1"/>
+    <line x1="18" y1="30" x2="28" y2="30" stroke="#f97316" stroke-width="1"/>
+    <!-- Filename -->
+    <text x="46" y="26" font-size="10" font-weight="700" fill="#ea580c" font-family="monospace">rabbitmq_flow_test.go</text>
+    <!-- Comment -->
+    <text x="46" y="42" font-size="9" fill="#9a3412" font-family="monospace">// Tests message flow</text>
+    <text x="46" y="54" font-size="9" fill="#9a3412" font-family="monospace">// through RabbitMQ</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 3: mongodb_crud_test.go file card (blue) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="3">
+  <g transform="translate(50,325)">
+    <rect width="250" height="65" rx="6" fill="white" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="5" height="65" rx="3" fill="#2563eb"/>
+    <rect x="14" y="12" width="22" height="26" rx="2" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+    <line x1="18" y1="20" x2="32" y2="20" stroke="#2563eb" stroke-width="1"/>
+    <line x1="18" y1="25" x2="32" y2="25" stroke="#2563eb" stroke-width="1"/>
+    <line x1="18" y1="30" x2="28" y2="30" stroke="#2563eb" stroke-width="1"/>
+    <text x="46" y="26" font-size="10" font-weight="700" fill="#1d4ed8" font-family="monospace">mongodb_crud_test.go</text>
+    <text x="46" y="42" font-size="9" fill="#1e3a8a" font-family="monospace">// Tests CRUD operations</text>
+    <text x="46" y="54" font-size="9" fill="#1e3a8a" font-family="monospace">// on MongoDB</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 4: redis_ratelimit_test.go file card (red) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="4">
+  <g transform="translate(50,405)">
+    <rect width="250" height="65" rx="6" fill="white" stroke="#dc2626" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="5" height="65" rx="3" fill="#dc2626"/>
+    <rect x="14" y="12" width="22" height="26" rx="2" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+    <line x1="18" y1="20" x2="32" y2="20" stroke="#dc2626" stroke-width="1"/>
+    <line x1="18" y1="25" x2="32" y2="25" stroke="#dc2626" stroke-width="1"/>
+    <line x1="18" y1="30" x2="28" y2="30" stroke="#dc2626" stroke-width="1"/>
+    <text x="46" y="26" font-size="10" font-weight="700" fill="#b91c1c" font-family="monospace">redis_ratelimit_test.go</text>
+    <text x="46" y="42" font-size="9" fill="#7f1d1d" font-family="monospace">// Tests rate limiting</text>
+    <text x="46" y="54" font-size="9" fill="#7f1d1d" font-family="monospace">// logic with Redis</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 5: testcontainers-go header panel + Docker icon + subtitle -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="5">
+  <g transform="translate(330,75)">
+    <!-- Header panel -->
+    <rect width="840" height="70" rx="10" fill="#0891b2" filter="url(#shadow)"/>
+    <!-- Docker whale icon (white circle with whale path) -->
+    <circle cx="40" cy="35" r="22" fill="white" opacity="0.9"/>
+    <!-- Simple whale shape in teal -->
+    <ellipse cx="40" cy="38" rx="12" ry="8" fill="#0891b2"/>
+    <!-- Whale spout -->
+    <path d="M40,30 Q38,22 36,18 M40,30 Q42,22 44,18" stroke="#0891b2" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Whale tail -->
+    <path d="M52,42 Q57,38 55,34 M52,42 Q57,46 55,50" stroke="#0891b2" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- Eye -->
+    <circle cx="36" cy="36" r="2" fill="white"/>
+    <!-- Labels -->
+    <text x="175" y="28" text-anchor="middle" font-size="18" font-weight="800" fill="white">testcontainers-go</text>
+    <text x="175" y="50" text-anchor="middle" font-size="12" fill="#cffafe">Spin up real services in Docker for integration tests</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 6: RabbitMQ container box (orange) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="6">
+  <g transform="translate(330,165)">
+    <rect width="260" height="180" rx="8" fill="#fff7ed" stroke="#f97316" stroke-width="2.5" filter="url(#shadow)"/>
+    <!-- RabbitMQ icon: stacked layers (queue) -->
+    <rect x="80" y="30" width="100" height="18" rx="4" fill="#f97316" opacity="0.8"/>
+    <rect x="80" y="52" width="100" height="18" rx="4" fill="#f97316" opacity="0.6"/>
+    <rect x="80" y="74" width="100" height="18" rx="4" fill="#f97316" opacity="0.4"/>
+    <!-- Rabbit ears -->
+    <ellipse cx="108" cy="20" rx="6" ry="10" fill="#f97316" opacity="0.7"/>
+    <ellipse cx="152" cy="20" rx="6" ry="10" fill="#f97316" opacity="0.7"/>
+    <!-- Service name -->
+    <text x="130" y="118" text-anchor="middle" font-size="15" font-weight="700" fill="#c2410c">RabbitMQ</text>
+    <!-- Port badge -->
+    <rect x="85" y="130" width="90" height="24" rx="12" fill="#f97316"/>
+    <text x="130" y="147" text-anchor="middle" font-size="12" font-weight="600" fill="white">:5672</text>
+    <!-- Container label -->
+    <text x="130" y="172" text-anchor="middle" font-size="10" fill="#9a3412">AMQP Message Broker</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 7 ARROW: rabbitmq_flow_test → RabbitMQ (TOP-LEVEL) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="7" pathLength="1"
+      d="M310,278 C320,278 325,265 330,255"
+      fill="none" stroke="#f97316" stroke-width="2.5"
+      marker-end="url(#arrowOrange)"/>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 8: MongoDB container box (green) + Redis container box (red) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MongoDB -->
+<g class="step-item" data-step="8">
+  <g transform="translate(605,165)">
+    <rect width="260" height="180" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.5" filter="url(#shadow)"/>
+    <!-- MongoDB leaf icon -->
+    <path d="M130,25 Q155,50 140,90 Q130,110 130,110 Q130,110 120,90 Q105,50 130,25 Z" fill="#16a34a" opacity="0.8"/>
+    <path d="M130,55 Q138,65 135,85 Q132,95 130,100 Q130,100 128,95 Q125,85 122,75 Q120,65 130,55 Z" fill="#15803d" opacity="0.6"/>
+    <!-- Service name -->
+    <text x="130" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="#15803d">MongoDB</text>
+    <!-- Port badge -->
+    <rect x="75" y="138" width="110" height="24" rx="12" fill="#16a34a"/>
+    <text x="130" y="155" text-anchor="middle" font-size="12" font-weight="600" fill="white">:27017</text>
+    <!-- Container label -->
+    <text x="130" y="172" text-anchor="middle" font-size="10" fill="#14532d">Document Database</text>
+  </g>
+</g>
+
+<!-- Redis -->
+<g class="step-item" data-step="8">
+  <g transform="translate(880,165)">
+    <rect width="280" height="180" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="2.5" filter="url(#shadow)"/>
+    <!-- Redis cube icon -->
+    <polygon points="140,25 170,40 170,70 140,85 110,70 110,40" fill="#dc2626" opacity="0.8"/>
+    <polygon points="140,25 170,40 140,55 110,40" fill="#ef4444" opacity="0.6"/>
+    <polygon points="140,55 170,40 170,70 140,85" fill="#b91c1c" opacity="0.7"/>
+    <!-- Service name -->
+    <text x="140" y="110" text-anchor="middle" font-size="15" font-weight="700" fill="#b91c1c">Redis</text>
+    <!-- Port badge -->
+    <rect x="85" y="120" width="110" height="24" rx="12" fill="#dc2626"/>
+    <text x="140" y="137" text-anchor="middle" font-size="12" font-weight="600" fill="white">:6379</text>
+    <!-- Container label -->
+    <text x="140" y="160" text-anchor="middle" font-size="10" fill="#7f1d1d">In-Memory Cache / Rate Limiter</text>
+    <text x="140" y="172" text-anchor="middle" font-size="10" fill="#7f1d1d">Key-Value Store</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 9 ARROWS: mongodb_crud → MongoDB, redis_ratelimit → Redis (TOP-LEVEL) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="9" pathLength="1"
+      d="M310,358 C450,358 500,255 605,255"
+      fill="none" stroke="#16a34a" stroke-width="2.5"
+      marker-end="url(#arrowGreen)"/>
+
+<path class="arrow-draw" data-step="9" pathLength="1"
+      d="M310,437 C500,437 650,255 880,255"
+      fill="none" stroke="#dc2626" stroke-width="2.5"
+      marker-end="url(#arrowRed)"/>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 10: Bottom pipeline — stages + connecting arrows -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Stage 1: Start (teal) -->
+<g class="step-item" data-step="10">
+  <g transform="translate(150,480)">
+    <!-- Circle -->
+    <circle cx="0" cy="30" r="30" fill="#0891b2" filter="url(#shadow)"/>
+    <text x="0" y="24" text-anchor="middle" font-size="16" fill="white">▶</text>
+    <text x="0" y="38" text-anchor="middle" font-size="10" font-weight="600" fill="white">Start</text>
+    <!-- Time label -->
+    <text x="0" y="72" text-anchor="middle" font-size="11" fill="#0e7490" font-weight="600">~2s</text>
+    <text x="0" y="84" text-anchor="middle" font-size="10" fill="#64748b">Container Init</text>
+  </g>
+</g>
+
+<!-- Stage 2: Run Tests (blue) -->
+<g class="step-item" data-step="10">
+  <g transform="translate(400,480)">
+    <circle cx="0" cy="30" r="30" fill="#2563eb" filter="url(#shadow)"/>
+    <!-- Flask icon -->
+    <path d="M-8,18 L-8,28 L-14,38 L14,38 L8,28 L8,18 Z" fill="white" opacity="0.9"/>
+    <rect x="-8" y="15" width="16" height="4" rx="1" fill="white"/>
+    <ellipse cx="2" cy="36" rx="5" ry="3" fill="#bfdbfe" opacity="0.8"/>
+    <!-- Label -->
+    <text x="0" y="72" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="600">~5s</text>
+    <text x="0" y="84" text-anchor="middle" font-size="10" fill="#64748b">Run Tests</text>
+  </g>
+</g>
+
+<!-- Stage 3: Assert (green) -->
+<g class="step-item" data-step="10">
+  <g transform="translate(650,480)">
+    <circle cx="0" cy="30" r="30" fill="#16a34a" filter="url(#shadow)"/>
+    <text x="0" y="38" text-anchor="middle" font-size="24" font-weight="800" fill="white">✓</text>
+    <text x="0" y="72" text-anchor="middle" font-size="11" fill="#15803d" font-weight="600">Assert</text>
+    <text x="0" y="84" text-anchor="middle" font-size="10" fill="#64748b">Validate Results</text>
+  </g>
+</g>
+
+<!-- Stage 4: Terminate (gray) -->
+<g class="step-item" data-step="10">
+  <g transform="translate(900,480)">
+    <circle cx="0" cy="30" r="30" fill="#64748b" filter="url(#shadow)"/>
+    <rect x="-10" y="20" width="20" height="20" rx="2" fill="white" opacity="0.9"/>
+    <text x="0" y="72" text-anchor="middle" font-size="11" fill="#475569" font-weight="600">~1s</text>
+    <text x="0" y="84" text-anchor="middle" font-size="10" fill="#64748b">Terminate</text>
+  </g>
+</g>
+
+<!-- Pipeline connector arrows (top-level, step 10) -->
+<path class="arrow-draw" data-step="10" pathLength="1"
+      d="M180,510 L370,510"
+      fill="none" stroke="#64748b" stroke-width="2.5"
+      marker-end="url(#arrowGray)"/>
+
+<path class="arrow-draw" data-step="10" pathLength="1"
+      d="M430,510 L620,510"
+      fill="none" stroke="#64748b" stroke-width="2.5"
+      marker-end="url(#arrowGray)"/>
+
+<path class="arrow-draw" data-step="10" pathLength="1"
+      d="M680,510 L870,510"
+      fill="none" stroke="#64748b" stroke-width="2.5"
+      marker-end="url(#arrowGray)"/>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STEP 11: Ephemeral callout badge (spring pop) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<g class="badge-item" data-step="11">
+  <g transform="translate(250,568)">
+    <rect width="700" height="42" rx="8" fill="#fefce8" stroke="#ca8a04" stroke-width="2" filter="url(#shadow)"/>
+    <text x="350" y="27" text-anchor="middle" font-size="14" font-weight="600" fill="#854d0e">💡 Ephemeral: created fresh for each test run</text>
+  </g>
+</g>
+
+</svg>
+</div>
+
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 11</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> advance &nbsp;·&nbsp;
+  <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp;
+  <span class="key">← →</span> step &nbsp;·&nbsp;
+  <span class="key">Home</span> start &nbsp;·&nbsp;
+  <span class="key">End</span> finish
+</div>
+
+<script>
+const TOTAL = 11;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function showArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1';
+  el.style.strokeDashoffset = '0';
+}
+
+function hideArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+}
+
+function isArrow(el) {
+  return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed');
+}
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) {
+      if (isArrow(el)) showArrow(el); else el.classList.add('visible');
+    } else {
+      if (isArrow(el)) hideArrow(el); else el.classList.remove('visible');
+    }
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

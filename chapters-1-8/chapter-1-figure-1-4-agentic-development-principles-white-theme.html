@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Four Principles of Agentic Development</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, sans-serif;
+    user-select: none;
+  }
+  .container {
+    width: 1200px;
+    height: 700px;
+    position: relative;
+    cursor: pointer;
+  }
+  svg { width: 100%; height: 100%; }
+
+  #click-hint {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .key {
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  #step-counter {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+    letter-spacing: 0.08em;
+  }
+  #progress-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #334155;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .dot.done   { background: #0E7490; }
+  .dot.active { background: #38BDF8; transform: scale(1.4); }
+
+  /* ── animation base classes ── */
+  .step-item {
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: scale(0.88);
+    transform-origin: center;
+  }
+  .step-item.visible { opacity: 1; transform: scale(1); }
+
+  .slide-item {
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.55s ease;
+    transform: translateY(16px);
+  }
+  .slide-item.visible { opacity: 1; transform: translateY(0); }
+
+  .arrow-draw {
+    opacity: 0;
+    stroke-dashoffset: 200;
+    transition: opacity 0.1s, stroke-dashoffset 0.7s ease;
+  }
+  .arrow-draw.visible { opacity: 1; stroke-dashoffset: 0; }
+
+  .pop-item {
+    opacity: 0;
+    transform: scale(0.6);
+    transform-origin: center;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .pop-item.visible { opacity: 1; transform: scale(1); }
+
+  /* ── continuous ── */
+  @keyframes dashFlow {
+    to { stroke-dashoffset: -24; }
+  }
+  @keyframes spinCycle {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 0.3; }
+    50%      { opacity: 0.9; }
+  }
+  .flow-dashed.visible {
+    animation: dashFlow 1.5s linear infinite;
+  }
+  #cycle-ring.active {
+    animation: spinCycle 4s linear infinite;
+  }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowTeal" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowBlue" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+  </marker>
+  <marker id="arrowOrange" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#ea580c"/>
+  </marker>
+  <marker id="arrowPurple" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+  </marker>
+  <marker id="arrowGray" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+  </marker>
+  <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#00000020"/>
+  </filter>
+  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- ── BACKGROUND ── -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- Subtle grid -->
+<path d="M0,0" fill="none"/>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 0 — TITLE
+═══════════════════════════════════════════════ -->
+<g id="title-grp" class="slide-item" data-step="0">
+  <text x="600" y="44" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="26" font-weight="800" fill="#1F2937">
+    Figure 1.4 — Four Principles of Agentic Development
+  </text>
+  <text x="600" y="64" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#6B7280">
+    The foundation of human-AI collaboration in modern software delivery
+  </text>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     QUADRANT GRID LINES (static, always visible)
+═══════════════════════════════════════════════ -->
+<line x1="600" y1="80" x2="600" y2="650" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="6 4"/>
+<line x1="60"  y1="365" x2="1140" y2="365" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 1 — PRINCIPLE 1: Human-in-the-Loop (top-left, teal)
+═══════════════════════════════════════════════ -->
+<g id="p1-card" class="step-item" data-step="1" filter="url(#shadow)">
+  <rect x="60" y="88" width="510" height="258" rx="20" fill="white" stroke="#0891b2" stroke-width="2.5"/>
+  <!-- number badge -->
+  <circle cx="100" cy="128" r="22" fill="#0891b2"/>
+  <text x="100" y="134" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="900" fill="white">1</text>
+  <!-- title -->
+  <text x="300" y="118" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="20" font-weight="800" fill="#0C4A6E">Human-in-the-Loop</text>
+  <text x="300" y="140" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#0891b2">AI proposes, human decides.</text>
+</g>
+
+<!-- P1 illustration: person ↔ AI chip -->
+<g id="p1-icon" class="step-item" data-step="1">
+  <!-- Human figure -->
+  <circle cx="165" cy="235" r="28" fill="#e0f2fe" stroke="#0891b2" stroke-width="2"/>
+  <circle cx="165" cy="222" r="10" fill="#0891b2"/>
+  <path d="M145,248 q0-12,20-12 q20,0,20,12" fill="#0891b2"/>
+  <!-- bidirectional arrow -->
+  <line x1="210" y1="235" x2="250" y2="235"
+        stroke="#0891b2" stroke-width="2.5" stroke-dasharray="5 3"
+        marker-end="url(#arrowTeal)"/>
+  <line x1="248" y1="225" x2="208" y2="225"
+        stroke="#0891b2" stroke-width="2.5" stroke-dasharray="5 3"
+        marker-end="url(#arrowTeal)"/>
+  <!-- AI chip -->
+  <rect x="260" y="210" width="52" height="52" rx="8" fill="#0891b2" opacity=".12" stroke="#0891b2" stroke-width="2"/>
+  <rect x="270" y="220" width="32" height="32" rx="4" fill="#0C4A6E" stroke="#38BDF8" stroke-width="1.2"/>
+  <!-- chip pins -->
+  <line x1="260" y1="226" x2="254" y2="226" stroke="#0891b2" stroke-width="2"/>
+  <line x1="260" y1="234" x2="254" y2="234" stroke="#0891b2" stroke-width="2"/>
+  <line x1="260" y1="242" x2="254" y2="242" stroke="#0891b2" stroke-width="2"/>
+  <line x1="312" y1="226" x2="318" y2="226" stroke="#0891b2" stroke-width="2"/>
+  <line x1="312" y1="234" x2="318" y2="234" stroke="#0891b2" stroke-width="2"/>
+  <line x1="312" y1="242" x2="318" y2="242" stroke="#0891b2" stroke-width="2"/>
+  <circle cx="286" cy="236" r="6" fill="#38BDF8"/>
+  <text x="286" y="239" text-anchor="middle" font-family="monospace" font-size="7" fill="#0C4A6E" font-weight="700">AI</text>
+  <!-- description bullets -->
+  <text x="380" y="210" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Claude drafts code &amp; plans</text>
+  <text x="380" y="228" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Human reviews &amp; approves</text>
+  <text x="380" y="246" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● CLAUDE.md encodes rules</text>
+  <text x="380" y="264" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Human retains final authority</text>
+  <!-- tag -->
+  <rect x="80" y="308" width="460" height="26" rx="8" fill="#e0f2fe"/>
+  <text x="310" y="325" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#0C4A6E" font-weight="600">Oversight · Trust · Control</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 2 — PRINCIPLE 2: Context Management (top-right, blue)
+═══════════════════════════════════════════════ -->
+<g id="p2-card" class="step-item" data-step="2" filter="url(#shadow)">
+  <rect x="630" y="88" width="510" height="258" rx="20" fill="white" stroke="#3b82f6" stroke-width="2.5"/>
+  <circle cx="670" cy="128" r="22" fill="#3b82f6"/>
+  <text x="670" y="134" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="900" fill="white">2</text>
+  <text x="870" y="118" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="20" font-weight="800" fill="#1e3a8a">Context Management</text>
+  <text x="870" y="140" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#3b82f6">Right info at the right time.</text>
+</g>
+
+<!-- P2 illustration: funnel icon -->
+<g id="p2-icon" class="step-item" data-step="2">
+  <!-- funnel shape -->
+  <polygon points="720,168 820,168 790,210 790,250 750,270 750,210"
+           fill="#dbeafe" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round"/>
+  <!-- light beam below funnel -->
+  <polygon points="760,272 780,272 786,300 754,300" fill="#3b82f6" opacity=".4"/>
+  <!-- info items above funnel -->
+  <rect x="648" y="155" width="56" height="16" rx="4" fill="#3b82f6" opacity=".25"/>
+  <text x="676" y="167" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#1e3a8a">PRD</text>
+  <rect x="712" y="148" width="56" height="16" rx="4" fill="#3b82f6" opacity=".4"/>
+  <text x="740" y="160" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#1e3a8a">Code</text>
+  <rect x="776" y="155" width="56" height="16" rx="4" fill="#3b82f6" opacity=".25"/>
+  <text x="804" y="167" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#1e3a8a">Spec</text>
+  <!-- description bullets -->
+  <text x="870" y="185" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● CLAUDE.md as project memory</text>
+  <text x="870" y="203" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Context window management</text>
+  <text x="870" y="221" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Relevant files injected per task</text>
+  <text x="870" y="239" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Token-efficient instructions</text>
+  <!-- tag -->
+  <rect x="648" y="308" width="464" height="26" rx="8" fill="#dbeafe"/>
+  <text x="880" y="325" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#1e3a8a" font-weight="600">Memory · Relevance · Efficiency</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 3 — PRINCIPLE 3: Iterative Collaboration (bottom-left, orange)
+═══════════════════════════════════════════════ -->
+<g id="p3-card" class="step-item" data-step="3" filter="url(#shadow)">
+  <rect x="60" y="375" width="510" height="258" rx="20" fill="white" stroke="#ea580c" stroke-width="2.5"/>
+  <circle cx="100" cy="415" r="22" fill="#ea580c"/>
+  <text x="100" y="421" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="900" fill="white">3</text>
+  <text x="300" y="405" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="20" font-weight="800" fill="#9a3412">Iterative Collaboration</text>
+  <text x="300" y="427" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#ea580c">Generate, review, refine, repeat.</text>
+</g>
+
+<!-- P3 illustration: cycle arrows v1→v2→v3 -->
+<g id="p3-icon" class="step-item" data-step="3">
+  <!-- outer cycle ring (dashed) -->
+  <circle id="cycle-ring" cx="210" cy="512" r="58"
+          fill="none" stroke="#ea580c" stroke-width="2" stroke-dasharray="10 6"
+          opacity=".5" transform-origin="210 512"/>
+  <!-- v1, v2, v3 nodes on circle -->
+  <circle cx="210" cy="454" r="18" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="210" y="459" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#ea580c">v1</text>
+  <circle cx="262" cy="545" r="18" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="262" y="550" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#ea580c">v2</text>
+  <circle cx="158" cy="545" r="18" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="158" y="550" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#ea580c">v3</text>
+  <!-- arrows between nodes -->
+  <path d="M224,468 Q260,490 250,530" fill="none" stroke="#ea580c" stroke-width="2"
+        marker-end="url(#arrowOrange)"/>
+  <path d="M178,555 Q158,540 170,466" fill="none" stroke="#ea580c" stroke-width="2"
+        marker-end="url(#arrowOrange)"/>
+  <path d="M244,555 Q210,575 178,558" fill="none" stroke="#ea580c" stroke-width="2"
+        marker-end="url(#arrowOrange)"/>
+  <!-- cycle labels -->
+  <text x="248" y="495" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#ea580c">Generate</text>
+  <text x="140" y="510" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#ea580c">Review</text>
+  <text x="192" y="578" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#ea580c">Refine</text>
+  <!-- description bullets -->
+  <text x="368" y="468" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Claude drafts, human reviews</text>
+  <text x="368" y="486" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Feedback shapes next iteration</text>
+  <text x="368" y="504" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Short cycles → faster quality</text>
+  <text x="368" y="522" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Each pass improves fidelity</text>
+  <!-- tag -->
+  <rect x="80" y="594" width="460" height="26" rx="8" fill="#fff7ed"/>
+  <text x="310" y="611" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#9a3412" font-weight="600">Cycle · Improve · Deliver</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 4 — PRINCIPLE 4: Auditability (bottom-right, purple)
+═══════════════════════════════════════════════ -->
+<g id="p4-card" class="step-item" data-step="4" filter="url(#shadow)">
+  <rect x="630" y="375" width="510" height="258" rx="20" fill="white" stroke="#7c3aed" stroke-width="2.5"/>
+  <circle cx="670" cy="415" r="22" fill="#7c3aed"/>
+  <text x="670" y="421" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="900" fill="white">4</text>
+  <text x="870" y="405" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="20" font-weight="800" fill="#4C1D95">Auditability</text>
+  <text x="870" y="427" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#7c3aed">Every artifact is traceable.</text>
+</g>
+
+<!-- P4 illustration: git branch diagram -->
+<g id="p4-icon" class="step-item" data-step="4">
+  <!-- main branch line -->
+  <line x1="660" y1="510" x2="820" y2="510"
+        stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrowPurple)"/>
+  <!-- commit dots on main -->
+  <circle cx="680" cy="510" r="7" fill="#7c3aed"/>
+  <text x="680" y="530" text-anchor="middle" font-family="monospace" font-size="9" fill="#7c3aed">c1</text>
+  <circle cx="730" cy="510" r="7" fill="#7c3aed"/>
+  <text x="730" y="530" text-anchor="middle" font-family="monospace" font-size="9" fill="#7c3aed">c2</text>
+  <circle cx="780" cy="510" r="7" fill="#7c3aed"/>
+  <text x="780" y="530" text-anchor="middle" font-family="monospace" font-size="9" fill="#7c3aed">c3</text>
+  <!-- main label -->
+  <text x="820" y="514" font-family="monospace" font-size="11" fill="#7c3aed" font-weight="700"> main</text>
+  <!-- feature branch -->
+  <path d="M730,510 Q730,468 780,468" fill="none" stroke="#a78bfa" stroke-width="2"
+        marker-end="url(#arrowPurple)"/>
+  <circle cx="780" cy="468" r="7" fill="#a78bfa"/>
+  <text x="790" y="465" font-family="monospace" font-size="11" fill="#a78bfa" font-weight="700">feature</text>
+  <!-- merge back -->
+  <path d="M780,468 Q830,468 830,510" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="5 3"/>
+  <!-- magnifier (auditability icon) -->
+  <circle cx="780" cy="560" r="20" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
+  <circle cx="780" cy="560" r="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <line x1="795" y1="575" x2="808" y2="588" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+  <!-- description bullets -->
+  <text x="990" y="468" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Git commits per AI action</text>
+  <text x="990" y="486" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Specs &amp; PRDs version-tracked</text>
+  <text x="990" y="504" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Full decision trail preserved</text>
+  <text x="990" y="522" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" fill="#374151">● Rollback any AI-generated step</text>
+  <!-- tag -->
+  <rect x="648" y="594" width="464" height="26" rx="8" fill="#ede9fe"/>
+  <text x="880" y="611" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#4C1D95" font-weight="600">Trace · Verify · Rollback</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 5 — CONNECTING ARROWS (circular flow between principles)
+═══════════════════════════════════════════════ -->
+<!-- Arrow 1→2 (top, left to right) -->
+<path id="arrow-1-2" class="arrow-draw flow-dashed" data-step="5"
+      d="M572,210 Q600,210 628,210"
+      fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="200"
+      marker-end="url(#arrowGray)"/>
+<!-- Arrow 2→4 (right side, top to bottom) -->
+<path id="arrow-2-4" class="arrow-draw flow-dashed" data-step="5"
+      d="M885,346 Q885,360 885,374"
+      fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="200"
+      marker-end="url(#arrowGray)"/>
+<!-- Arrow 4→3 (bottom, right to left) -->
+<path id="arrow-4-3" class="arrow-draw flow-dashed" data-step="5"
+      d="M628,512 Q600,512 572,512"
+      fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="200"
+      marker-end="url(#arrowGray)"/>
+<!-- Arrow 3→1 (left side, bottom to top) -->
+<path id="arrow-3-1" class="arrow-draw flow-dashed" data-step="5"
+      d="M315,374 Q315,360 315,346"
+      fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="200"
+      marker-end="url(#arrowGray)"/>
+
+<!-- Center label for the loop -->
+<g id="center-label" class="pop-item" data-step="5">
+  <rect x="490" y="333" width="220" height="48" rx="12" fill="#0C4A6E"/>
+  <text x="600" y="353" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="white">Continuous</text>
+  <text x="600" y="370" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#38BDF8">Agentic Loop</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 6 — SUMMARY FOOTER
+═══════════════════════════════════════════════ -->
+<g id="summary" class="slide-item" data-step="6">
+  <rect x="60" y="650" width="1080" height="34" rx="10" fill="#0C4A6E"/>
+  <text x="600" y="664" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="white">
+    4 Principles:
+  </text>
+  <text x="600" y="678" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#BAE6FD">
+    Human-in-the-Loop · Context Management · Iterative Collaboration · Auditability
+  </text>
+</g>
+
+<!-- slide footer -->
+<text x="600" y="696" text-anchor="middle"
+      font-family="system-ui,-apple-system,sans-serif"
+      font-size="10" fill="#9CA3AF">
+  Figure 1.4 — Four Principles of Agentic Development · Chapter 1
+</text>
+
+</svg>
+</div>
+
+<!-- Controls -->
+<div id="click-hint">
+  <span>Click slide or press</span>
+  <span class="key">Space</span>
+  <span>/</span>
+  <span class="key">→</span>
+  <span>to advance &nbsp;·&nbsp;</span>
+  <span class="key">←</span>
+  <span>to go back &nbsp;·&nbsp;</span>
+  <span class="key">R</span>
+  <span>to reset</span>
+</div>
+<div id="step-counter">Step <span id="cur">0</span> / <span id="total">6</span></div>
+<div id="progress-bar"></div>
+
+<script>
+const TOTAL_STEPS = 6;
+
+const STEP_ELEMENTS = {
+  0: ['title-grp'],
+  1: ['p1-card', 'p1-icon'],
+  2: ['p2-card', 'p2-icon'],
+  3: ['p3-card', 'p3-icon'],
+  4: ['p4-card', 'p4-icon'],
+  5: ['arrow-1-2', 'arrow-2-4', 'arrow-4-3', 'arrow-3-1', 'center-label'],
+  6: ['summary'],
+};
+
+let currentStep = -1;
+
+const bar = document.getElementById('progress-bar');
+for (let i = 0; i <= TOTAL_STEPS; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  d.id = `dot-${i}`;
+  bar.appendChild(d);
+}
+
+function updateDots() {
+  for (let i = 0; i <= TOTAL_STEPS; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if (i < currentStep) d.className = 'dot done';
+    else if (i === currentStep) d.className = 'dot active';
+    else d.className = 'dot';
+  }
+}
+
+function showStep(step) {
+  const ids = STEP_ELEMENTS[step] || [];
+  ids.forEach((id, idx) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    setTimeout(() => el.classList.add('visible'), idx * 100);
+  });
+
+  // Activate iterative cycle ring spin at step 3
+  if (step === 3) {
+    setTimeout(() => {
+      const ring = document.getElementById('cycle-ring');
+      if (ring) ring.classList.add('active');
+    }, 300);
+  }
+}
+
+function hideStep(step) {
+  const ids = STEP_ELEMENTS[step] || [];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
+  });
+  if (step === 3) {
+    const ring = document.getElementById('cycle-ring');
+    if (ring) ring.classList.remove('active');
+  }
+}
+
+function nextStep() {
+  if (currentStep >= TOTAL_STEPS) {
+    for (let i = 0; i <= TOTAL_STEPS; i++) hideStep(i);
+    currentStep = -1;
+  }
+  currentStep++;
+  showStep(currentStep);
+  document.getElementById('cur').textContent = currentStep;
+  updateDots();
+}
+
+function prevStep() {
+  if (currentStep <= 0) return;
+  hideStep(currentStep);
+  currentStep--;
+  document.getElementById('cur').textContent = currentStep;
+  updateDots();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); prevStep(); }
+  if (e.key === 'r' || e.key === 'R') {
+    for (let i = 0; i <= TOTAL_STEPS; i++) hideStep(i);
+    currentStep = -1;
+    document.getElementById('cur').textContent = 0;
+    updateDots();
+  }
+});
+
+nextStep();
+</script>
+</body>
+</html>

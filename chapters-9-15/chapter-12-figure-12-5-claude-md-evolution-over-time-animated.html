@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 12.5 — CLAUDE.md Evolution Over Time</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw   { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+  @keyframes glowPulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+  .q4-glow { animation:glowPulse 2.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+  </marker>
+  <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000020"/>
+  </filter>
+  <filter id="q4glow" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur stdDeviation="6" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- STEP 0: Title -->
+<g class="step-item" data-step="0">
+  <text x="600" y="38" text-anchor="middle" font-size="22" font-weight="800" fill="#1F2937">CLAUDE.md Evolution Over Time</text>
+  <text x="600" y="58" text-anchor="middle" font-size="13" fill="#6B7280">Quarter-by-quarter: conventions grow as team knowledge deepens</text>
+</g>
+
+<!-- Timeline base line -->
+<g class="step-item" data-step="1">
+  <line x1="80" y1="340" x2="1130" y2="340" stroke="#e5e7eb" stroke-width="3"/>
+  <!-- Quarter labels -->
+  <text x="175" y="380" text-anchor="middle" font-size="14" font-weight="800" fill="#1F2937">Q1</text>
+  <text x="175" y="398" text-anchor="middle" font-size="11" fill="#6b7280">Initial</text>
+  <text x="433" y="380" text-anchor="middle" font-size="14" font-weight="800" fill="#1F2937">Q2</text>
+  <text x="433" y="398" text-anchor="middle" font-size="11" fill="#6b7280">After first incidents</text>
+  <text x="694" y="380" text-anchor="middle" font-size="14" font-weight="800" fill="#1F2937">Q3</text>
+  <text x="694" y="398" text-anchor="middle" font-size="11" fill="#6b7280">After retrospective</text>
+  <text x="964" y="380" text-anchor="middle" font-size="14" font-weight="800" fill="#1F2937">Q4</text>
+  <text x="964" y="398" text-anchor="middle" font-size="11" fill="#6b7280">Mature</text>
+  <!-- Team Knowledge label -->
+  <text x="600" y="440" text-anchor="middle" font-size="12" font-weight="700" fill="#94a3b8">Team Knowledge →</text>
+</g>
+
+<!-- STEP 2: Q1 trigger badge + dot -->
+<g class="step-item" data-step="2">
+  <circle cx="175" cy="340" r="10" fill="#6b7280"/>
+  <g transform="translate(110,270)">
+    <rect width="130" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <text x="65" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#047857">TRIGGER: Initial setup</text>
+  </g>
+</g>
+
+<!-- STEP 3: Q1 card — 3 conventions -->
+<g class="step-item" data-step="3">
+  <g transform="translate(82,120)">
+    <rect width="185" height="140" rx="14" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="185" height="36" rx="14" fill="#f1f5f9"/>
+    <rect x="0" y="22" width="185" height="14" fill="#f1f5f9"/>
+    <text x="26" y="23" font-size="13">📄</text>
+    <text x="92" y="23" text-anchor="middle" font-size="12" font-weight="800" fill="#1F2937">3 conventions</text>
+    <text x="14" y="56" font-size="10" fill="#6b7280">• Go clean architecture</text>
+    <text x="14" y="74" font-size="10" fill="#6b7280">• Table-driven tests</text>
+    <text x="14" y="92" font-size="10" fill="#6b7280">• run.sh script</text>
+    <text x="14" y="116" font-size="9" fill="#9ca3af" font-style="italic">Basic project setup,</text>
+    <text x="14" y="130" font-size="9" fill="#9ca3af" font-style="italic">minimal rules</text>
+  </g>
+</g>
+
+<!-- Connector Q1 card → timeline -->
+<path class="arrow-draw" data-step="3" pathLength="1"
+      d="M175,260 L175,330"
+      fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+<!-- STEP 4: Q2 trigger badge + dot -->
+<g class="step-item" data-step="4">
+  <circle cx="433" cy="340" r="10" fill="#f97316"/>
+  <g transform="translate(363,270)">
+    <rect width="140" height="28" rx="6" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5"/>
+    <text x="70" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#c2410c">⚠️ Production incidents</text>
+  </g>
+</g>
+
+<!-- STEP 5: Q2 card — 7 conventions -->
+<g class="step-item" data-step="5">
+  <g transform="translate(340,80)">
+    <rect width="185" height="180" rx="14" fill="white" stroke="#fed7aa" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="185" height="36" rx="14" fill="#fff7ed"/>
+    <rect x="0" y="22" width="185" height="14" fill="#fff7ed"/>
+    <text x="26" y="23" font-size="13">📄</text>
+    <text x="92" y="23" text-anchor="middle" font-size="12" font-weight="800" fill="#c2410c">7 conventions</text>
+    <text x="14" y="56" font-size="10" fill="#6b7280">• Provider status checks</text>
+    <text x="14" y="74" font-size="10" fill="#6b7280">• Post-mortem required</text>
+    <text x="14" y="92" font-size="10" fill="#6b7280">• WhatsApp 24h window</text>
+    <text x="14" y="110" font-size="10" fill="#6b7280">• Retry limits</text>
+    <text x="14" y="144" font-size="9" fill="#9ca3af" font-style="italic">Learned from real</text>
+    <text x="14" y="158" font-size="9" fill="#9ca3af" font-style="italic">production failures</text>
+  </g>
+</g>
+
+<path class="arrow-draw" data-step="5" pathLength="1"
+      d="M433,260 L433,330"
+      fill="none" stroke="#f97316" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+<!-- STEP 6: Q3 trigger badge + dot -->
+<g class="step-item" data-step="6">
+  <circle cx="694" cy="340" r="10" fill="#3b82f6"/>
+  <g transform="translate(616,270)">
+    <rect width="156" height="28" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="78" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#1d4ed8">📊 Sprint retrospective</text>
+  </g>
+</g>
+
+<!-- STEP 7: Q3 card — 12 conventions -->
+<g class="step-item" data-step="7">
+  <g transform="translate(600,60)">
+    <rect width="188" height="200" rx="14" fill="white" stroke="#93c5fd" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="188" height="36" rx="14" fill="#eff6ff"/>
+    <rect x="0" y="22" width="188" height="14" fill="#eff6ff"/>
+    <text x="26" y="23" font-size="13">📄</text>
+    <text x="94" y="23" text-anchor="middle" font-size="12" font-weight="800" fill="#1d4ed8">12 conventions</text>
+    <text x="14" y="56" font-size="10" fill="#6b7280">• /incident-response skill</text>
+    <text x="14" y="74" font-size="10" fill="#6b7280">• auto-failover rules</text>
+    <text x="14" y="92" font-size="10" fill="#6b7280">• runbook coverage</text>
+    <text x="14" y="110" font-size="10" fill="#6b7280">• Testcontainers required</text>
+    <text x="14" y="128" font-size="10" fill="#6b7280">• anti-pattern warnings</text>
+    <text x="14" y="162" font-size="9" fill="#9ca3af" font-style="italic">Data-driven from</text>
+    <text x="14" y="176" font-size="9" fill="#9ca3af" font-style="italic">retrospective analysis</text>
+  </g>
+</g>
+
+<path class="arrow-draw" data-step="7" pathLength="1"
+      d="M694,260 L694,330"
+      fill="none" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+<!-- STEP 8: Q4 trigger badge + dot -->
+<g class="step-item" data-step="8">
+  <circle cx="964" cy="340" r="14" fill="#1d4ed8" filter="url(#q4glow)" class="q4-glow"/>
+  <g transform="translate(886,270)">
+    <rect width="156" height="28" rx="6" fill="#fef9c3" stroke="#fde68a" stroke-width="1.5"/>
+    <text x="78" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">📅 Quarterly review</text>
+  </g>
+</g>
+
+<!-- STEP 9: Q4 card — 18+ conventions (highlighted) -->
+<g class="step-item" data-step="9">
+  <g transform="translate(860,38)">
+    <rect width="210" height="222" rx="14" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2.5" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="210" height="40" rx="14" fill="#1d4ed8"/>
+    <rect x="0" y="26" width="210" height="14" fill="#1d4ed8"/>
+    <text x="30" y="26" font-size="13">📄</text>
+    <text x="105" y="26" text-anchor="middle" font-size="13" font-weight="900" fill="white">18+ conventions</text>
+    <text x="14" y="62" font-size="10" fill="#93c5fd">• rate limiting rules</text>
+    <text x="14" y="80" font-size="10" fill="#93c5fd">• ClickHouse optimization</text>
+    <text x="14" y="98" font-size="10" fill="#93c5fd">• Testcontainers required</text>
+    <text x="14" y="116" font-size="10" fill="#93c5fd">• canary default</text>
+    <text x="14" y="134" font-size="10" fill="#93c5fd">• living ADRs</text>
+    <text x="14" y="152" font-size="10" fill="#93c5fd">• known gotchas</text>
+    <text x="14" y="188" font-size="9" fill="#64748b" font-style="italic">Institutional memory</text>
+    <text x="14" y="204" font-size="9" fill="#64748b" font-style="italic">fully encoded in AI context</text>
+  </g>
+</g>
+
+<path class="arrow-draw" data-step="9" pathLength="1"
+      d="M964,260 L964,326"
+      fill="none" stroke="#1d4ed8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+<!-- STEP 10: Bottom evolution strip -->
+<g class="step-item" data-step="10">
+  <g transform="translate(80,450)">
+    <rect width="1040" height="52" rx="12" fill="#1e293b"/>
+    <text x="30" y="24" font-size="11" font-weight="700" fill="#94a3b8">CLAUDE.md Evolution</text>
+    <text x="200" y="24" font-size="11" fill="#64748b">More experience</text>
+    <text x="350" y="24" font-size="16" fill="#3b82f6">→</text>
+    <text x="400" y="24" font-size="11" fill="#64748b">More conventions</text>
+    <text x="570" y="24" font-size="16" fill="#3b82f6">→</text>
+    <text x="620" y="24" font-size="11" fill="#64748b">Better AI guidance</text>
+    <text x="800" y="24" font-size="16" fill="#3b82f6">→</text>
+    <text x="840" y="24" font-size="11" fill="#94a3b8">Compounding returns</text>
+
+    <!-- Sub-strip -->
+    <text x="30" y="44" font-size="9" fill="#475569">3 conventions → 7 → 12 → 18+ : each retrospective encodes team learning into AI context</text>
+  </g>
+</g>
+
+<!-- STEP 11: Key insight badge -->
+<g class="badge-item" data-step="11">
+  <g transform="translate(340,510)">
+    <rect width="520" height="72" rx="12" fill="#fef9c3" stroke="#fde68a" stroke-width="2"/>
+    <text x="260" y="26" text-anchor="middle" font-size="13" font-weight="800" fill="#92400e">💡 Key Insight</text>
+    <text x="260" y="46" text-anchor="middle" font-size="11" fill="#78350f">CLAUDE.md is a living document — every incident, retrospective,</text>
+    <text x="260" y="62" text-anchor="middle" font-size="11" fill="#78350f">and quarter of experience makes the AI a better team member</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 11</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+<script>
+const TOTAL = 11;
+let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+function showArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1';
+  el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+}
+function isArrow(el) {
+  return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed');
+}
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) {
+      if (isArrow(el)) showArrow(el); else el.classList.add('visible');
+    } else {
+      if (isArrow(el)) hideArrow(el); else el.classList.remove('visible');
+    }
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

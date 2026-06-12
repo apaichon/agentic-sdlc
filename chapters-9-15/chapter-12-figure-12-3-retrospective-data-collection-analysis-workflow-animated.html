@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 12.3 — Retrospective Data Collection and Analysis Workflow</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw   { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+  @keyframes funnelPulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+  .funnel-active { animation:funnelPulse 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+  </marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#10b981"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000020"/>
+  </filter>
+  <linearGradient id="funnelGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#dbeafe"/>
+    <stop offset="100%" stop-color="#bfdbfe"/>
+  </linearGradient>
+</defs>
+
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- STEP 0: Title -->
+<g class="step-item" data-step="0">
+  <text x="600" y="38" text-anchor="middle" font-size="22" font-weight="800" fill="#1F2937">Retrospective Data Collection and Analysis Workflow</text>
+  <text x="600" y="58" text-anchor="middle" font-size="13" fill="#6B7280">Collect → Analyse → Act → Measure impact</text>
+</g>
+
+<!-- SECTION LABELS -->
+<g class="step-item" data-step="1">
+  <rect x="30" y="72" width="540" height="28" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+  <text x="300" y="90" text-anchor="middle" font-size="13" font-weight="800" fill="#dc2626">DATA COLLECTION</text>
+</g>
+
+<!-- STEP 2: Collection item 1 — Incident Metrics -->
+<g class="step-item" data-step="2">
+  <g transform="translate(38,110)">
+    <rect width="120" height="72" rx="10" fill="white" stroke="#fca5a5" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="60" y="24" text-anchor="middle" font-size="18">🔥</text>
+    <text x="60" y="42" text-anchor="middle" font-size="10" font-weight="700" fill="#dc2626">Incident</text>
+    <text x="60" y="56" text-anchor="middle" font-size="10" font-weight="700" fill="#dc2626">Metrics</text>
+    <text x="60" y="68" text-anchor="middle" font-size="9" fill="#9ca3af">MTTR, freq</text>
+  </g>
+</g>
+
+<!-- STEP 3: Collection item 2 — Sprint Velocity -->
+<g class="step-item" data-step="3">
+  <g transform="translate(170,110)">
+    <rect width="120" height="72" rx="10" fill="white" stroke="#93c5fd" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="60" y="24" text-anchor="middle" font-size="18">⚡</text>
+    <text x="60" y="42" text-anchor="middle" font-size="10" font-weight="700" fill="#1d4ed8">Sprint</text>
+    <text x="60" y="56" text-anchor="middle" font-size="10" font-weight="700" fill="#1d4ed8">Velocity</text>
+    <text x="60" y="68" text-anchor="middle" font-size="9" fill="#9ca3af">pts, cycle time</text>
+  </g>
+</g>
+
+<!-- STEP 4: Collection item 3 — AI Usage Patterns -->
+<g class="step-item" data-step="4">
+  <g transform="translate(302,110)">
+    <rect width="130" height="72" rx="10" fill="white" stroke="#c4b5fd" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="65" y="24" text-anchor="middle" font-size="18">🤖</text>
+    <text x="65" y="42" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed">AI Usage</text>
+    <text x="65" y="56" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed">Patterns</text>
+    <text x="65" y="68" text-anchor="middle" font-size="9" fill="#9ca3af">sessions, hooks</text>
+  </g>
+</g>
+
+<!-- STEP 5: Collection item 4 — Team Feedback -->
+<g class="step-item" data-step="5">
+  <g transform="translate(444,110)">
+    <rect width="120" height="72" rx="10" fill="white" stroke="#6ee7b7" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="60" y="24" text-anchor="middle" font-size="18">👥</text>
+    <text x="60" y="42" text-anchor="middle" font-size="10" font-weight="700" fill="#047857">Team</text>
+    <text x="60" y="56" text-anchor="middle" font-size="10" font-weight="700" fill="#047857">Feedback</text>
+    <text x="60" y="68" text-anchor="middle" font-size="9" fill="#9ca3af">Survey, friction</text>
+  </g>
+</g>
+
+<!-- Funnel arrows down -->
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M98,182 L255,240" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M230,182 L270,240" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M367,182 L305,240" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M504,182 L320,240" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+<!-- STEP 6: ANALYSIS label + funnel -->
+<g class="step-item" data-step="6">
+  <g transform="translate(170,242)">
+    <rect width="240" height="28" rx="8" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="120" y="19" text-anchor="middle" font-size="13" font-weight="800" fill="#1d4ed8">ANALYSIS</text>
+  </g>
+</g>
+
+<!-- STEP 7: Analysis — Trend, Pattern, Impact -->
+<g class="step-item" data-step="7">
+  <g transform="translate(78,282)">
+    <polygon points="60,0 120,0 90,55" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="90" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Trend</text>
+    <text x="90" y="44" text-anchor="middle" font-size="9" fill="#3b82f6">Better/worse?</text>
+  </g>
+</g>
+<g class="step-item" data-step="7">
+  <g transform="translate(218,282)">
+    <polygon points="60,0 120,0 90,55" fill="#f0fdf4" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="90" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="#047857">Pattern</text>
+    <text x="90" y="44" text-anchor="middle" font-size="9" fill="#16a34a">Recurring?</text>
+  </g>
+</g>
+<g class="step-item" data-step="7">
+  <g transform="translate(358,282)">
+    <polygon points="60,0 120,0 90,55" fill="#fef9c3" stroke="#fde68a" stroke-width="1.5"/>
+    <text x="90" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">Impact</text>
+    <text x="90" y="44" text-anchor="middle" font-size="9" fill="#b45309">AI saving time?</text>
+  </g>
+</g>
+
+<!-- Arrow Analysis → Action -->
+<path class="arrow-draw" data-step="8" pathLength="1"
+      d="M300,337 L300,370"
+      fill="none" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+
+<!-- STEP 8: ACTION label -->
+<g class="step-item" data-step="8">
+  <g transform="translate(170,372)">
+    <rect width="240" height="28" rx="8" fill="#f0fdf4" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="120" y="19" text-anchor="middle" font-size="13" font-weight="800" fill="#047857">ACTION</text>
+  </g>
+</g>
+
+<!-- STEP 9: Action items row -->
+<g class="step-item" data-step="9">
+  <g transform="translate(30,412)">
+    <rect width="128" height="72" rx="10" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="64" y="22" text-anchor="middle" font-size="16">⚙️</text>
+    <text x="64" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2937">Process</text>
+    <text x="64" y="54" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2937">Changes</text>
+    <text x="64" y="68" text-anchor="middle" font-size="8" fill="#9ca3af">checklists, gates</text>
+  </g>
+</g>
+<g class="step-item" data-step="9">
+  <g transform="translate(170,412)">
+    <rect width="128" height="72" rx="10" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="64" y="22" text-anchor="middle" font-size="16">📚</text>
+    <text x="64" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2937">Skill</text>
+    <text x="64" y="54" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2937">Updates</text>
+    <text x="64" y="68" text-anchor="middle" font-size="8" fill="#9ca3af">add skills, hooks</text>
+  </g>
+</g>
+<g class="step-item" data-step="9">
+  <g transform="translate(310,412)">
+    <rect width="128" height="72" rx="10" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="64" y="22" text-anchor="middle" font-size="16">📄</text>
+    <text x="64" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2937">CLAUDE.md</text>
+    <text x="64" y="54" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2937">Refinements</text>
+    <text x="64" y="68" text-anchor="middle" font-size="8" fill="#9ca3af">conventions</text>
+  </g>
+</g>
+<g class="step-item" data-step="9">
+  <g transform="translate(450,412)">
+    <rect width="120" height="72" rx="10" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="60" y="22" text-anchor="middle" font-size="16">🎓</text>
+    <text x="60" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2937">Training</text>
+    <text x="60" y="54" text-anchor="middle" font-size="10" font-weight="700" fill="#1F2937">Needs</text>
+    <text x="60" y="68" text-anchor="middle" font-size="8" fill="#9ca3af">share learnings</text>
+  </g>
+</g>
+
+<!-- STEP 10: Impact over Time panel (right) -->
+<g class="step-item" data-step="10">
+  <g transform="translate(620,72)">
+    <rect width="550" height="420" rx="16" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="550" height="44" rx="16" fill="#fef2f2"/>
+    <rect x="0" y="28" width="550" height="16" fill="#fef2f2"/>
+    <text x="275" y="22" text-anchor="middle" font-size="14" font-weight="800" fill="#dc2626">IMPACT OVER TIME (vs. Baseline)</text>
+    <text x="275" y="40" text-anchor="middle" font-size="10" fill="#9ca3af">Quarterly retrospective metrics</text>
+
+    <!-- Metric rows -->
+    <!-- Sprint velocity -->
+    <text x="20" y="76" font-size="12" font-weight="700" fill="#1F2937">⚡ Sprint velocity</text>
+    <rect x="260" y="60" width="220" height="26" rx="6" fill="#f0fdf4"/>
+    <text x="370" y="77" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">+61% ↑</text>
+    <line x1="20" y1="96" x2="530" y2="96" stroke="#f1f5f9" stroke-width="1"/>
+
+    <!-- Review turnaround -->
+    <text x="20" y="120" font-size="12" font-weight="700" fill="#1F2937">🔍 Review turnaround</text>
+    <rect x="260" y="104" width="220" height="26" rx="6" fill="#fef2f2"/>
+    <text x="370" y="121" text-anchor="middle" font-size="12" font-weight="700" fill="#ef4444">-75% ↓</text>
+    <line x1="20" y1="140" x2="530" y2="140" stroke="#f1f5f9" stroke-width="1"/>
+
+    <!-- Test coverage -->
+    <text x="20" y="164" font-size="12" font-weight="700" fill="#1F2937">✅ Test coverage</text>
+    <rect x="260" y="148" width="220" height="26" rx="6" fill="#f0fdf4"/>
+    <text x="370" y="165" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">+35pp ↑</text>
+    <line x1="20" y1="184" x2="530" y2="184" stroke="#f1f5f9" stroke-width="1"/>
+
+    <!-- Deployment frequency -->
+    <text x="20" y="208" font-size="12" font-weight="700" fill="#1F2937">🚀 Deployment frequency</text>
+    <rect x="260" y="192" width="220" height="26" rx="6" fill="#f0fdf4"/>
+    <text x="370" y="209" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">+400% ↑</text>
+    <line x1="20" y1="228" x2="530" y2="228" stroke="#f1f5f9" stroke-width="1"/>
+
+    <!-- MTTR -->
+    <text x="20" y="252" font-size="12" font-weight="700" fill="#1F2937">⏱ MTTR</text>
+    <rect x="260" y="236" width="220" height="26" rx="6" fill="#fef2f2"/>
+    <text x="370" y="253" text-anchor="middle" font-size="12" font-weight="700" fill="#ef4444">-60% ↓</text>
+    <line x1="20" y1="272" x2="530" y2="272" stroke="#f1f5f9" stroke-width="1"/>
+
+    <!-- Summary callout -->
+    <rect x="20" y="290" width="510" height="110" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="275" y="316" text-anchor="middle" font-size="13" font-weight="800" fill="#1d4ed8">Retrospective Cadence</text>
+    <text x="275" y="338" text-anchor="middle" font-size="11" fill="#374151">Weekly: review sprint metrics and AI usage</text>
+    <text x="275" y="356" text-anchor="middle" font-size="11" fill="#374151">Monthly: update skills and CLAUDE.md rules</text>
+    <text x="275" y="374" text-anchor="middle" font-size="11" fill="#374151">Quarterly: full team retrospective + impact scorecard</text>
+  </g>
+</g>
+
+<!-- STEP 11: Bottom summary strip -->
+<g class="step-item" data-step="11">
+  <g transform="translate(30,500)">
+    <rect width="560" height="66" rx="12" fill="#1e293b"/>
+    <text x="280" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#94a3b8">CONTINUOUS IMPROVEMENT LOOP</text>
+    <text x="90" y="48" text-anchor="middle" font-size="12" fill="white">Collect</text>
+    <text x="180" y="48" text-anchor="middle" font-size="18" fill="#3b82f6">→</text>
+    <text x="270" y="48" text-anchor="middle" font-size="12" fill="white">Analyse</text>
+    <text x="360" y="48" text-anchor="middle" font-size="18" fill="#3b82f6">→</text>
+    <text x="440" y="48" text-anchor="middle" font-size="12" fill="white">Act</text>
+    <text x="510" y="48" text-anchor="middle" font-size="18" fill="#3b82f6">→</text>
+  </g>
+</g>
+<g class="step-item" data-step="11">
+  <g transform="translate(620,502)">
+    <rect width="550" height="62" rx="12" fill="#1e293b"/>
+    <text x="275" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#94a3b8">MEASUREMENT</text>
+    <text x="275" y="48" text-anchor="middle" font-size="12" fill="white">Track change over baseline → Validate → Repeat</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 11</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+<script>
+const TOTAL = 11;
+let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+function showArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1';
+  el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+}
+function isArrow(el) {
+  return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed');
+}
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) {
+      if (isArrow(el)) showArrow(el); else el.classList.add('visible');
+    } else {
+      if (isArrow(el)) hideArrow(el); else el.classList.remove('visible');
+    }
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

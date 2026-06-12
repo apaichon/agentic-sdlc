@@ -1,0 +1,378 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Strategy Risk Matrix</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#F0F2F5; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:system-ui,-apple-system,sans-serif; user-select:none; }
+.container { width:1200px; height:700px; position:relative; cursor:pointer; }
+svg { width:100%; height:100%; }
+#click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+#click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+#step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+#progress-bar { display:flex; gap:8px; margin-top:10px; }
+.dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+.dot.done { background:#0E7490; }
+.dot.active { background:#3b82f6; transform:scale(1.4); }
+.step-item { opacity:0; transform:scale(.88); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .5s ease, transform .5s ease; }
+.step-item.visible { opacity:1; transform:scale(1); }
+.badge-item { opacity:0; transform:scale(0); transform-origin:50% 50%; transform-box:fill-box; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+.badge-item.visible { opacity:1; transform:scale(1); }
+.arrow-draw  { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+.arrow-dashed{ opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+</style>
+</head><body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowMain" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#475569"/></marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000030"/></filter>
+</defs>
+
+<!-- canvas background -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- ══════════════════════════════════════
+     STEP 0 — Title + subtitle
+══════════════════════════════════════ -->
+<g class="step-item" data-step="0">
+  <g transform="translate(600,38)">
+    <text x="0" y="0" text-anchor="middle" font-size="26" font-weight="800" fill="#1F2937" letter-spacing="-0.5">Test Strategy Risk Matrix</text>
+    <text x="0" y="22" text-anchor="middle" font-size="13" fill="#6B7280">Prioritize Testing by Business Impact × Likelihood of Failure</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 1 — Axis arrows (top-level) + labels
+══════════════════════════════════════ -->
+
+<!-- Y-axis arrow — TOP-LEVEL, never inside step-item -->
+<path class="arrow-draw" data-step="1" pathLength="1"
+      d="M75,600 L75,80"
+      fill="none" stroke="#475569" stroke-width="2"
+      marker-end="url(#arrowMain)"/>
+
+<!-- X-axis arrow — TOP-LEVEL -->
+<path class="arrow-draw" data-step="1" pathLength="1"
+      d="M100,630 L1100,630"
+      fill="none" stroke="#475569" stroke-width="2"
+      marker-end="url(#arrowMain)"/>
+
+<!-- Y-axis "Business Impact" rotated label -->
+<g class="step-item" data-step="1">
+  <g transform="translate(28,340)">
+    <text x="0" y="0" text-anchor="middle" font-size="13" font-weight="600" fill="#374151"
+          transform="rotate(-90)">Business Impact</text>
+  </g>
+</g>
+
+<!-- X-axis "Likelihood of Failure" label -->
+<g class="step-item" data-step="1">
+  <g transform="translate(600,660)">
+    <text x="0" y="0" text-anchor="middle" font-size="13" font-weight="600" fill="#374151">Likelihood of Failure</text>
+  </g>
+</g>
+
+<!-- Y-axis High tick -->
+<g class="step-item" data-step="1">
+  <g transform="translate(62,88)">
+    <text x="0" y="0" text-anchor="end" font-size="11" fill="#6B7280" font-weight="500">High</text>
+  </g>
+</g>
+
+<!-- Y-axis Low tick -->
+<g class="step-item" data-step="1">
+  <g transform="translate(62,605)">
+    <text x="0" y="0" text-anchor="end" font-size="11" fill="#6B7280" font-weight="500">Low</text>
+  </g>
+</g>
+
+<!-- X-axis Low tick -->
+<g class="step-item" data-step="1">
+  <g transform="translate(108,648)">
+    <text x="0" y="0" text-anchor="middle" font-size="11" fill="#6B7280" font-weight="500">Low</text>
+  </g>
+</g>
+
+<!-- X-axis High tick -->
+<g class="step-item" data-step="1">
+  <g transform="translate(1092,648)">
+    <text x="0" y="0" text-anchor="middle" font-size="11" fill="#6B7280" font-weight="500">High</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 2 — Four quadrant rects
+══════════════════════════════════════ -->
+
+<!-- P1 High — top-left -->
+<g class="step-item" data-step="2">
+  <g transform="translate(100,80)">
+    <rect width="500" height="260" rx="8" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  </g>
+</g>
+
+<!-- P0 Critical — top-right -->
+<g class="step-item" data-step="2">
+  <g transform="translate(600,80)">
+    <rect width="500" height="260" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  </g>
+</g>
+
+<!-- P2 Medium — bottom-left -->
+<g class="step-item" data-step="2">
+  <g transform="translate(100,340)">
+    <rect width="500" height="260" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  </g>
+</g>
+
+<!-- Empty — bottom-right -->
+<g class="step-item" data-step="2">
+  <g transform="translate(600,340)">
+    <rect width="500" height="260" rx="8" fill="#f8f9fa" stroke="#e2e8f0" stroke-width="1"/>
+    <!-- "Lower priority" label -->
+    <text x="250" y="130" text-anchor="middle" font-size="13" fill="#cbd5e1" font-weight="500">Lower priority</text>
+    <text x="250" y="150" text-anchor="middle" font-size="11" fill="#e2e8f0">Monitor opportunistically</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 3 — P0 Critical content (top-right)
+══════════════════════════════════════ -->
+
+<!-- "P0 Critical" quadrant label -->
+<g class="step-item" data-step="3">
+  <g transform="translate(618,100)">
+    <text x="0" y="0" font-size="13" font-weight="700" fill="#dc2626" letter-spacing="0.4">P0 Critical</text>
+  </g>
+</g>
+
+<!-- Message Router card -->
+<g class="step-item" data-step="3">
+  <g transform="translate(610,120)">
+    <rect width="220" height="70" rx="8" fill="white" stroke="#fca5a5" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Router icon (red concentric hub) -->
+    <circle cx="30" cy="35" r="14" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+    <circle cx="30" cy="35" r="5" fill="#dc2626"/>
+    <line x1="30" y1="21" x2="30" y2="26" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="30" y1="44" x2="30" y2="49" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="16" y1="35" x2="21" y2="35" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="39" y1="35" x2="44" y2="35" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="52" y="28" font-size="12" font-weight="600" fill="#1F2937">Message Router</text>
+    <text x="52" y="43" font-size="10" fill="#6B7280">Core routing engine</text>
+  </g>
+</g>
+
+<!-- SMS Gateway card -->
+<g class="step-item" data-step="3">
+  <g transform="translate(610,220)">
+    <rect width="220" height="70" rx="8" fill="white" stroke="#fca5a5" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Speech bubble icon -->
+    <rect x="14" y="14" width="26" height="20" rx="5" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+    <path d="M20,34 L17,43 L30,36" fill="#fef2f2" stroke="#dc2626" stroke-width="1.2" stroke-linejoin="round"/>
+    <line x1="19" y1="22" x2="35" y2="22" stroke="#dc2626" stroke-width="1.2"/>
+    <line x1="19" y1="27" x2="31" y2="27" stroke="#dc2626" stroke-width="1.2"/>
+    <text x="52" y="28" font-size="12" font-weight="600" fill="#1F2937">SMS Gateway</text>
+    <text x="52" y="43" font-size="10" fill="#6B7280">Delivery provider bridge</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 4 — P0 Critical priority pills (spring pop)
+══════════════════════════════════════ -->
+
+<!-- Message Router P0 Critical pill -->
+<g class="badge-item" data-step="4">
+  <g transform="translate(840,132)">
+    <rect width="88" height="22" rx="11" fill="#dc2626"/>
+    <text x="44" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="white">P0 Critical</text>
+  </g>
+</g>
+
+<!-- SMS Gateway P0 Critical pill -->
+<g class="badge-item" data-step="4">
+  <g transform="translate(840,232)">
+    <rect width="88" height="22" rx="11" fill="#dc2626"/>
+    <text x="44" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="white">P0 Critical</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 5 — P1 High content (top-left)
+══════════════════════════════════════ -->
+
+<!-- "P1 High" quadrant label -->
+<g class="step-item" data-step="5">
+  <g transform="translate(118,100)">
+    <text x="0" y="0" font-size="13" font-weight="700" fill="#f97316" letter-spacing="0.4">P1 High</text>
+  </g>
+</g>
+
+<!-- LINE Adapter card -->
+<g class="step-item" data-step="5">
+  <g transform="translate(110,120)">
+    <rect width="220" height="70" rx="8" fill="white" stroke="#fed7aa" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- LINE logo: green rounded square with L -->
+    <rect x="12" y="14" width="28" height="28" rx="8" fill="#06C755"/>
+    <text x="26" y="33" text-anchor="middle" font-size="13" font-weight="900" fill="white">L</text>
+    <text x="52" y="28" font-size="12" font-weight="600" fill="#1F2937">LINE Adapter</text>
+    <text x="52" y="43" font-size="10" fill="#6B7280">LINE Messaging API</text>
+  </g>
+</g>
+
+<!-- ClickHouse ETL card -->
+<g class="step-item" data-step="5">
+  <g transform="translate(110,220)">
+    <rect width="220" height="70" rx="8" fill="white" stroke="#fed7aa" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Bar chart icon -->
+    <rect x="12" y="30" width="7" height="14" rx="1" fill="#f97316"/>
+    <rect x="21" y="22" width="7" height="22" rx="1" fill="#f97316" opacity="0.8"/>
+    <rect x="30" y="15" width="7" height="29" rx="1" fill="#f97316" opacity="0.6"/>
+    <line x1="10" y1="44" x2="39" y2="44" stroke="#94a3b8" stroke-width="1"/>
+    <text x="52" y="28" font-size="12" font-weight="600" fill="#1F2937">ClickHouse ETL</text>
+    <text x="52" y="43" font-size="10" fill="#6B7280">Analytics pipeline</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 6 — P2 Medium content (bottom-left)
+══════════════════════════════════════ -->
+
+<!-- "P2 Medium" quadrant label -->
+<g class="step-item" data-step="6">
+  <g transform="translate(118,358)">
+    <text x="0" y="0" font-size="13" font-weight="700" fill="#16a34a" letter-spacing="0.4">P2 Medium</text>
+  </g>
+</g>
+
+<!-- Frontend UI card -->
+<g class="step-item" data-step="6">
+  <g transform="translate(110,375)">
+    <rect width="220" height="70" rx="8" fill="white" stroke="#86efac" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Browser/monitor icon -->
+    <rect x="12" y="14" width="28" height="20" rx="3" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+    <line x1="12" y1="20" x2="40" y2="20" stroke="#16a34a" stroke-width="1"/>
+    <circle cx="15" cy="17" r="1.5" fill="#16a34a"/>
+    <circle cx="20" cy="17" r="1.5" fill="#16a34a"/>
+    <line x1="26" y1="34" x2="26" y2="40" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="20" y1="40" x2="32" y2="40" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="52" y="28" font-size="12" font-weight="600" fill="#1F2937">Frontend UI</text>
+    <text x="52" y="43" font-size="10" fill="#6B7280">Admin dashboard</text>
+  </g>
+</g>
+
+<!-- Health Checks card -->
+<g class="step-item" data-step="6">
+  <g transform="translate(110,468)">
+    <rect width="220" height="70" rx="8" fill="white" stroke="#86efac" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Heartbeat/pulse icon -->
+    <polyline points="12,31 18,31 22,18 26,44 30,22 34,31 40,31"
+              fill="none" stroke="#16a34a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="52" y="28" font-size="12" font-weight="600" fill="#1F2937">Health Checks</text>
+    <text x="52" y="43" font-size="10" fill="#6B7280">Service liveness probes</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 7 — P2 Medium priority pills (spring pop)
+══════════════════════════════════════ -->
+
+<!-- Frontend UI P2 Medium pill -->
+<g class="badge-item" data-step="7">
+  <g transform="translate(340,390)">
+    <rect width="90" height="22" rx="11" fill="#16a34a"/>
+    <text x="45" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="white">P2 Medium</text>
+  </g>
+</g>
+
+<!-- Health Checks P2 Medium pill -->
+<g class="badge-item" data-step="7">
+  <g transform="translate(340,483)">
+    <rect width="90" height="22" rx="11" fill="#16a34a"/>
+    <text x="45" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="white">P2 Medium</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 8 — Priority legend row
+══════════════════════════════════════ -->
+<g class="step-item" data-step="8">
+  <g transform="translate(100,615)">
+    <rect width="1000" height="38" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+
+    <!-- P0 swatch + text -->
+    <rect x="14" y="9" width="20" height="20" rx="4" fill="#dc2626"/>
+    <text x="40" y="23" font-size="12" font-weight="700" fill="#dc2626">P0 Critical</text>
+    <text x="113" y="23" font-size="11" fill="#6B7280">— must test before every release</text>
+
+    <!-- P1 swatch + text -->
+    <rect x="340" y="9" width="20" height="20" rx="4" fill="#f97316"/>
+    <text x="366" y="23" font-size="12" font-weight="700" fill="#f97316">P1 High</text>
+    <text x="418" y="23" font-size="11" fill="#6B7280">— test each sprint</text>
+
+    <!-- P2 swatch + text -->
+    <rect x="590" y="9" width="20" height="20" rx="4" fill="#16a34a"/>
+    <text x="616" y="23" font-size="12" font-weight="700" fill="#16a34a">P2 Medium</text>
+    <text x="694" y="23" font-size="11" fill="#6B7280">— test on major changes</text>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════
+     STEP 9 — "Test P0 Critical First!" callout (spring pop)
+══════════════════════════════════════ -->
+<g class="badge-item" data-step="9">
+  <g transform="translate(860,84)">
+    <!-- callout bubble -->
+    <rect width="218" height="42" rx="8" fill="#dc2626" filter="url(#shadow)"/>
+    <!-- tail pointing down-left -->
+    <polygon points="28,42 14,56 48,42" fill="#dc2626"/>
+    <text x="109" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="white">Test P0 Critical First!</text>
+    <text x="109" y="33" text-anchor="middle" font-size="10" fill="#fecaca">Highest risk · maximum coverage</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 9</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+<script>
+const TOTAL = 9;
+let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+function showArrow(el) {
+  el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1'; el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) { el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1'; }
+function isArrow(el) { return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed'); }
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) { if (isArrow(el)) showArrow(el); else el.classList.add('visible'); }
+    else { if (isArrow(el)) hideArrow(el); else el.classList.remove('visible'); }
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+buildDots(); nextStep();
+</script>
+</body></html>

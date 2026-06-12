@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complete Developer Workflow Pipeline</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  /* ── progress chrome ── */
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  .arrow-draw   { opacity:0; stroke-dasharray:1;         stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#059669"/>
+  </marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000020"/>
+  </filter>
+  <linearGradient id="flaskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#dc2626"/>
+    <stop offset="100%" stop-color="#f97316"/>
+  </linearGradient>
+  <linearGradient id="codeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#0891b2"/>
+    <stop offset="100%" stop-color="#f97316"/>
+  </linearGradient>
+</defs>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 0: Title + Subtitle                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="0">
+  <text x="600" y="52" text-anchor="middle" font-size="26" font-weight="800" fill="#1F2937" letter-spacing="-0.5">Complete Developer Workflow Pipeline</text>
+  <text x="600" y="76" text-anchor="middle" font-size="14" fill="#6B7280">Architecture to PR · AI shifts role from Typist to Director</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 1: Stage 1 — Architecture (C4S)                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="1">
+  <g transform="translate(20,140)">
+    <!-- Card background -->
+    <rect width="160" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Blueprint icon (blue) -->
+    <!-- Blueprint grid lines -->
+    <rect x="40" y="20" width="80" height="70" rx="4" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+    <line x1="55" y1="20" x2="55" y2="90" stroke="#2563eb" stroke-width="0.7" opacity="0.4"/>
+    <line x1="70" y1="20" x2="70" y2="90" stroke="#2563eb" stroke-width="0.7" opacity="0.4"/>
+    <line x1="85" y1="20" x2="85" y2="90" stroke="#2563eb" stroke-width="0.7" opacity="0.4"/>
+    <line x1="100" y1="20" x2="100" y2="90" stroke="#2563eb" stroke-width="0.7" opacity="0.4"/>
+    <line x1="40" y1="35" x2="120" y2="35" stroke="#2563eb" stroke-width="0.7" opacity="0.4"/>
+    <line x1="40" y1="50" x2="120" y2="50" stroke="#2563eb" stroke-width="0.7" opacity="0.4"/>
+    <line x1="40" y1="65" x2="120" y2="65" stroke="#2563eb" stroke-width="0.7" opacity="0.4"/>
+    <line x1="40" y1="80" x2="120" y2="80" stroke="#2563eb" stroke-width="0.7" opacity="0.4"/>
+    <!-- Blueprint drawing marks -->
+    <rect x="48" y="38" width="28" height="20" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+    <line x1="76" y1="48" x2="110" y2="48" stroke="#2563eb" stroke-width="1.5"/>
+    <line x1="76" y1="58" x2="100" y2="58" stroke="#2563eb" stroke-width="1.5"/>
+    <line x1="48" y1="68" x2="80" y2="68" stroke="#2563eb" stroke-width="1.5"/>
+    <!-- Label -->
+    <text x="80" y="112" text-anchor="middle" font-size="12" font-weight="700" fill="#1F2937">Architecture</text>
+    <text x="80" y="126" text-anchor="middle" font-size="11" fill="#6B7280">(C4S)</text>
+    <!-- Numbered badge teal -->
+    <circle cx="140" cy="20" r="14" fill="#0891b2"/>
+    <text x="140" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">1</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 2: Arrow Stage1 → Stage2                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="2" pathLength="1"
+      d="M182,240 L198,240"
+      fill="none" stroke="#0891b2" stroke-width="2.5"
+      marker-end="url(#arrowTeal)"/>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 3: Stage 2 — Scaffold Service                         -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="3">
+  <g transform="translate(200,140)">
+    <rect width="160" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- File tree -->
+    <text x="16" y="24" font-size="9.5" fill="#374151" font-family="monospace">📁 src/</text>
+    <text x="16" y="37" font-size="9.5" fill="#374151" font-family="monospace">📁 tests/</text>
+    <text x="16" y="50" font-size="9.5" fill="#374151" font-family="monospace">📁 docs/</text>
+    <text x="16" y="63" font-size="9.5" fill="#374151" font-family="monospace">📁 config/</text>
+    <text x="16" y="76" font-size="9.5" fill="#374151" font-family="monospace">📄 .gitignore</text>
+    <text x="16" y="89" font-size="9.5" fill="#374151" font-family="monospace">📄 README.md</text>
+    <text x="16" y="102" font-size="9.5" fill="#374151" font-family="monospace">🐳 Dockerfile</text>
+    <text x="16" y="115" font-size="9.5" fill="#374151" font-family="monospace">📄 muxy.yml</text>
+    <text x="16" y="128" font-size="9.5" fill="#374151" font-family="monospace">📄 go.project.toml</text>
+    <!-- Badge "One prompt → 9 files" -->
+    <rect x="10" y="138" width="140" height="20" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+    <text x="80" y="152" text-anchor="middle" font-size="9.5" font-weight="700" fill="#059669">One prompt → 9 files</text>
+    <!-- Label -->
+    <text x="80" y="174" text-anchor="middle" font-size="12" font-weight="700" fill="#1F2937">Scaffold Service</text>
+    <!-- Numbered badge -->
+    <circle cx="140" cy="20" r="14" fill="#0891b2"/>
+    <text x="140" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">2</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 4: Arrow Stage2 → Stage3                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="4" pathLength="1"
+      d="M362,240 L378,240"
+      fill="none" stroke="#0891b2" stroke-width="2.5"
+      marker-end="url(#arrowTeal)"/>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 5: Stage 3 — Write Tests First                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="5">
+  <g transform="translate(380,140)">
+    <rect width="160" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Flask icon (red/orange gradient) -->
+    <g transform="translate(80,55)">
+      <!-- Flask body -->
+      <ellipse cx="0" cy="18" rx="22" ry="14" fill="url(#flaskGrad)" opacity="0.9"/>
+      <!-- Flask neck -->
+      <rect x="-7" y="-22" width="14" height="24" rx="3" fill="url(#flaskGrad)" opacity="0.85"/>
+      <!-- Flask rim -->
+      <rect x="-11" y="-26" width="22" height="6" rx="2" fill="#dc2626"/>
+      <!-- Bubbles -->
+      <circle cx="-8" cy="12" r="4" fill="white" opacity="0.5"/>
+      <circle cx="6" cy="20" r="3" fill="white" opacity="0.4"/>
+      <circle cx="-2" cy="8" r="2.5" fill="white" opacity="0.35"/>
+    </g>
+    <!-- TDD badge -->
+    <rect x="50" y="102" width="60" height="20" rx="6" fill="#fee2e2" stroke="#fca5a5" stroke-width="1"/>
+    <text x="80" y="116" text-anchor="middle" font-size="10" font-weight="800" fill="#dc2626">TDD</text>
+    <!-- Label -->
+    <text x="80" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#1F2937">Write Tests</text>
+    <text x="80" y="154" text-anchor="middle" font-size="11" fill="#6B7280">First</text>
+    <!-- Numbered badge -->
+    <circle cx="140" cy="20" r="14" fill="#0891b2"/>
+    <text x="140" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">3</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 6: Arrow Stage3 → Stage4                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M542,240 L558,240"
+      fill="none" stroke="#0891b2" stroke-width="2.5"
+      marker-end="url(#arrowTeal)"/>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 7: Stage 4 — Implement to Pass                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="7">
+  <g transform="translate(560,140)">
+    <rect width="160" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Code </> icon — hexagon background -->
+    <polygon points="80,18 104,31 104,57 80,70 56,57 56,31" fill="#0891b2" opacity="0.12"/>
+    <polygon points="80,22 101,33.5 101,56.5 80,68 59,56.5 59,33.5" fill="none" stroke="url(#codeGrad)" stroke-width="2"/>
+    <!-- </> text -->
+    <text x="80" y="52" text-anchor="middle" font-size="18" font-weight="900" fill="url(#codeGrad)" font-family="monospace">&lt;/&gt;</text>
+    <!-- Label -->
+    <text x="80" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#1F2937">Implement</text>
+    <text x="80" y="114" text-anchor="middle" font-size="11" fill="#6B7280">to Pass</text>
+    <!-- Numbered badge -->
+    <circle cx="140" cy="20" r="14" fill="#0891b2"/>
+    <text x="140" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">4</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 8: Arrow Stage4 → Stage5                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="8" pathLength="1"
+      d="M722,240 L738,240"
+      fill="none" stroke="#0891b2" stroke-width="2.5"
+      marker-end="url(#arrowTeal)"/>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 9: Stage 5 — Subagent Review                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="9">
+  <g transform="translate(740,140)">
+    <rect width="180" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Security Shield -->
+    <g transform="translate(28,14)">
+      <path d="M22,0 L44,8 L44,28 Q44,44 22,52 Q0,44 0,28 L0,8 Z" fill="#2563eb" opacity="0.15"/>
+      <path d="M22,0 L44,8 L44,28 Q44,44 22,52 Q0,44 0,28 L0,8 Z" fill="none" stroke="#2563eb" stroke-width="2"/>
+      <text x="22" y="32" text-anchor="middle" font-size="18" fill="#2563eb">🔒</text>
+    </g>
+    <text x="56" y="74" text-anchor="middle" font-size="9" fill="#374151" font-weight="600">Security</text>
+    <text x="56" y="84" text-anchor="middle" font-size="9" fill="#374151">Review</text>
+    <!-- Performance Shield -->
+    <g transform="translate(95,14)">
+      <path d="M22,0 L44,8 L44,28 Q44,44 22,52 Q0,44 0,28 L0,8 Z" fill="#2563eb" opacity="0.15"/>
+      <path d="M22,0 L44,8 L44,28 Q44,44 22,52 Q0,44 0,28 L0,8 Z" fill="none" stroke="#2563eb" stroke-width="2"/>
+      <text x="22" y="32" text-anchor="middle" font-size="18" fill="#2563eb">⚡</text>
+    </g>
+    <text x="123" y="74" text-anchor="middle" font-size="9" fill="#374151" font-weight="600">Performance</text>
+    <text x="123" y="84" text-anchor="middle" font-size="9" fill="#374151">Review</text>
+    <!-- Decision diamond -->
+    <polygon points="90,100 115,122 90,144 65,122" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="90" y="119" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">Issues?</text>
+    <!-- Label -->
+    <text x="90" y="168" text-anchor="middle" font-size="12" font-weight="700" fill="#1F2937">Subagent</text>
+    <text x="90" y="182" text-anchor="middle" font-size="11" fill="#6B7280">Review</text>
+    <!-- Numbered badge -->
+    <circle cx="160" cy="20" r="14" fill="#0891b2"/>
+    <text x="160" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">5</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 10: "No" Arrow Stage5 → Stage6 (green)               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="10" pathLength="1"
+      d="M982,240 L998,240"
+      fill="none" stroke="#059669" stroke-width="2.5"
+      marker-end="url(#arrowGreen)"/>
+<!-- "No" label -->
+<g class="step-item" data-step="10">
+  <g transform="translate(982,220)">
+    <text x="8" y="12" font-size="11" font-weight="700" fill="#059669">No</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 11: "Yes" curved arrow Stage5 → Stage4 (red dashed)  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<path class="arrow-dashed" data-step="11" pathLength="1"
+      d="M820,340 C820,420 760,440 700,440 C660,440 640,420 640,340"
+      fill="none" stroke="#dc2626" stroke-width="2"
+      marker-end="url(#arrowRed)"/>
+<!-- "Yes" label on the loop -->
+<g class="step-item" data-step="11">
+  <g transform="translate(710,438)">
+    <rect x="-2" y="-10" width="32" height="16" rx="4" fill="white" stroke="#dc2626" stroke-width="1"/>
+    <text x="14" y="3" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">Yes</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 12: Stage 6 — PR Ready                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="12">
+  <g transform="translate(1000,140)">
+    <rect width="160" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+    <!-- Git branch icon -->
+    <!-- Main commit line -->
+    <circle cx="60" cy="35" r="7" fill="#6b7280"/>
+    <circle cx="60" cy="75" r="7" fill="#6b7280"/>
+    <line x1="60" y1="42" x2="60" y2="68" stroke="#6b7280" stroke-width="2.5"/>
+    <!-- Branch -->
+    <circle cx="100" cy="50" r="7" fill="#2563eb"/>
+    <path d="M60,42 Q60,50 100,50" fill="none" stroke="#6b7280" stroke-width="2" stroke-dasharray="3,2"/>
+    <!-- PR arrow up -->
+    <line x1="100" y1="57" x2="100" y2="82" stroke="#6b7280" stroke-width="2" stroke-dasharray="3,2"/>
+    <!-- PR icon -->
+    <rect x="85" y="30" width="30" height="22" rx="4" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="100" y="45" text-anchor="middle" font-size="10" font-weight="700" fill="#2563eb">PR</text>
+    <!-- AI-generated description badge -->
+    <rect x="8" y="100" width="144" height="22" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+    <text x="80" y="115" text-anchor="middle" font-size="9" font-weight="600" fill="#2563eb">AI-generated description</text>
+    <!-- Label -->
+    <text x="80" y="146" text-anchor="middle" font-size="13" font-weight="700" fill="#1F2937">PR Ready</text>
+    <!-- Numbered badge -->
+    <circle cx="140" cy="20" r="14" fill="#0891b2"/>
+    <text x="140" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">6</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 13: Bottom Developer Role Strip                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="13">
+  <g transform="translate(0,0)">
+    <!-- Strip background -->
+    <rect x="20" y="560" width="1160" height="80" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" opacity="0.85"/>
+    <!-- "Developer role:" label -->
+    <text x="50" y="606" font-size="13" font-weight="700" fill="#374151">Developer role:</text>
+    <!-- Keyboard icon (Typist) -->
+    <rect x="162" y="583" width="50" height="34" rx="5" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="167" y="589" width="8" height="6" rx="1" fill="#64748b"/>
+    <rect x="179" y="589" width="8" height="6" rx="1" fill="#64748b"/>
+    <rect x="191" y="589" width="8" height="6" rx="1" fill="#64748b"/>
+    <rect x="167" y="599" width="8" height="6" rx="1" fill="#64748b"/>
+    <rect x="179" y="599" width="16" height="6" rx="1" fill="#64748b"/>
+    <rect x="199" y="599" width="8" height="6" rx="1" fill="#64748b"/>
+    <text x="187" y="631" text-anchor="middle" font-size="11" font-weight="700" fill="#0891b2">Typist</text>
+    <!-- Dashed line -->
+  </g>
+</g>
+<!-- Dashed line is a path, so keep it top-level -->
+<path class="arrow-dashed" data-step="13" pathLength="1"
+      d="M222,600 L920,600"
+      fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<g class="step-item" data-step="13">
+  <g transform="translate(0,0)">
+    <!-- Director chair icon -->
+    <!-- Chair back -->
+    <line x1="930" y1="576" x2="930" y2="618" stroke="#374151" stroke-width="3"/>
+    <line x1="950" y1="576" x2="950" y2="618" stroke="#374151" stroke-width="3"/>
+    <rect x="926" y="576" width="28" height="14" rx="3" fill="#374151"/>
+    <!-- Chair seat -->
+    <rect x="922" y="600" width="36" height="8" rx="2" fill="#6b7280"/>
+    <!-- Chair legs -->
+    <line x1="928" y1="608" x2="924" y2="622" stroke="#6b7280" stroke-width="2"/>
+    <line x1="948" y1="608" x2="952" y2="622" stroke="#6b7280" stroke-width="2"/>
+    <!-- Star badge on chair -->
+    <text x="940" y="593" text-anchor="middle" font-size="10" fill="white" font-weight="700">★</text>
+    <text x="940" y="631" text-anchor="middle" font-size="11" font-weight="700" fill="#0891b2">Director</text>
+    <!-- Arrow tip on dashed line -->
+    <text x="920" y="604" font-size="14" fill="#94a3b8">▶</text>
+    <!-- Role transition annotation -->
+    <text x="560" y="550" text-anchor="middle" font-size="11" fill="#9ca3af" font-style="italic">← writes instructions, reviews outputs, approves merges →</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 13</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> advance &nbsp;·&nbsp;
+  <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp;
+  <span class="key">← →</span> step &nbsp;·&nbsp;
+  <span class="key">Home</span> start &nbsp;·&nbsp;
+  <span class="key">End</span> finish
+</div>
+
+<script>
+const TOTAL = 13;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function showArrow(el) {
+  el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1'; el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) { el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1'; }
+function isArrow(el) { return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed'); }
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) { if (isArrow(el)) showArrow(el); else el.classList.add('visible'); }
+    else { if (isArrow(el)) hideArrow(el); else el.classList.remove('visible'); }
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat & SMS Architecture — Unified Inbox Pipeline</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, sans-serif;
+    user-select: none;
+  }
+  .container {
+    width: 1200px;
+    height: 700px;
+    position: relative;
+    cursor: pointer;
+  }
+  svg { width: 100%; height: 100%; }
+
+  #click-hint {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .key {
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  #step-counter {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+    letter-spacing: 0.08em;
+  }
+  #progress-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #334155;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .dot.done   { background: #0E7490; }
+  .dot.active { background: #38BDF8; transform: scale(1.4); }
+
+  /* ── animation base classes ── */
+  .step-item {
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(14px);
+    transform-origin: center;
+  }
+  .step-item.visible { opacity: 1; transform: translateY(0); }
+
+  .arrow-draw {
+    opacity: 0;
+    stroke-dashoffset: 80;
+    transition: opacity 0.15s, stroke-dashoffset 0.5s ease;
+  }
+  .arrow-draw.visible { opacity: 1; stroke-dashoffset: 0; }
+
+  .pop-item {
+    opacity: 0;
+    transform: scale(0.7);
+    transform-origin: center;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .pop-item.visible { opacity: 1; transform: scale(1); }
+
+  /* ── continuous animations ── */
+  @keyframes dashFlow {
+    to { stroke-dashoffset: -24; }
+  }
+  @keyframes queuePulse {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 1; }
+  }
+  @keyframes dataGlow {
+    0%, 100% { opacity: 0.6; }
+    50%       { opacity: 1; }
+  }
+  .flow-arrow.visible {
+    animation: dashFlow 1.2s linear infinite;
+  }
+  .queue-block.active {
+    animation: queuePulse 1.8s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowDown" markerWidth="9" markerHeight="9" refX="4.5" refY="7" orient="auto">
+    <path d="M1,1 L4.5,7 L8,1" fill="none" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrowTeal" markerWidth="9" markerHeight="9" refX="4.5" refY="7" orient="auto">
+    <path d="M1,1 L4.5,7 L8,1" fill="none" stroke="#0E7490" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrowOrange" markerWidth="9" markerHeight="9" refX="4.5" refY="7" orient="auto">
+    <path d="M1,1 L4.5,7 L8,1" fill="none" stroke="#ea580c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrowPurple" markerWidth="9" markerHeight="9" refX="4.5" refY="7" orient="auto">
+    <path d="M1,1 L4.5,7 L8,1" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000025"/>
+  </filter>
+  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- ── BACKGROUND ── -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- ═══════════════════════════════════════
+     STEP 0 — TITLE
+═══════════════════════════════════════ -->
+<g id="title-group" class="step-item" data-step="0">
+  <text x="600" y="38" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="24" font-weight="800" fill="#1F2937">
+    Chat &amp; SMS Gateway — Unified Inbox Architecture
+  </text>
+  <text x="600" y="58" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" fill="#6B7280">
+    End-to-end message pipeline: Next.js → Go API → Adapters → RabbitMQ → Data Stores
+  </text>
+</g>
+
+<!-- ═══════════════════════════════════════
+     STEP 1 — UNIFIED INBOX (Next.js)
+═══════════════════════════════════════ -->
+<g id="layer-inbox" class="step-item" data-step="1" filter="url(#shadow)">
+  <!-- panel -->
+  <rect x="250" y="75" width="700" height="72" rx="14" fill="white" stroke="#0891b2" stroke-width="2.5"/>
+  <!-- left accent bar -->
+  <rect x="250" y="75" width="8" height="72" rx="7" fill="#0891b2"/>
+  <!-- browser/window icon -->
+  <rect x="278" y="90" width="36" height="28" rx="5" fill="#0891b2" opacity=".15" stroke="#0891b2" stroke-width="1.5"/>
+  <rect x="278" y="90" width="36" height="10" rx="5" fill="#0891b2" opacity=".4"/>
+  <circle cx="284" cy="95" r="2" fill="white"/>
+  <circle cx="291" cy="95" r="2" fill="white"/>
+  <circle cx="298" cy="95" r="2" fill="white"/>
+  <!-- text -->
+  <text x="600" y="107" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="800" fill="#0C4A6E">Unified Inbox</text>
+  <text x="600" y="128" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#0891b2" font-weight="600">(Next.js)</text>
+  <!-- tag -->
+  <rect x="890" y="89" width="50" height="20" rx="6" fill="#0891b2" opacity=".12"/>
+  <text x="915" y="103" text-anchor="middle"
+        font-family="monospace" font-size="10" fill="#0891b2" font-weight="700">UI Layer</text>
+</g>
+
+<!-- ═══════════════════════════════════════
+     STEP 2 — Arrow inbox→gateway + API GATEWAY
+═══════════════════════════════════════ -->
+<line id="arrow-inbox-gw" class="arrow-draw flow-arrow" data-step="2"
+      x1="600" y1="147" x2="600" y2="167"
+      stroke="#0E7490" stroke-width="2.5" stroke-dasharray="28"
+      marker-end="url(#arrowTeal)"/>
+
+<g id="layer-gateway" class="step-item" data-step="2" filter="url(#shadow)">
+  <rect x="250" y="170" width="700" height="72" rx="14" fill="white" stroke="#0E7490" stroke-width="2.5"/>
+  <rect x="250" y="170" width="8" height="72" rx="7" fill="#0E7490"/>
+  <!-- server stack icon -->
+  <rect x="278" y="184" width="36" height="10" rx="3" fill="#0E7490" opacity=".3" stroke="#0E7490" stroke-width="1"/>
+  <rect x="278" y="197" width="36" height="10" rx="3" fill="#0E7490" opacity=".5" stroke="#0E7490" stroke-width="1"/>
+  <rect x="278" y="210" width="36" height="10" rx="3" fill="#0E7490" opacity=".7" stroke="#0E7490" stroke-width="1"/>
+  <text x="600" y="202" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="800" fill="#0C4A6E">API Gateway</text>
+  <text x="600" y="224" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#0E7490" font-weight="600">(Go)</text>
+  <rect x="890" y="184" width="50" height="20" rx="6" fill="#0E7490" opacity=".12"/>
+  <text x="915" y="198" text-anchor="middle"
+        font-family="monospace" font-size="10" fill="#0E7490" font-weight="700">Routing</text>
+</g>
+
+<!-- ═══════════════════════════════════════
+     STEP 3 — Arrow gateway→adapters + ADAPTER ROW
+═══════════════════════════════════════ -->
+<line id="arrow-gw-adapters" class="arrow-draw flow-arrow" data-step="3"
+      x1="600" y1="242" x2="600" y2="262"
+      stroke="#ea580c" stroke-width="2.5" stroke-dasharray="28"
+      marker-end="url(#arrowOrange)"/>
+
+<!-- Adapter row background -->
+<g id="adapter-row-bg" class="step-item" data-step="3">
+  <rect x="28" y="265" width="1144" height="80" rx="14" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5"/>
+  <text x="600" y="337" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#ea580c" font-weight="600" opacity=".6">Channel Adapters Layer</text>
+</g>
+
+<!-- Individual adapter nodes — step 4 (staggered via JS) -->
+<!-- Line Adapter -->
+<g id="adapter-line" class="pop-item" data-step="4">
+  <rect x="48" y="278" width="140" height="54" rx="10" fill="white" stroke="#16a34a" stroke-width="2"/>
+  <!-- LINE green circle icon -->
+  <circle cx="78" cy="305" r="14" fill="#16a34a"/>
+  <text x="78" y="310" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="900" fill="white">LINE</text>
+  <text x="128" y="300" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#1F2937">Line</text>
+  <text x="128" y="314" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Adapter</text>
+</g>
+
+<!-- Facebook Adapter -->
+<g id="adapter-fb" class="pop-item" data-step="4">
+  <rect x="208" y="278" width="140" height="54" rx="10" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="238" cy="305" r="14" fill="#1d4ed8"/>
+  <text x="238" y="311" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="900" fill="white">f</text>
+  <text x="288" y="300" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#1F2937">Facebook</text>
+  <text x="288" y="314" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Adapter</text>
+</g>
+
+<!-- Slack Adapter -->
+<g id="adapter-slack" class="pop-item" data-step="4">
+  <rect x="368" y="278" width="140" height="54" rx="10" fill="white" stroke="#7c3aed" stroke-width="2"/>
+  <!-- Slack hashtag icon -->
+  <circle cx="398" cy="305" r="14" fill="#7c3aed"/>
+  <text x="398" y="311" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="900" fill="white">#</text>
+  <text x="448" y="300" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#1F2937">Slack</text>
+  <text x="448" y="314" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Adapter</text>
+</g>
+
+<!-- WhatsApp Adapter -->
+<g id="adapter-wa" class="pop-item" data-step="4">
+  <rect x="528" y="278" width="140" height="54" rx="10" fill="white" stroke="#16a34a" stroke-width="2"/>
+  <circle cx="558" cy="305" r="14" fill="#16a34a"/>
+  <!-- WhatsApp phone icon -->
+  <path d="M552,300 q0-5,5-5 q5,0 5,5 l0,10 q0,5-5,5 q-5,0-5-5 z" fill="white" opacity=".7"/>
+  <text x="608" y="300" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#1F2937">WhatsApp</text>
+  <text x="608" y="314" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Adapter</text>
+</g>
+
+<!-- Teams Adapter -->
+<g id="adapter-teams" class="pop-item" data-step="4">
+  <rect x="688" y="278" width="140" height="54" rx="10" fill="white" stroke="#6366f1" stroke-width="2"/>
+  <circle cx="718" cy="305" r="14" fill="#6366f1"/>
+  <text x="718" y="311" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="900" fill="white">T</text>
+  <text x="768" y="300" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#1F2937">Teams</text>
+  <text x="768" y="314" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Adapter</text>
+</g>
+
+<!-- SMS Gateway -->
+<g id="adapter-sms" class="pop-item" data-step="4">
+  <rect x="848" y="278" width="140" height="54" rx="10" fill="white" stroke="#ea580c" stroke-width="2"/>
+  <circle cx="878" cy="305" r="14" fill="#ea580c"/>
+  <!-- SMS bubble icon -->
+  <rect x="870" y="298" width="16" height="11" rx="3" fill="white" opacity=".9"/>
+  <polyline points="873,309 870,314 876,309" fill="white" opacity=".9"/>
+  <text x="948" y="300" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="#1F2937">SMS</text>
+  <text x="948" y="314" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Gateway</text>
+</g>
+
+<!-- Adapter count badge -->
+<g id="adapter-badge" class="pop-item" data-step="4">
+  <rect x="1010" y="278" width="148" height="54" rx="10" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="1084" y="302" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="20" font-weight="800" fill="#ea580c">+more</text>
+  <text x="1084" y="320" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#9CA3AF">extensible</text>
+</g>
+
+<!-- ═══════════════════════════════════════
+     STEP 5 — Arrow adapters→rabbitmq + RABBITMQ LAYER
+═══════════════════════════════════════ -->
+<line id="arrow-adapters-mq" class="arrow-draw flow-arrow" data-step="5"
+      x1="600" y1="345" x2="600" y2="365"
+      stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="28"
+      marker-end="url(#arrowPurple)"/>
+
+<g id="layer-rabbitmq" class="step-item" data-step="5" filter="url(#shadow)">
+  <!-- main bar -->
+  <rect x="28" y="368" width="1144" height="78" rx="14" fill="white" stroke="#7c3aed" stroke-width="2.5"/>
+  <rect x="28" y="368" width="8" height="78" rx="7" fill="#7c3aed"/>
+  <!-- RabbitMQ logo simplified: rabbit ears -->
+  <ellipse cx="63" cy="390" rx="7" ry="12" fill="#7c3aed" opacity=".7"/>
+  <ellipse cx="77" cy="390" rx="7" ry="12" fill="#7c3aed" opacity=".7"/>
+  <ellipse cx="70" cy="402" rx="12" ry="10" fill="#7c3aed"/>
+  <!-- label -->
+  <text x="200" y="400" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="16" font-weight="800" fill="#4C1D95">RabbitMQ</text>
+  <text x="200" y="420" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" fill="#7c3aed" font-weight="600">Message Router</text>
+  <!-- Exchange symbol: X -->
+  <rect x="310" y="378" width="52" height="52" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="336" y="411" text-anchor="middle" font-family="system-ui" font-size="22" font-weight="900" fill="#7c3aed">✕</text>
+  <text x="336" y="437" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#7c3aed">exchange</text>
+</g>
+
+<!-- Queue blocks — animated separately at step 5 -->
+<g id="queue-blocks" class="step-item" data-step="5">
+  <!-- Queue 1 -->
+  <rect id="q1" x="390" y="384" width="140" height="42" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <rect x="395" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".5"/>
+  <rect x="416" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".4"/>
+  <rect x="437" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".3"/>
+  <text x="500" y="413" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#7c3aed">queue 1</text>
+  <!-- Queue 2 -->
+  <rect x="545" y="384" width="140" height="42" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <rect x="550" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".5"/>
+  <rect x="571" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".4"/>
+  <rect x="592" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".3"/>
+  <text x="655" y="413" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#7c3aed">queue 2</text>
+  <!-- Queue 3 -->
+  <rect x="700" y="384" width="140" height="42" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <rect x="705" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".5"/>
+  <rect x="726" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".4"/>
+  <rect x="747" y="389" width="18" height="32" rx="3" fill="#7c3aed" opacity=".3"/>
+  <text x="810" y="413" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#7c3aed">queue 3</text>
+  <!-- Ellipsis -->
+  <text x="900" y="408" text-anchor="middle" font-family="system-ui" font-size="22" font-weight="700" fill="#7c3aed" opacity=".5">···</text>
+</g>
+
+<!-- ═══════════════════════════════════════
+     STEP 6 — Arrows mq→stores + DATA STORES
+═══════════════════════════════════════ -->
+<!-- Three arrows fanning down -->
+<line id="arrow-mq-mongo" class="arrow-draw" data-step="6"
+      x1="250" y1="446" x2="250" y2="468"
+      stroke="#16a34a" stroke-width="2.5" stroke-dasharray="30"
+      marker-end="url(#arrowTeal)"/>
+<line id="arrow-mq-redis" class="arrow-draw" data-step="6"
+      x1="600" y1="446" x2="600" y2="468"
+      stroke="#dc2626" stroke-width="2.5" stroke-dasharray="30"
+      marker-end="url(#arrowTeal)"/>
+<line id="arrow-mq-ch" class="arrow-draw" data-step="6"
+      x1="950" y1="446" x2="950" y2="468"
+      stroke="#d97706" stroke-width="2.5" stroke-dasharray="30"
+      marker-end="url(#arrowTeal)"/>
+
+<!-- MongoDB -->
+<g id="store-mongo" class="step-item" data-step="6" filter="url(#shadow)">
+  <rect x="80" y="470" width="340" height="140" rx="14" fill="white" stroke="#16a34a" stroke-width="2.5"/>
+  <!-- cylinder icon for DB -->
+  <ellipse cx="180" cy="505" rx="38" ry="14" fill="#16a34a" opacity=".2"/>
+  <rect x="142" y="505" width="76" height="50" fill="#16a34a" opacity=".1"/>
+  <ellipse cx="180" cy="555" rx="38" ry="14" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+  <rect x="142" y="505" width="76" height="50" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+  <ellipse cx="180" cy="505" rx="38" ry="14" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="250" y="510" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="800" fill="#15803d">MongoDB</text>
+  <text x="250" y="535" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#16a34a">(messages)</text>
+  <rect x="100" y="568" width="300" height="28" rx="8" fill="#f0fdf4"/>
+  <text x="250" y="586" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#166534">Persistent message storage</text>
+</g>
+
+<!-- Redis -->
+<g id="store-redis" class="step-item" data-step="6" filter="url(#shadow)">
+  <rect x="430" y="470" width="340" height="140" rx="14" fill="white" stroke="#dc2626" stroke-width="2.5"/>
+  <ellipse cx="530" cy="505" rx="38" ry="14" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <rect x="492" y="505" width="76" height="50" fill="#dc2626" opacity=".07"/>
+  <rect x="492" y="505" width="76" height="50" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <ellipse cx="530" cy="555" rx="38" ry="14" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="600" y="510" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="800" fill="#dc2626">Redis</text>
+  <text x="600" y="535" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#dc2626">(sessions)</text>
+  <rect x="450" y="568" width="300" height="28" rx="8" fill="#fef2f2"/>
+  <text x="600" y="586" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#991b1b">In-memory session cache</text>
+</g>
+
+<!-- ClickHouse -->
+<g id="store-clickhouse" class="step-item" data-step="6" filter="url(#shadow)">
+  <rect x="780" y="470" width="340" height="140" rx="14" fill="white" stroke="#d97706" stroke-width="2.5"/>
+  <ellipse cx="880" cy="505" rx="38" ry="14" fill="#fef9c3" stroke="#d97706" stroke-width="1.5"/>
+  <rect x="842" y="505" width="76" height="50" fill="#d97706" opacity=".07"/>
+  <rect x="842" y="505" width="76" height="50" fill="none" stroke="#d97706" stroke-width="1.5"/>
+  <ellipse cx="880" cy="555" rx="38" ry="14" fill="none" stroke="#d97706" stroke-width="1.5"/>
+  <text x="950" y="510" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="18" font-weight="800" fill="#b45309">ClickHouse</text>
+  <text x="950" y="535" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#d97706">(analytics)</text>
+  <rect x="800" y="568" width="300" height="28" rx="8" fill="#fffbeb"/>
+  <text x="950" y="586" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#92400e">Columnar analytics engine</text>
+</g>
+
+<!-- ═══════════════════════════════════════
+     STEP 7 — LAYER LABELS (right-side callouts)
+═══════════════════════════════════════ -->
+<g id="layer-labels" class="step-item" data-step="7">
+  <!-- Layer 1 label -->
+  <line x1="1150" y1="111" x2="960" y2="111" stroke="#0891b2" stroke-width="1" stroke-dasharray="4 3" opacity=".5"/>
+  <text x="1175" y="115" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#0891b2" font-weight="600">① UI</text>
+  <!-- Layer 2 label -->
+  <line x1="1150" y1="206" x2="960" y2="206" stroke="#0E7490" stroke-width="1" stroke-dasharray="4 3" opacity=".5"/>
+  <text x="1175" y="210" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#0E7490" font-weight="600">② API</text>
+  <!-- Layer 3 label -->
+  <line x1="1175" y1="305" x2="1172" y2="305" stroke="#ea580c" stroke-width="1" opacity=".5"/>
+  <text x="1183" y="309" text-anchor="start"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#ea580c" font-weight="600">③ Adapt</text>
+  <!-- Layer 4 label -->
+  <line x1="1175" y1="407" x2="1172" y2="407" stroke="#7c3aed" stroke-width="1" opacity=".5"/>
+  <text x="1183" y="411" text-anchor="start"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#7c3aed" font-weight="600">④ MQ</text>
+  <!-- Layer 5 label -->
+  <text x="1183" y="545" text-anchor="start"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#6B7280" font-weight="600">⑤ Store</text>
+</g>
+
+<!-- ═══════════════════════════════════════
+     STEP 8 — SUMMARY FOOTER
+═══════════════════════════════════════ -->
+<g id="summary" class="step-item" data-step="8">
+  <rect x="100" y="626" width="1000" height="36" rx="10" fill="#0C4A6E"/>
+  <text x="600" y="644" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="12" font-weight="700" fill="white">
+    5-Layer Architecture:
+  </text>
+  <text x="600" y="657" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#BAE6FD">
+    UI → API Gateway → Channel Adapters → RabbitMQ Router → MongoDB · Redis · ClickHouse
+  </text>
+</g>
+
+<!-- Slide footer -->
+<text x="600" y="693" text-anchor="middle"
+      font-family="system-ui,-apple-system,sans-serif"
+      font-size="10" fill="#9CA3AF">
+  Figure 1.3 — Chat &amp; SMS Gateway · Unified Inbox Architecture
+</text>
+
+</svg>
+</div>
+
+<!-- Controls -->
+<div id="click-hint">
+  <span>Click slide or press</span>
+  <span class="key">Space</span>
+  <span>/</span>
+  <span class="key">→</span>
+  <span>to advance &nbsp;·&nbsp;</span>
+  <span class="key">←</span>
+  <span>to go back &nbsp;·&nbsp;</span>
+  <span class="key">R</span>
+  <span>to reset</span>
+</div>
+<div id="step-counter">Step <span id="cur">0</span> / <span id="total">8</span></div>
+<div id="progress-bar"></div>
+
+<script>
+const TOTAL_STEPS = 8;
+
+const STEP_ELEMENTS = {
+  0: ['title-group'],
+  1: ['layer-inbox'],
+  2: ['arrow-inbox-gw', 'layer-gateway'],
+  3: ['arrow-gw-adapters', 'adapter-row-bg'],
+  4: ['adapter-line', 'adapter-fb', 'adapter-slack', 'adapter-wa', 'adapter-teams', 'adapter-sms', 'adapter-badge'],
+  5: ['arrow-adapters-mq', 'layer-rabbitmq', 'queue-blocks'],
+  6: ['arrow-mq-mongo', 'arrow-mq-redis', 'arrow-mq-ch', 'store-mongo', 'store-redis', 'store-clickhouse'],
+  7: ['layer-labels'],
+  8: ['summary'],
+};
+
+let currentStep = -1;
+
+// Build progress dots
+const bar = document.getElementById('progress-bar');
+for (let i = 0; i <= TOTAL_STEPS; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  d.id = `dot-${i}`;
+  bar.appendChild(d);
+}
+
+function updateDots() {
+  for (let i = 0; i <= TOTAL_STEPS; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if (i < currentStep) d.className = 'dot done';
+    else if (i === currentStep) d.className = 'dot active';
+    else d.className = 'dot';
+  }
+}
+
+function showStep(step) {
+  const ids = STEP_ELEMENTS[step] || [];
+  ids.forEach((id, idx) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    setTimeout(() => el.classList.add('visible'), idx * 90);
+  });
+
+  // Activate queue pulse animation at step 5
+  if (step === 5) {
+    document.querySelectorAll('#queue-blocks rect[id^="q"]').forEach(el => {
+      el.classList.add('active');
+    });
+  }
+}
+
+function hideStep(step) {
+  const ids = STEP_ELEMENTS[step] || [];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
+  });
+  if (step === 5) {
+    document.querySelectorAll('#queue-blocks rect[id^="q"]').forEach(el => {
+      el.classList.remove('active');
+    });
+  }
+}
+
+function nextStep() {
+  if (currentStep >= TOTAL_STEPS) {
+    for (let i = 0; i <= TOTAL_STEPS; i++) hideStep(i);
+    currentStep = -1;
+  }
+  currentStep++;
+  showStep(currentStep);
+  document.getElementById('cur').textContent = currentStep;
+  updateDots();
+}
+
+function prevStep() {
+  if (currentStep <= 0) return;
+  hideStep(currentStep);
+  currentStep--;
+  document.getElementById('cur').textContent = currentStep;
+  updateDots();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); prevStep(); }
+  if (e.key === 'r' || e.key === 'R') {
+    for (let i = 0; i <= TOTAL_STEPS; i++) hideStep(i);
+    currentStep = -1;
+    document.getElementById('cur').textContent = 0;
+    updateDots();
+  }
+});
+
+nextStep();
+</script>
+</body>
+</html>

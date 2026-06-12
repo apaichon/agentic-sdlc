@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 12.1 — Five-Phase Incident Response Lifecycle</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw   { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+  @keyframes glowPulse  { 0%,100%{opacity:.15} 50%{opacity:.5} }
+  @keyframes rotateSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes nodePing   { 0%,100%{opacity:0} 50%{opacity:.7} }
+  @keyframes cycleGlow  { 0%,100%{stroke-opacity:.2} 50%{stroke-opacity:.7} }
+  #center-pulse.active { animation:glowPulse 2.8s ease-in-out infinite; }
+  .phase-ring.active   { animation:cycleGlow 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#10b981"/>
+  </marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+  </marker>
+  <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#6b7280"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000025"/>
+  </filter>
+</defs>
+
+<!-- BACKGROUND -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- STEP 0: Title -->
+<g class="step-item" data-step="0">
+  <text x="600" y="38" text-anchor="middle" font-size="22" font-weight="800" fill="#1F2937">Five-Phase Incident Response Lifecycle</text>
+  <text x="600" y="58" text-anchor="middle" font-size="13" fill="#6B7280">Click to reveal each phase · Detect → Triage → Mitigate → Resolve → Post-Mortem</text>
+</g>
+
+<!-- Cycle background ring -->
+<g class="step-item" data-step="1">
+  <g transform="translate(440,370)">
+    <circle cx="0" cy="0" r="185" fill="none" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="8 4"/>
+    <circle id="center-pulse" cx="0" cy="0" r="60" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+    <text x="0" y="-6" text-anchor="middle" font-size="11" font-weight="700" fill="#64748b">INCIDENT</text>
+    <text x="0" y="9" text-anchor="middle" font-size="11" font-weight="700" fill="#64748b">LIFECYCLE</text>
+  </g>
+</g>
+
+<!-- STEP 2: Phase 1 — Detect (top, red) -->
+<g class="step-item" data-step="2">
+  <g transform="translate(367,138)">
+    <rect width="148" height="88" rx="14" fill="white" stroke="#ef4444" stroke-width="2.5" filter="url(#shadow)"/>
+    <circle cx="20" cy="20" r="14" fill="#ef4444"/>
+    <text x="20" y="25" text-anchor="middle" font-size="12" font-weight="800" fill="white">1</text>
+    <text x="84" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#ef4444">🔔 Detect</text>
+    <text x="84" y="48" text-anchor="middle" font-size="10" fill="#6b7280">Alerts, customer reports</text>
+    <rect x="24" y="60" width="100" height="18" rx="6" fill="#fef2f2"/>
+    <text x="74" y="73" text-anchor="middle" font-size="10" font-weight="700" fill="#ef4444">&#60; 2 min</text>
+  </g>
+</g>
+
+<!-- STEP 3: Phase 2 — Triage (right, orange) -->
+<g class="step-item" data-step="3">
+  <g transform="translate(564,208)">
+    <rect width="148" height="88" rx="14" fill="white" stroke="#f97316" stroke-width="2.5" filter="url(#shadow)"/>
+    <circle cx="20" cy="20" r="14" fill="#f97316"/>
+    <text x="20" y="25" text-anchor="middle" font-size="12" font-weight="800" fill="white">2</text>
+    <text x="84" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#f97316">🔍 Triage</text>
+    <text x="84" y="48" text-anchor="middle" font-size="10" fill="#6b7280">Severity; blast radius</text>
+    <rect x="24" y="60" width="100" height="18" rx="6" fill="#fff7ed"/>
+    <text x="74" y="73" text-anchor="middle" font-size="10" font-weight="700" fill="#f97316">&#60; 5 min</text>
+  </g>
+</g>
+
+<!-- Arrow 1→2 -->
+<path class="arrow-draw" data-step="3" pathLength="1"
+      d="M510,182 C535,182 555,200 560,215"
+      fill="none" stroke="#f97316" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+
+<!-- STEP 4: Phase 3 — Mitigate (bottom-right, yellow-green) -->
+<g class="step-item" data-step="4">
+  <g transform="translate(564,380)">
+    <rect width="148" height="88" rx="14" fill="white" stroke="#eab308" stroke-width="2.5" filter="url(#shadow)"/>
+    <circle cx="20" cy="20" r="14" fill="#eab308"/>
+    <text x="20" y="25" text-anchor="middle" font-size="12" font-weight="800" fill="white">3</text>
+    <text x="84" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#ca8a04">⚡ Mitigate</text>
+    <text x="84" y="48" text-anchor="middle" font-size="10" fill="#6b7280">Rollback, scale, failover</text>
+    <rect x="24" y="60" width="100" height="18" rx="6" fill="#fefce8"/>
+    <text x="74" y="73" text-anchor="middle" font-size="10" font-weight="700" fill="#ca8a04">&#60; 15 min</text>
+  </g>
+</g>
+
+<!-- Arrow 2→3 -->
+<path class="arrow-draw" data-step="4" pathLength="1"
+      d="M638,296 L638,378"
+      fill="none" stroke="#eab308" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+
+<!-- STEP 5: Phase 4 — Resolve (bottom-left, green) -->
+<g class="step-item" data-step="5">
+  <g transform="translate(310,455)">
+    <rect width="148" height="88" rx="14" fill="white" stroke="#10b981" stroke-width="2.5" filter="url(#shadow)"/>
+    <circle cx="20" cy="20" r="14" fill="#10b981"/>
+    <text x="20" y="25" text-anchor="middle" font-size="12" font-weight="800" fill="white">4</text>
+    <text x="84" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#10b981">✅ Resolve</text>
+    <text x="84" y="48" text-anchor="middle" font-size="10" fill="#6b7280">Root cause fix, SLO restored</text>
+    <rect x="24" y="60" width="100" height="18" rx="6" fill="#f0fdf4"/>
+    <text x="74" y="73" text-anchor="middle" font-size="10" font-weight="700" fill="#10b981">SLO restored</text>
+  </g>
+</g>
+
+<!-- Arrow 3→4 -->
+<path class="arrow-draw" data-step="5" pathLength="1"
+      d="M564,424 C530,435 500,455 462,463"
+      fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+
+<!-- STEP 6: Phase 5 — Post-Mortem (top-left, purple) -->
+<g class="step-item" data-step="6">
+  <g transform="translate(180,268)">
+    <rect width="148" height="88" rx="14" fill="white" stroke="#8b5cf6" stroke-width="2.5" filter="url(#shadow)"/>
+    <circle cx="20" cy="20" r="14" fill="#8b5cf6"/>
+    <text x="20" y="25" text-anchor="middle" font-size="12" font-weight="800" fill="white">5</text>
+    <text x="84" y="30" text-anchor="middle" font-size="14" font-weight="800" fill="#8b5cf6">📋 Post-Mortem</text>
+    <text x="84" y="48" text-anchor="middle" font-size="10" fill="#6b7280">Blameless analysis,</text>
+    <text x="84" y="60" text-anchor="middle" font-size="10" fill="#6b7280">action items</text>
+    <rect x="24" y="66" width="100" height="14" rx="5" fill="#f5f3ff"/>
+    <text x="74" y="77" text-anchor="middle" font-size="9" font-weight="700" fill="#8b5cf6">blameless</text>
+  </g>
+</g>
+
+<!-- Arrow 4→5 -->
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M310,500 C270,490 240,460 240,380"
+      fill="none" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+
+<!-- Arrow 5→Improve (back to top, dashed) -->
+<path class="arrow-dashed" data-step="6" pathLength="1"
+      d="M270,268 C260,200 300,160 367,175"
+      fill="none" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+<!-- Improve badge -->
+<g class="badge-item" data-step="6">
+  <g transform="translate(244,130)">
+    <rect width="110" height="52" rx="10" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+    <text x="55" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#10b981">↻ Improve</text>
+    <text x="55" y="38" text-anchor="middle" font-size="9" fill="#6b7280">Continuous</text>
+    <text x="55" y="49" text-anchor="middle" font-size="9" fill="#6b7280">improvement</text>
+  </g>
+</g>
+
+<!-- STEP 7: Formula -->
+<g class="step-item" data-step="7">
+  <g transform="translate(730,290)">
+    <rect width="420" height="72" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="210" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="#6b7280">DETECTION TIME FORMULA</text>
+    <text x="210" y="50" text-anchor="middle" font-size="16" font-weight="800" fill="#1F2937" font-family="monospace">D = T&#x2093; + T&#x209C; + T&#x2098;</text>
+    <text x="210" y="66" text-anchor="middle" font-size="10" fill="#9ca3af">99.9% SLO = 43.2 min/month budget · 4 incidents → 10.8 min each</text>
+  </g>
+</g>
+
+<!-- STEP 8: Error Budget Bar -->
+<g class="step-item" data-step="8">
+  <g transform="translate(730,380)">
+    <rect width="420" height="90" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="14" y="22" font-size="10" font-weight="800" fill="#6b7280">ERROR BUDGET (43.2 min/month)</text>
+    <!-- Used bar -->
+    <rect x="14" y="32" width="195" height="28" rx="6" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+    <text x="110" y="50" text-anchor="middle" font-size="11" font-weight="700" fill="#ef4444">USED: 21.6 min (50%)</text>
+    <!-- Remaining bar -->
+    <rect x="213" y="32" width="193" height="28" rx="6" fill="#f0fdf4" stroke="#6ee7b7" stroke-width="1"/>
+    <text x="309" y="50" text-anchor="middle" font-size="11" font-weight="700" fill="#10b981">REMAINING: 21.6 min (50%)</text>
+    <!-- Breach indicator -->
+    <rect x="14" y="66" width="392" height="16" rx="5" fill="#fff7ed"/>
+    <text x="210" y="78" text-anchor="middle" font-size="10" font-weight="700" fill="#f97316">⚠️ BREACH threshold: 43.2 min consumed → SLO at risk</text>
+  </g>
+</g>
+
+<!-- STEP 9: SLO label panel -->
+<g class="step-item" data-step="9">
+  <g transform="translate(730,480)">
+    <rect width="420" height="60" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="210" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">SLO TARGET</text>
+    <text x="210" y="42" text-anchor="middle" font-size="18" font-weight="900" fill="#1d4ed8">99.9% uptime</text>
+    <text x="210" y="56" text-anchor="middle" font-size="10" fill="#3b82f6">= 43.2 min downtime budget per month</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 9</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+<script>
+const TOTAL = 9;
+let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+function showArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1';
+  el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+}
+function isArrow(el) {
+  return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed');
+}
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) {
+      if (isArrow(el)) showArrow(el); else el.classList.add('visible');
+    } else {
+      if (isArrow(el)) hideArrow(el); else el.classList.remove('visible');
+    }
+  });
+  if (step >= 1) {
+    document.getElementById('center-pulse')?.classList.add('active');
+  } else {
+    document.getElementById('center-pulse')?.classList.remove('active');
+  }
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

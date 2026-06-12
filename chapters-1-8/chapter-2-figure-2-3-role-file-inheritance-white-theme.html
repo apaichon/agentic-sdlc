@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.3 — Role File Inheritance Model</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F8F9FA;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif;
+    user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  #click-hint { margin-top:14px; font-size:13px; color:#94a3b8; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#334155; border:1px solid #475569; border-radius:6px; padding:2px 10px; font-size:12px; color:#cbd5e1; }
+  #step-counter { font-size:12px; color:#64748b; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#334155; transition:background .3s, transform .3s; }
+  .dot.done  { background:#0E7490; }
+  .dot.active { background:#38BDF8; transform:scale(1.4); }
+
+  .step-item { opacity:0; transform:scale(.88); transform-origin:center; transition:opacity .5s ease, transform .5s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .arrow-draw { opacity:0; stroke-dashoffset:300; transition:opacity .1s, stroke-dashoffset .6s ease; }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+
+  .badge-item { opacity:0; transform:scale(0); transform-origin:center; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+</style>
+</head>
+<body>
+
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000018"/>
+  </filter>
+  <filter id="shadowStrong" x="-15%" y="-15%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#00000025"/>
+  </filter>
+  <!-- Teal arrowhead -->
+  <marker id="arrow-teal" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#0891b2"/>
+  </marker>
+  <!-- Blue arrowhead -->
+  <marker id="arrow-blue" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
+  </marker>
+  <!-- Orange arrowhead -->
+  <marker id="arrow-orange" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
+  </marker>
+  <!-- Red arrowhead -->
+  <marker id="arrow-red" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
+  </marker>
+</defs>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 0: Title                                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<g id="title-group" class="step-item" data-step="0">
+  <text x="600" y="36" text-anchor="middle" font-size="21" font-weight="800" fill="#1F2937" letter-spacing=".01em">Figure 2.3 — Role File Inheritance Model</text>
+  <text x="600" y="58" text-anchor="middle" font-size="13" fill="#6B7280" letter-spacing=".03em">Base Class and Specializations</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 1: CLAUDE.md Base Class Node               -->
+<!-- x=410, y=78, w=380, h=190                       -->
+<!-- ═══════════════════════════════════════════════ -->
+<g id="base-node" class="step-item" data-step="1" filter="url(#shadowStrong)">
+  <!-- Card background -->
+  <rect x="410" y="78" width="380" height="190" rx="12" ry="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Blue header bar -->
+  <rect x="410" y="78" width="380" height="46" rx="12" ry="12" fill="#2563eb"/>
+  <!-- square off bottom corners of header -->
+  <rect x="410" y="104" width="380" height="20" fill="#2563eb"/>
+
+  <!-- Document icon in header -->
+  <!-- page shape -->
+  <rect x="428" y="87" width="16" height="20" rx="2" ry="2" fill="white" opacity=".9"/>
+  <polyline points="438,87 444,87 444,93" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+  <!-- fold triangle -->
+  <polygon points="438,87 444,87 444,93 438,93" fill="#bfdbfe" opacity=".7"/>
+  <!-- lines on doc -->
+  <line x1="430" y1="97" x2="440" y2="97" stroke="#bfdbfe" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="430" y1="101" x2="442" y2="101" stroke="#bfdbfe" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="430" y1="105" x2="438" y2="105" stroke="#bfdbfe" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Header label -->
+  <text x="454" y="97" font-size="14" font-weight="700" fill="white" dominant-baseline="middle">CLAUDE.md</text>
+  <text x="454" y="113" font-size="11" fill="#bfdbfe" dominant-baseline="middle">(Base Class)</text>
+
+  <!-- Body bullets -->
+  <!-- bullet 1 -->
+  <circle cx="432" cy="143" r="4" fill="#dbeafe"/>
+  <text x="444" y="143" font-size="12" fill="#374151" dominant-baseline="middle">Project Overview</text>
+  <!-- bullet 2 -->
+  <circle cx="432" cy="162" r="4" fill="#dbeafe"/>
+  <text x="444" y="162" font-size="12" fill="#374151" dominant-baseline="middle">Architecture</text>
+  <!-- bullet 3 -->
+  <circle cx="432" cy="181" r="4" fill="#dbeafe"/>
+  <text x="444" y="181" font-size="12" fill="#374151" dominant-baseline="middle">Coding Standards</text>
+  <!-- bullet 4 -->
+  <circle cx="432" cy="200" r="4" fill="#dbeafe"/>
+  <text x="444" y="200" font-size="12" fill="#374151" dominant-baseline="middle">API Conventions</text>
+  <!-- bullet 5 -->
+  <circle cx="432" cy="219" r="4" fill="#dbeafe"/>
+  <text x="444" y="219" font-size="12" fill="#374151" dominant-baseline="middle">Git Conventions</text>
+  <!-- Bottom border accent -->
+  <rect x="410" y="256" width="380" height="4" rx="2" fill="#2563eb" opacity=".15"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 2: pm.md — Teal                            -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Teal extends arrow: from base bottom (600,268) → pm.md top (240,348) -->
+<g data-step="2">
+  <path class="arrow-draw"
+    d="M 600 268 C 600 310 240 310 240 348"
+    fill="none" stroke="#0891b2" stroke-width="2.2"
+    stroke-dasharray="8,5" stroke-dashoffset="300"
+    marker-end="url(#arrow-teal)"/>
+  <!-- "extends" label -->
+  <text class="step-item" data-step="2" x="395" y="308" text-anchor="middle" font-size="11" fill="#0891b2" font-style="italic" font-weight="600">extends</text>
+</g>
+
+<!-- pm.md card: x=130, y=348, w=220, h=165 -->
+<g id="pm-node" class="step-item" data-step="2" filter="url(#shadow)">
+  <rect x="130" y="348" width="220" height="165" rx="10" ry="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Teal header -->
+  <rect x="130" y="348" width="220" height="40" rx="10" ry="10" fill="#0891b2"/>
+  <rect x="130" y="368" width="220" height="20" fill="#0891b2"/>
+
+  <!-- Person icon -->
+  <!-- head -->
+  <circle cx="150" cy="360" r="7" fill="white" opacity=".9"/>
+  <!-- body -->
+  <path d="M 140 378 Q 150 368 160 378" fill="none" stroke="white" stroke-width="2" opacity=".9"/>
+
+  <text x="165" y="373" font-size="13" font-weight="700" fill="white">pm.md</text>
+
+  <!-- Bullets -->
+  <circle cx="150" cy="408" r="3.5" fill="#cffafe"/>
+  <text x="160" y="408" font-size="11.5" fill="#374151" dominant-baseline="middle">PRD format</text>
+  <circle cx="150" cy="428" r="3.5" fill="#cffafe"/>
+  <text x="160" y="428" font-size="11.5" fill="#374151" dominant-baseline="middle">Sprint structure</text>
+  <circle cx="150" cy="448" r="3.5" fill="#cffafe"/>
+  <text x="160" y="448" font-size="11.5" fill="#374151" dominant-baseline="middle">Estimation rules</text>
+
+  <!-- Bottom accent -->
+  <rect x="130" y="501" width="220" height="3" rx="1.5" fill="#0891b2" opacity=".2"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 3: dev.md — Blue                           -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Blue extends arrow: base bottom (600,268) → dev.md top (430,348) -->
+<g data-step="3">
+  <path class="arrow-draw"
+    d="M 600 268 C 600 310 430 310 430 348"
+    fill="none" stroke="#3b82f6" stroke-width="2.2"
+    stroke-dasharray="8,5" stroke-dashoffset="300"
+    marker-end="url(#arrow-blue)"/>
+  <text class="step-item" data-step="3" x="525" y="308" text-anchor="middle" font-size="11" fill="#3b82f6" font-style="italic" font-weight="600">extends</text>
+</g>
+
+<!-- dev.md card: x=320, y=348, w=220, h=165 -->
+<g id="dev-node" class="step-item" data-step="3" filter="url(#shadow)">
+  <rect x="320" y="348" width="220" height="165" rx="10" ry="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Blue header -->
+  <rect x="320" y="348" width="220" height="40" rx="10" ry="10" fill="#3b82f6"/>
+  <rect x="320" y="368" width="220" height="20" fill="#3b82f6"/>
+
+  <!-- Code icon: </> brackets -->
+  <text x="340" y="374" font-size="15" font-weight="800" fill="white" opacity=".9" dominant-baseline="middle" font-family="monospace">&lt;/&gt;</text>
+
+  <text x="362" y="373" font-size="13" font-weight="700" fill="white">dev.md</text>
+
+  <!-- Bullets -->
+  <circle cx="340" cy="408" r="3.5" fill="#dbeafe"/>
+  <text x="350" y="408" font-size="11.5" fill="#374151" dominant-baseline="middle">Clean arch. layers</text>
+  <circle cx="340" cy="428" r="3.5" fill="#dbeafe"/>
+  <text x="350" y="428" font-size="11.5" fill="#374151" dominant-baseline="middle">TDD workflow</text>
+  <circle cx="340" cy="448" r="3.5" fill="#dbeafe"/>
+  <text x="350" y="448" font-size="11.5" fill="#374151" dominant-baseline="middle">Review checklist</text>
+
+  <rect x="320" y="501" width="220" height="3" rx="1.5" fill="#3b82f6" opacity=".2"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 4: tester.md — Orange                      -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Orange extends arrow: base bottom (600,268) → tester.md top (660,348) -->
+<g data-step="4">
+  <path class="arrow-draw"
+    d="M 600 268 C 600 310 660 310 660 348"
+    fill="none" stroke="#f59e0b" stroke-width="2.2"
+    stroke-dasharray="8,5" stroke-dashoffset="300"
+    marker-end="url(#arrow-orange)"/>
+  <text class="step-item" data-step="4" x="638" y="308" text-anchor="middle" font-size="11" fill="#f59e0b" font-style="italic" font-weight="600">extends</text>
+</g>
+
+<!-- tester.md card: x=550, y=348, w=220, h=165 -->
+<g id="tester-node" class="step-item" data-step="4" filter="url(#shadow)">
+  <rect x="550" y="348" width="220" height="165" rx="10" ry="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Orange header -->
+  <rect x="550" y="348" width="220" height="40" rx="10" ry="10" fill="#f59e0b"/>
+  <rect x="550" y="368" width="220" height="20" fill="#f59e0b"/>
+
+  <!-- Flask / beaker icon -->
+  <g transform="translate(563, 356)">
+    <!-- flask body -->
+    <path d="M 4 0 L 4 8 L 0 16 L 12 16 L 8 8 L 8 0 Z" fill="none" stroke="white" stroke-width="1.8" stroke-linejoin="round" opacity=".95"/>
+    <!-- liquid inside -->
+    <path d="M 1 12 L 11 12 L 12 16 L 0 16 Z" fill="white" opacity=".4"/>
+    <!-- bubbles -->
+    <circle cx="4" cy="13.5" r="1.2" fill="white" opacity=".7"/>
+    <circle cx="7.5" cy="11.5" r="1" fill="white" opacity=".6"/>
+    <!-- neck line -->
+    <line x1="4" y1="2" x2="8" y2="2" stroke="white" stroke-width="1.5" opacity=".7"/>
+  </g>
+
+  <text x="582" y="373" font-size="13" font-weight="700" fill="white">tester.md</text>
+
+  <!-- Bullets -->
+  <circle cx="570" cy="408" r="3.5" fill="#fef3c7"/>
+  <text x="580" y="408" font-size="11.5" fill="#374151" dominant-baseline="middle">Three-level test strategy</text>
+  <circle cx="570" cy="428" r="3.5" fill="#fef3c7"/>
+  <text x="580" y="428" font-size="11.5" fill="#374151" dominant-baseline="middle">Coverage targets</text>
+  <circle cx="570" cy="448" r="3.5" fill="#fef3c7"/>
+  <text x="580" y="448" font-size="11.5" fill="#374151" dominant-baseline="middle">Mock framework</text>
+
+  <rect x="550" y="501" width="220" height="3" rx="1.5" fill="#f59e0b" opacity=".2"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 5: devops.md — Red                         -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- Red extends arrow: base bottom (600,268) → devops.md top (870,348) -->
+<g data-step="5">
+  <path class="arrow-draw"
+    d="M 600 268 C 600 310 870 310 870 348"
+    fill="none" stroke="#ef4444" stroke-width="2.2"
+    stroke-dasharray="8,5" stroke-dashoffset="300"
+    marker-end="url(#arrow-red)"/>
+  <text class="step-item" data-step="5" x="748" y="308" text-anchor="middle" font-size="11" fill="#ef4444" font-style="italic" font-weight="600">extends</text>
+</g>
+
+<!-- devops.md card: x=760, y=348, w=220, h=165 -->
+<g id="devops-node" class="step-item" data-step="5" filter="url(#shadow)">
+  <rect x="760" y="348" width="220" height="165" rx="10" ry="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Red header -->
+  <rect x="760" y="348" width="220" height="40" rx="10" ry="10" fill="#ef4444"/>
+  <rect x="760" y="368" width="220" height="20" fill="#ef4444"/>
+
+  <!-- Gear icon -->
+  <g transform="translate(772, 356)">
+    <circle cx="8" cy="8" r="3" fill="none" stroke="white" stroke-width="1.8" opacity=".95"/>
+    <!-- gear teeth (8 teeth) -->
+    <g stroke="white" stroke-width="2" stroke-linecap="round" opacity=".9">
+      <line x1="8" y1="0" x2="8" y2="2.5"/>
+      <line x1="8" y1="13.5" x2="8" y2="16"/>
+      <line x1="0" y1="8" x2="2.5" y2="8"/>
+      <line x1="13.5" y1="8" x2="16" y2="8"/>
+      <line x1="1.8" y1="1.8" x2="3.6" y2="3.6"/>
+      <line x1="12.4" y1="12.4" x2="14.2" y2="14.2"/>
+      <line x1="14.2" y1="1.8" x2="12.4" y2="3.6"/>
+      <line x1="3.6" y1="12.4" x2="1.8" y2="14.2"/>
+    </g>
+  </g>
+
+  <text x="793" y="373" font-size="13" font-weight="700" fill="white">devops.md</text>
+
+  <!-- Bullets -->
+  <circle cx="780" cy="408" r="3.5" fill="#fee2e2"/>
+  <text x="790" y="408" font-size="11.5" fill="#374151" dominant-baseline="middle">Multi-stage Docker</text>
+  <circle cx="780" cy="428" r="3.5" fill="#fee2e2"/>
+  <text x="790" y="428" font-size="11.5" fill="#374151" dominant-baseline="middle">CI/CD stages</text>
+  <circle cx="780" cy="448" r="3.5" fill="#fee2e2"/>
+  <text x="790" y="448" font-size="11.5" fill="#374151" dominant-baseline="middle">Monitoring requirements</text>
+
+  <rect x="760" y="501" width="220" height="3" rx="1.5" fill="#ef4444" opacity=".2"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STEP 6: Bottom Badge                            -->
+<!-- ═══════════════════════════════════════════════ -->
+<g id="badge-group" class="badge-item" data-step="6">
+  <!-- Green banner -->
+  <rect x="340" y="542" width="520" height="46" rx="23" ry="23" fill="#059669"/>
+  <!-- subtle inner highlight -->
+  <rect x="342" y="544" width="516" height="22" rx="20" ry="20" fill="#10b981" opacity=".3"/>
+  <!-- checkmark circle -->
+  <circle cx="375" cy="565" r="14" fill="#34d399" opacity=".3"/>
+  <text x="375" y="565" text-anchor="middle" dominant-baseline="middle" font-size="16">✓</text>
+  <text x="600" y="565" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="700" fill="white" letter-spacing=".04em">Role files specialize, never duplicate.</text>
+</g>
+
+</svg>
+</div>
+
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 6</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> or <span class="key">SPACE</span> to advance &nbsp;·&nbsp;
+  <span class="key">End</span> to finish &nbsp;·&nbsp;
+  <span class="key">Home</span> to reset
+</div>
+
+<script>
+const TOTAL = 6;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function nextStep() {
+  if (step >= TOTAL) return;
+  step++;
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'Home') location.reload();
+  if (e.key === 'End') { while (step < TOTAL) nextStep(); }
+});
+
+buildDots();
+nextStep(); // auto-show step 0
+</script>
+</body>
+</html>

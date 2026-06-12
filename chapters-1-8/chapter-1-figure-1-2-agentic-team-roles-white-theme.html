@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Team Roles — Claude Code Orchestration</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, sans-serif;
+    user-select: none;
+  }
+  .container {
+    width: 1200px;
+    height: 700px;
+    position: relative;
+    cursor: pointer;
+  }
+  svg { width: 100%; height: 100%; }
+
+  #click-hint {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #click-hint .key {
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  #step-counter {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+    letter-spacing: 0.08em;
+  }
+  #progress-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #334155;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .dot.done   { background: #0E7490; }
+  .dot.active { background: #38BDF8; transform: scale(1.4); }
+
+  /* ── base animation classes ── */
+  .step-item {
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: scale(0.88);
+    transform-origin: center;
+  }
+  .step-item.visible { opacity: 1; transform: scale(1); }
+
+  .arrow-draw {
+    opacity: 0;
+    stroke-dashoffset: 120;
+    transition: opacity 0.1s, stroke-dashoffset 0.55s ease;
+  }
+  .arrow-draw.visible { opacity: 1; stroke-dashoffset: 0; }
+
+  .badge-item {
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: center;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .badge-item.visible { opacity: 1; transform: scale(1); }
+
+  /* ── continuous animations ── */
+  @keyframes dashFlow   { to { stroke-dashoffset: -20; } }
+  @keyframes glowPulse  { 0%,100%{opacity:.2;r:52} 50%{opacity:.55;r:62} }
+  @keyframes rotateSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes nodePing   { 0%,100%{opacity:0;r:5} 50%{opacity:.8;r:11} }
+
+  .spoke-line.visible { animation: dashFlow 1.6s linear infinite; }
+  #center-pulse.active { animation: glowPulse 2.8s ease-in-out infinite; }
+  #center-ring.active  { animation: rotateSlow 12s linear infinite; opacity: .4; }
+  .ping-dot.active     { animation: nodePing 2.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0E7490"/>
+  </marker>
+  <marker id="arrowTealR" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto-start-reverse">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0E7490"/>
+  </marker>
+  <marker id="arrowPM"     markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowDev"    markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+  </marker>
+  <marker id="arrowTest"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#f59e0b"/>
+  </marker>
+  <marker id="arrowDevOps" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+  </marker>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="4" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glowStrong" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="9" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000030"/>
+  </filter>
+</defs>
+
+<!-- ── BACKGROUND ── -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+<!-- subtle grid -->
+<rect width="1200" height="700" fill="none"
+      style="background-image:linear-gradient(rgba(8,145,178,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(8,145,178,.04) 1px,transparent 1px);background-size:48px 48px"/>
+
+<!-- ── STEP 0 — TITLE ── -->
+<g id="title-group" class="step-item" data-step="0">
+  <text x="600" y="42" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="25" font-weight="800" fill="#1F2937">
+    Agentic Team Roles: Claude Code Orchestration
+  </text>
+  <text x="600" y="64" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" fill="#6B7280">
+    Each role is AI-augmented — Claude Code coordinates all four quadrants simultaneously
+  </text>
+</g>
+
+<!-- ═══════════════════════════════════════════
+     STEP 1 — CENTER: Claude Code hub
+═══════════════════════════════════════════ -->
+<!-- Glow pulse ring (activated at step 1) -->
+<circle id="center-pulse" cx="600" cy="370" r="52" fill="#0E7490" opacity="0"/>
+<!-- Rotating dashed ring -->
+<g transform="translate(600,370)">
+  <circle id="center-ring" r="56" fill="none" stroke="#0E7490" stroke-width="1.2"
+          stroke-dasharray="9 16" opacity="0" transform-origin="0 0"/>
+</g>
+<!-- Expand pulse ring (SVG animate) -->
+<circle cx="600" cy="370" r="56" fill="none" stroke="#0E7490" stroke-width="1.5" opacity="0">
+  <animate attributeName="r" values="56;78;56" dur="2.8s" begin="indefinite" repeatCount="indefinite" id="pulse-expand"/>
+  <animate attributeName="opacity" values="0;.3;0" dur="2.8s" begin="indefinite" repeatCount="indefinite"/>
+</circle>
+
+<g id="center-hub" class="step-item" data-step="1" filter="url(#glowStrong)">
+  <!-- outer ring -->
+  <circle cx="600" cy="370" r="52" fill="#0C4A6E"/>
+  <circle cx="600" cy="370" r="52" fill="none" stroke="#0E7490" stroke-width="3"/>
+  <!-- chip icon -->
+  <rect x="578" y="348" width="44" height="44" rx="6" fill="#0E7490"/>
+  <rect x="585" y="355" width="30" height="30" rx="3" fill="#0C4A6E" stroke="#38BDF8" stroke-width="1.5"/>
+  <!-- chip pins left/right -->
+  <line x1="578" y1="360" x2="572" y2="360" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="578" y1="367" x2="572" y2="367" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="578" y1="374" x2="572" y2="374" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="622" y1="360" x2="628" y2="360" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="622" y1="367" x2="628" y2="367" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="622" y1="374" x2="628" y2="374" stroke="#38BDF8" stroke-width="2"/>
+  <!-- chip pins top/bottom -->
+  <line x1="592" y1="348" x2="592" y2="342" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="600" y1="348" x2="600" y2="342" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="608" y1="348" x2="608" y2="342" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="592" y1="392" x2="592" y2="398" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="600" y1="392" x2="600" y2="398" stroke="#38BDF8" stroke-width="2"/>
+  <line x1="608" y1="392" x2="608" y2="398" stroke="#38BDF8" stroke-width="2"/>
+  <!-- inner circuit dot -->
+  <circle cx="600" cy="370" r="5" fill="#38BDF8"/>
+  <!-- label -->
+  <text x="600" y="422" text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" font-weight="800" fill="#0C4A6E">Claude Code</text>
+</g>
+
+<!-- ═══════════════════════════════════════════
+     STEP 2 — PM QUADRANT (top-left, teal/cyan)
+═══════════════════════════════════════════ -->
+<!-- Spoke: center → PM panel -->
+<line id="spoke-pm" class="arrow-draw spoke-line" data-step="2"
+      x1="567" y1="342" x2="340" y2="215"
+      stroke="#0891b2" stroke-width="2.5" stroke-dasharray="120"
+      marker-end="url(#arrowPM)" marker-start="url(#arrowTealR)"/>
+
+<!-- PM panel -->
+<g id="panel-pm" class="step-item" data-step="2" filter="url(#shadow)">
+  <!-- panel bg -->
+  <rect x="30" y="80" width="490" height="240" rx="16" fill="white" stroke="#0891b2" stroke-width="2.5"/>
+  <!-- color strip top -->
+  <rect x="30" y="80" width="490" height="44" rx="16" fill="#0891b2"/>
+  <rect x="30" y="104" width="490" height="20" fill="#0891b2"/>
+  <!-- icon: clipboard -->
+  <rect x="48" y="88" width="20" height="26" rx="3" fill="none" stroke="white" stroke-width="1.5"/>
+  <rect x="54" y="84" width="8" height="7" rx="2" fill="white"/>
+  <line x1="51" y1="97"  x2="65" y2="97"  stroke="white" stroke-width="1.2"/>
+  <line x1="51" y1="102" x2="65" y2="102" stroke="white" stroke-width="1.2"/>
+  <line x1="51" y1="107" x2="61" y2="107" stroke="white" stroke-width="1.2"/>
+  <!-- title -->
+  <text x="76" y="98" font-family="system-ui,-apple-system,sans-serif"
+        font-size="14" font-weight="800" fill="white">PM: Editor &amp; Strategist</text>
+  <text x="76" y="114" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#bae6fd">Product Manager</text>
+</g>
+
+<!-- PM artifacts — step 3 -->
+<g id="artifact-pm-1" class="step-item" data-step="3">
+  <!-- PRD Document -->
+  <rect x="55" y="148" width="130" height="148" rx="10" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.5"/>
+  <rect x="75" y="165" width="38" height="48" rx="4" fill="#0891b2" opacity=".15"/>
+  <rect x="75" y="165" width="38" height="48" rx="4" fill="none" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="79" y="178" font-family="monospace" font-size="9" fill="#0891b2" font-weight="700">PRD</text>
+  <line x1="78" y1="184" x2="110" y2="184" stroke="#0891b2" stroke-width="1" opacity=".6"/>
+  <line x1="78" y1="189" x2="110" y2="189" stroke="#0891b2" stroke-width="1" opacity=".6"/>
+  <line x1="78" y1="194" x2="100" y2="194" stroke="#0891b2" stroke-width="1" opacity=".6"/>
+  <text x="120" y="225" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">PRD Document</text>
+  <text x="120" y="240" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Requirements spec</text>
+</g>
+
+<g id="artifact-pm-2" class="step-item" data-step="3">
+  <!-- Sprint Board -->
+  <rect x="205" y="148" width="130" height="148" rx="10" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.5"/>
+  <!-- kanban board icon -->
+  <rect x="222" y="165" width="14" height="30" rx="2" fill="#0891b2" opacity=".7"/>
+  <rect x="240" y="165" width="14" height="22" rx="2" fill="#0891b2" opacity=".5"/>
+  <rect x="258" y="165" width="14" height="36" rx="2" fill="#0891b2" opacity=".3"/>
+  <text x="270" y="225" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Sprint Board</text>
+  <text x="270" y="240" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Agile planning</text>
+</g>
+
+<g id="artifact-pm-3" class="step-item" data-step="3">
+  <!-- User Story Card -->
+  <rect x="355" y="148" width="130" height="148" rx="10" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.5"/>
+  <rect x="372" y="165" width="90" height="60" rx="6" fill="white" stroke="#0891b2" stroke-width="1.2"/>
+  <line x1="377" y1="175" x2="455" y2="175" stroke="#0891b2" stroke-width="1" opacity=".5"/>
+  <line x1="377" y1="181" x2="455" y2="181" stroke="#0891b2" stroke-width="1" opacity=".5"/>
+  <line x1="377" y1="187" x2="440" y2="187" stroke="#0891b2" stroke-width="1" opacity=".5"/>
+  <text x="420" y="225" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">User Story Card</text>
+  <text x="420" y="240" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Feature definition</text>
+</g>
+
+<!-- ═══════════════════════════════════════════
+     STEP 4 — DEVELOPER QUADRANT (top-right, blue)
+═══════════════════════════════════════════ -->
+<line id="spoke-dev" class="arrow-draw spoke-line" data-step="4"
+      x1="633" y1="342" x2="862" y2="215"
+      stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="120"
+      marker-end="url(#arrowDev)" marker-start="url(#arrowTealR)"/>
+
+<g id="panel-dev" class="step-item" data-step="4" filter="url(#shadow)">
+  <rect x="680" y="80" width="490" height="240" rx="16" fill="white" stroke="#3b82f6" stroke-width="2.5"/>
+  <rect x="680" y="80" width="490" height="44" rx="16" fill="#3b82f6"/>
+  <rect x="680" y="104" width="490" height="20" fill="#3b82f6"/>
+  <!-- code icon -->
+  <text x="700" y="112" font-family="monospace" font-size="22" fill="white" font-weight="700">&lt;/&gt;</text>
+  <text x="734" y="98" font-family="system-ui,-apple-system,sans-serif"
+        font-size="14" font-weight="800" fill="white">Developer: Architect &amp; Reviewer</text>
+  <text x="734" y="114" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#bfdbfe">Software Engineer</text>
+</g>
+
+<g id="artifact-dev-1" class="step-item" data-step="5">
+  <rect x="700" y="148" width="130" height="148" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <!-- code file icon -->
+  <rect x="722" y="163" width="40" height="50" rx="4" fill="#3b82f6" opacity=".12" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="726" y="177" font-family="monospace" font-size="8" fill="#3b82f6">&lt;html&gt;</text>
+  <text x="726" y="187" font-family="monospace" font-size="8" fill="#3b82f6">  .fn()</text>
+  <text x="726" y="197" font-family="monospace" font-size="8" fill="#3b82f6">&lt;/html&gt;</text>
+  <text x="765" y="225" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Code File</text>
+  <text x="765" y="240" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Implementation</text>
+</g>
+
+<g id="artifact-dev-2" class="step-item" data-step="5">
+  <rect x="850" y="148" width="130" height="148" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <!-- architecture diagram icon: boxes connected -->
+  <rect x="893" y="163" width="22" height="14" rx="3" fill="#3b82f6" opacity=".5"/>
+  <rect x="873" y="186" width="22" height="14" rx="3" fill="#3b82f6" opacity=".5"/>
+  <rect x="913" y="186" width="22" height="14" rx="3" fill="#3b82f6" opacity=".5"/>
+  <line x1="904" y1="177" x2="893" y2="186" stroke="#3b82f6" stroke-width="1.2"/>
+  <line x1="904" y1="177" x2="924" y2="186" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="915" y="225" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Architecture</text>
+  <text x="915" y="240" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">System diagram</text>
+</g>
+
+<g id="artifact-dev-3" class="step-item" data-step="5">
+  <rect x="1000" y="148" width="148" height="148" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <!-- checklist icon -->
+  <rect x="1022" y="163" width="40" height="48" rx="4" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+  <polyline points="1025,172 1028,176 1035,168" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="1038" y1="172" x2="1058" y2="172" stroke="#3b82f6" stroke-width="1" opacity=".5"/>
+  <polyline points="1025,181 1028,185 1035,177" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="1038" y1="181" x2="1058" y2="181" stroke="#3b82f6" stroke-width="1" opacity=".5"/>
+  <polyline points="1025,190 1028,194 1035,186" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="1038" y1="190" x2="1058" y2="190" stroke="#3b82f6" stroke-width="1" opacity=".5"/>
+  <text x="1074" y="225" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Code Review</text>
+  <text x="1074" y="240" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Checklist</text>
+</g>
+
+<!-- ═══════════════════════════════════════════
+     STEP 6 — TESTER QUADRANT (bottom-left, amber)
+═══════════════════════════════════════════ -->
+<line id="spoke-test" class="arrow-draw spoke-line" data-step="6"
+      x1="567" y1="398" x2="340" y2="520"
+      stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="120"
+      marker-end="url(#arrowTest)" marker-start="url(#arrowTealR)"/>
+
+<g id="panel-test" class="step-item" data-step="6" filter="url(#shadow)">
+  <rect x="30" y="380" width="490" height="248" rx="16" fill="white" stroke="#f59e0b" stroke-width="2.5"/>
+  <rect x="30" y="380" width="490" height="44" rx="16" fill="#f59e0b"/>
+  <rect x="30" y="404" width="490" height="20" fill="#f59e0b"/>
+  <!-- checkmark circle icon -->
+  <circle cx="56" cy="400" r="12" fill="none" stroke="white" stroke-width="1.5"/>
+  <polyline points="50,400 54,405 63,394" fill="none" stroke="white" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="76" y="396" font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" font-weight="800" fill="white">Tester: Strategy Designer &amp;</text>
+  <text x="76" y="412" font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" font-weight="800" fill="white">Quality Gatekeeper</text>
+</g>
+
+<g id="artifact-test-1" class="step-item" data-step="7">
+  <rect x="55" y="448" width="130" height="155" rx="10" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5"/>
+  <!-- test tube icon -->
+  <rect x="99" y="465" width="14" height="50" rx="7" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+  <ellipse cx="106" cy="514" rx="7" ry="5" fill="#f59e0b" opacity=".4"/>
+  <text x="120" y="540" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Test Cases</text>
+  <text x="120" y="555" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Scenarios &amp; edge cases</text>
+</g>
+
+<g id="artifact-test-2" class="step-item" data-step="7">
+  <rect x="205" y="448" width="130" height="155" rx="10" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5"/>
+  <!-- gauge icon: arc + needle -->
+  <path d="M238,510 a30,30 0 0,1 60,0" fill="none" stroke="#fde68a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M238,510 a30,30 0 0,1 54,10" fill="none" stroke="#f59e0b" stroke-width="8" stroke-linecap="round"/>
+  <line x1="268" y1="510" x2="262" y2="492" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="270" y="530" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="13" font-weight="800" fill="#f59e0b">80%</text>
+  <text x="270" y="540" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Coverage Gauge</text>
+  <text x="270" y="555" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Quality metric</text>
+</g>
+
+<g id="artifact-test-3" class="step-item" data-step="7">
+  <rect x="355" y="448" width="130" height="155" rx="10" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5"/>
+  <!-- pyramid icon -->
+  <polygon points="420,465 390,515 450,515" fill="#f59e0b" opacity=".25"/>
+  <line x1="420" y1="465" x2="390" y2="515" stroke="#f59e0b" stroke-width="1.5"/>
+  <line x1="420" y1="465" x2="450" y2="515" stroke="#f59e0b" stroke-width="1.5"/>
+  <line x1="390" y1="515" x2="450" y2="515" stroke="#f59e0b" stroke-width="1.5"/>
+  <line x1="400" y1="490" x2="440" y2="490" stroke="#f59e0b" stroke-width="1" opacity=".5"/>
+  <text x="420" y="540" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Test Pyramid</text>
+  <text x="420" y="555" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Unit → Integration → E2E</text>
+</g>
+
+<!-- ═══════════════════════════════════════════
+     STEP 8 — DEVOPS QUADRANT (bottom-right, red)
+═══════════════════════════════════════════ -->
+<line id="spoke-devops" class="arrow-draw spoke-line" data-step="8"
+      x1="633" y1="398" x2="862" y2="520"
+      stroke="#ef4444" stroke-width="2.5" stroke-dasharray="120"
+      marker-end="url(#arrowDevOps)" marker-start="url(#arrowTealR)"/>
+
+<g id="panel-devops" class="step-item" data-step="8" filter="url(#shadow)">
+  <rect x="680" y="380" width="490" height="248" rx="16" fill="white" stroke="#ef4444" stroke-width="2.5"/>
+  <rect x="680" y="380" width="490" height="44" rx="16" fill="#ef4444"/>
+  <rect x="680" y="404" width="490" height="20" fill="#ef4444"/>
+  <!-- gear icon -->
+  <g transform="translate(707,400)">
+    <circle cx="0" cy="0" r="8" fill="none" stroke="white" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="3.5" fill="white"/>
+    <rect x="-2" y="-12" width="4" height="7" rx="1" fill="white"/>
+    <rect x="-2" y="5"   width="4" height="7" rx="1" fill="white"/>
+    <rect x="5"  y="-2"  width="7" height="4" rx="1" fill="white"/>
+    <rect x="-12" y="-2" width="7" height="4" rx="1" fill="white"/>
+  </g>
+  <text x="726" y="396" font-family="system-ui,-apple-system,sans-serif"
+        font-size="14" font-weight="800" fill="white">DevOps: Automation Architect</text>
+  <text x="726" y="412" font-family="system-ui,-apple-system,sans-serif"
+        font-size="10" fill="#fecaca">Infrastructure &amp; Delivery</text>
+</g>
+
+<g id="artifact-devops-1" class="step-item" data-step="9">
+  <rect x="700" y="448" width="130" height="155" rx="10" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+  <!-- container/whale icon simplified -->
+  <rect x="730" y="470" width="48" height="36" rx="6" fill="#ef4444" opacity=".2" stroke="#ef4444" stroke-width="1.5"/>
+  <rect x="735" y="475" width="14" height="10" rx="2" fill="#ef4444" opacity=".5"/>
+  <rect x="752" y="475" width="14" height="10" rx="2" fill="#ef4444" opacity=".5"/>
+  <rect x="735" y="488" width="31" height="8" rx="2" fill="#ef4444" opacity=".3"/>
+  <text x="765" y="535" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Container</text>
+  <text x="765" y="550" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Docker orchestration</text>
+</g>
+
+<g id="artifact-devops-2" class="step-item" data-step="9">
+  <rect x="850" y="448" width="130" height="155" rx="10" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+  <!-- CI/CD pipeline: circles connected -->
+  <circle cx="875" cy="490" r="8" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+  <circle cx="900" cy="490" r="8" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+  <circle cx="925" cy="490" r="8" fill="#ef4444" opacity=".5"/>
+  <line x1="883" y1="490" x2="892" y2="490" stroke="#ef4444" stroke-width="1.5"/>
+  <line x1="908" y1="490" x2="917" y2="490" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="915" y="535" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">CI/CD Pipeline</text>
+  <text x="915" y="550" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Automated delivery</text>
+</g>
+
+<g id="artifact-devops-3" class="step-item" data-step="9">
+  <rect x="1000" y="448" width="148" height="155" rx="10" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+  <!-- monitoring dashboard: bar chart -->
+  <rect x="1022" y="510" width="10" height="25" rx="2" fill="#ef4444" opacity=".4"/>
+  <rect x="1036" y="498" width="10" height="37" rx="2" fill="#ef4444" opacity=".6"/>
+  <rect x="1050" y="505" width="10" height="30" rx="2" fill="#ef4444" opacity=".8"/>
+  <rect x="1064" y="492" width="10" height="43" rx="2" fill="#ef4444"/>
+  <line x1="1018" y1="536" x2="1082" y2="536" stroke="#ef4444" stroke-width="1.2" opacity=".5"/>
+  <text x="1074" y="555" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="600" fill="#1F2937">Monitoring</text>
+  <text x="1074" y="568" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+        font-size="9" fill="#6B7280">Dashboard &amp; alerts</text>
+</g>
+
+<!-- ═══════════════════════════════════════════
+     STEP 10 — LEGEND + PING DOTS
+═══════════════════════════════════════════ -->
+<g id="legend" class="step-item" data-step="10">
+  <rect x="230" y="655" width="740" height="34" rx="10" fill="white" stroke="#E2E8F0" stroke-width="1.5"/>
+  <!-- PM dot -->
+  <circle cx="258" cy="672" r="6" fill="#0891b2"/>
+  <text x="270" y="677" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#374151">PM (Product Manager)</text>
+  <!-- Dev dot -->
+  <circle cx="405" cy="672" r="6" fill="#3b82f6"/>
+  <text x="417" y="677" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#374151">Developer</text>
+  <!-- Tester dot -->
+  <circle cx="500" cy="672" r="6" fill="#f59e0b"/>
+  <text x="512" y="677" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#374151">Tester</text>
+  <!-- DevOps dot -->
+  <circle cx="578" cy="672" r="6" fill="#ef4444"/>
+  <text x="590" y="677" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#374151">DevOps</text>
+  <!-- AI Orchestrator -->
+  <circle cx="660" cy="672" r="6" fill="#0E7490"/>
+  <text x="672" y="677" font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" fill="#374151">AI Orchestrator: Claude Code</text>
+</g>
+
+<!-- Ping dots (activated at step 10) -->
+<circle class="ping-dot" cx="295" cy="200" r="5" fill="#0891b2" opacity="0"/>
+<circle class="ping-dot" cx="905" cy="200" r="5" fill="#3b82f6" opacity="0" style="animation-delay:.5s"/>
+<circle class="ping-dot" cx="295" cy="500" r="5" fill="#f59e0b" opacity="0" style="animation-delay:1s"/>
+<circle class="ping-dot" cx="905" cy="500" r="5" fill="#ef4444" opacity="0" style="animation-delay:1.5s"/>
+
+<!-- Footer -->
+<text x="600" y="695" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+      font-size="10" fill="#9CA3AF">
+  Figure 1.2 — Agentic Team Roles · Claude Code Orchestration
+</text>
+
+</svg>
+</div>
+
+<!-- Controls -->
+<div id="click-hint">
+  <span>Click slide or press</span>
+  <span class="key">Space</span>
+  <span>/</span>
+  <span class="key">→</span>
+  <span>to advance &nbsp;·&nbsp;</span>
+  <span class="key">←</span>
+  <span>to go back &nbsp;·&nbsp;</span>
+  <span class="key">R</span>
+  <span>to reset</span>
+</div>
+<div id="step-counter">Step <span id="cur">0</span> / <span id="total">10</span></div>
+<div id="progress-bar"></div>
+
+<script>
+const TOTAL_STEPS = 10;
+
+const STEP_ELEMENTS = {
+  0:  ['title-group'],
+  1:  ['center-hub'],
+  2:  ['spoke-pm',    'panel-pm'],
+  3:  ['artifact-pm-1', 'artifact-pm-2', 'artifact-pm-3'],
+  4:  ['spoke-dev',   'panel-dev'],
+  5:  ['artifact-dev-1', 'artifact-dev-2', 'artifact-dev-3'],
+  6:  ['spoke-test',  'panel-test'],
+  7:  ['artifact-test-1', 'artifact-test-2', 'artifact-test-3'],
+  8:  ['spoke-devops','panel-devops'],
+  9:  ['artifact-devops-1','artifact-devops-2','artifact-devops-3'],
+  10: ['legend'],
+};
+
+let currentStep = -1;
+
+// Build progress dots
+const bar = document.getElementById('progress-bar');
+for (let i = 0; i <= TOTAL_STEPS; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  d.id = `dot-${i}`;
+  bar.appendChild(d);
+}
+
+function updateDots() {
+  for (let i = 0; i <= TOTAL_STEPS; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if (i < currentStep) d.className = 'dot done';
+    else if (i === currentStep) d.className = 'dot active';
+    else d.className = 'dot';
+  }
+}
+
+function showStep(step) {
+  const ids = STEP_ELEMENTS[step] || [];
+  ids.forEach((id, idx) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    // slight stagger for multi-element steps
+    setTimeout(() => el.classList.add('visible'), idx * 80);
+  });
+
+  if (step === 1) {
+    document.getElementById('center-pulse').classList.add('active');
+    document.getElementById('center-ring').classList.add('active');
+    document.getElementById('center-ring').style.opacity = '0.4';
+    try { document.querySelector('animate[id="pulse-expand"]').beginElement(); } catch(e) {}
+  }
+  if (step === 10) {
+    document.querySelectorAll('.ping-dot').forEach(d => d.classList.add('active'));
+  }
+}
+
+function hideStep(step) {
+  const ids = STEP_ELEMENTS[step] || [];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
+  });
+
+  if (step === 1) {
+    document.getElementById('center-pulse').classList.remove('active');
+    document.getElementById('center-ring').classList.remove('active');
+    document.getElementById('center-ring').style.opacity = '0';
+  }
+  if (step === 10) {
+    document.querySelectorAll('.ping-dot').forEach(d => d.classList.remove('active'));
+  }
+}
+
+function nextStep() {
+  if (currentStep >= TOTAL_STEPS) {
+    for (let i = 0; i <= TOTAL_STEPS; i++) hideStep(i);
+    currentStep = -1;
+  }
+  currentStep++;
+  showStep(currentStep);
+  document.getElementById('cur').textContent = currentStep;
+  updateDots();
+}
+
+function prevStep() {
+  if (currentStep <= 0) return;
+  hideStep(currentStep);
+  currentStep--;
+  document.getElementById('cur').textContent = currentStep;
+  updateDots();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); prevStep(); }
+  if (e.key === 'r' || e.key === 'R') {
+    for (let i = 0; i <= TOTAL_STEPS; i++) hideStep(i);
+    currentStep = -1;
+    document.getElementById('cur').textContent = 0;
+    updateDots();
+  }
+});
+
+// Start at step 0
+nextStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 1.5 – A Day in the Agentic SDLC: WhatsApp Adapter Feature Timeline</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#1a1a2e; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  #click-hint { margin-top:12px; font-size:13px; color:#94a3b8; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#334155; border:1px solid #475569; border-radius:6px; padding:2px 10px; font-size:12px; color:#cbd5e1; }
+  #step-counter { font-size:12px; color:#64748b; margin-top:5px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:6px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#334155; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#38BDF8; transform:scale(1.4); }
+
+  /* reveal classes */
+  .step-item { opacity:0; transform:scale(.9); transform-origin:center; transition:opacity .45s ease, transform .45s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .arrow-draw { opacity:0; stroke-dashoffset:300; transition:opacity .1s, stroke-dashoffset .55s ease; }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+
+  .badge-item { opacity:0; transform:scale(0); transform-origin:center; transition:opacity .35s ease, transform .35s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  /* continuous */
+  @keyframes dashFlow  { to { stroke-dashoffset:-20; } }
+  @keyframes glowPulse { 0%,100%{opacity:.15} 50%{opacity:.45} }
+  @keyframes nodePing  { 0%,100%{opacity:0;r:7} 50%{opacity:.75;r:14} }
+  @keyframes tickUp    { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  .timeline-line.visible { animation:dashFlow 2s linear infinite; }
+  .ping-dot.active        { animation:nodePing 2.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#10b981"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000022"/>
+  </filter>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- background -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+<!-- subtle grid -->
+<line x1="0" y1="350" x2="1200" y2="350" stroke="#E5E7EB" stroke-width="1" opacity=".4"/>
+
+<!-- ═══════════════════
+     STEP 0 — TITLE
+═══════════════════ -->
+<g id="title-grp" class="step-item" data-step="0">
+  <text x="600" y="36" text-anchor="middle"
+        font-size="20" font-weight="800" fill="#1F2937">
+    Figure 1.5  A Day in the Agentic SDLC: WhatsApp Adapter Feature Timeline
+  </text>
+  <!-- legend -->
+  <rect x="50" y="670" width="12" height="12" rx="3" fill="#0891b2"/>
+  <text x="68" y="681" font-size="11" fill="#6B7280">PM</text>
+  <rect x="120" y="670" width="12" height="12" rx="3" fill="#3b82f6"/>
+  <text x="138" y="681" font-size="11" fill="#6B7280">Dev</text>
+  <rect x="190" y="670" width="12" height="12" rx="3" fill="#f59e0b"/>
+  <text x="208" y="681" font-size="11" fill="#6B7280">Tester</text>
+  <rect x="280" y="670" width="12" height="12" rx="3" fill="#ef4444"/>
+  <text x="298" y="681" font-size="11" fill="#6B7280">DevOps</text>
+  <!-- parallel bracket label -->
+  <text x="690" y="55" text-anchor="middle" font-size="11" font-weight="600" fill="#6B7280" letter-spacing=".06em">parallel ↓</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 1 — TIMELINE SPINE
+═══════════════════ -->
+<line id="tl-spine" class="arrow-draw timeline-line" data-step="1"
+      x1="80" y1="230" x2="1140" y2="230"
+      stroke="#D1D5DB" stroke-width="3" stroke-dasharray="1200"
+      marker-end="url(#arrowBlue)"/>
+
+<!-- time tick marks -->
+<g id="tl-ticks" class="step-item" data-step="1">
+  <!-- 8 time labels across the spine -->
+  <text x="110"  y="250" text-anchor="middle" font-size="10" fill="#9CA3AF">9:00 AM</text>
+  <text x="248"  y="250" text-anchor="middle" font-size="10" fill="#9CA3AF">10:00 AM</text>
+  <text x="386"  y="250" text-anchor="middle" font-size="10" fill="#9CA3AF">11:00 AM</text>
+  <text x="524"  y="250" text-anchor="middle" font-size="10" fill="#9CA3AF">1:00 PM</text>
+  <text x="662"  y="250" text-anchor="middle" font-size="10" fill="#9CA3AF">2:00 PM</text>
+  <text x="800"  y="250" text-anchor="middle" font-size="10" fill="#9CA3AF">3:00 PM</text>
+  <text x="938"  y="250" text-anchor="middle" font-size="10" fill="#9CA3AF">4:00 PM</text>
+  <text x="1076" y="250" text-anchor="middle" font-size="10" fill="#9CA3AF">5:00 PM</text>
+  <!-- tick lines -->
+  <line x1="110"  y1="223" x2="110"  y2="238" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="248"  y1="223" x2="248"  y2="238" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="386"  y1="223" x2="386"  y2="238" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="524"  y1="223" x2="524"  y2="238" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="662"  y1="223" x2="662"  y2="238" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="800"  y1="223" x2="800"  y2="238" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="938"  y1="223" x2="938"  y2="238" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="1076" y1="223" x2="1076" y2="238" stroke="#D1D5DB" stroke-width="1.5"/>
+</g>
+
+<!-- ═══════════════════
+     STEP 2 — NODE 1: PM — 9:00 AM
+═══════════════════ -->
+<!-- connector from spine up to card -->
+<line id="conn-1" class="arrow-draw" data-step="2"
+      x1="110" y1="223" x2="110" y2="155"
+      stroke="#0891b2" stroke-width="1.5" stroke-dasharray="300"/>
+
+<circle class="ping-dot" cx="110" cy="230" r="7" fill="#0891b2" opacity="0" data-step="2"/>
+
+<g id="node-1" class="step-item" data-step="2" filter="url(#shadow)">
+  <!-- step badge -->
+  <circle cx="110" cy="100" r="18" fill="#0891b2"/>
+  <text x="110" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="white">1</text>
+  <!-- role badge -->
+  <rect x="75" y="122" width="70" height="20" rx="10" fill="#0891b2" opacity=".15"/>
+  <text x="110" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#0891b2">PM</text>
+
+  <!-- card -->
+  <rect x="40" y="260" width="140" height="140" rx="12" fill="white" stroke="#0891b2" stroke-width="1.8"/>
+  <rect x="40" y="260" width="140" height="34" rx="12" fill="#0891b2"/>
+  <rect x="40" y="280" width="140" height="14" fill="#0891b2"/>
+  <text x="110" y="278" text-anchor="middle" font-size="11" font-weight="700" fill="white">PM: Brief to PRD</text>
+  <text x="55" y="312" font-size="9" fill="#374151">Claude Code:</text>
+  <text x="55" y="325" font-size="9" fill="#374151">Drafts PRD from</text>
+  <text x="55" y="338" font-size="9" fill="#374151">brief, captures</text>
+  <text x="55" y="351" font-size="9" fill="#374151">acceptance criteria.</text>
+  <text x="55" y="368" font-size="9" fill="#9CA3AF" font-style="italic">acceptance criteria</text>
+  <text x="55" y="381" font-size="9" fill="#9CA3AF" font-style="italic">aligned.</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 3 — NODE 2: PM+Dev — 10:00 AM
+═══════════════════ -->
+<line id="conn-2" class="arrow-draw" data-step="3"
+      x1="248" y1="223" x2="248" y2="155"
+      stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="300"/>
+
+<circle class="ping-dot" cx="248" cy="230" r="7" fill="#7c3aed" opacity="0" data-step="3"/>
+
+<g id="node-2" class="step-item" data-step="3" filter="url(#shadow)">
+  <circle cx="248" cy="100" r="18" fill="#7c3aed"/>
+  <text x="248" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="white">2</text>
+  <rect x="210" y="122" width="76" height="20" rx="10" fill="#7c3aed" opacity=".15"/>
+  <text x="248" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed">PM+Dev</text>
+
+  <rect x="178" y="260" width="140" height="140" rx="12" fill="white" stroke="#7c3aed" stroke-width="1.8"/>
+  <rect x="178" y="260" width="140" height="34" rx="12" fill="#7c3aed"/>
+  <rect x="178" y="280" width="140" height="14" fill="#7c3aed"/>
+  <text x="248" y="278" text-anchor="middle" font-size="11" font-weight="700" fill="white">PM+Dev: Plan</text>
+  <text x="193" y="312" font-size="9" fill="#374151">Claude Code:</text>
+  <text x="193" y="325" font-size="9" fill="#374151">Co-creates system</text>
+  <text x="193" y="338" font-size="9" fill="#374151">design, data flow</text>
+  <text x="193" y="351" font-size="9" fill="#374151">&amp; adapter contract.</text>
+  <text x="193" y="368" font-size="9" fill="#9CA3AF" font-style="italic">Architecture Plan</text>
+  <text x="193" y="381" font-size="9" fill="#9CA3AF" font-style="italic">Mode.</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 4 — NODE 3: Dev — 11:00 AM
+═══════════════════ -->
+<line id="conn-3" class="arrow-draw" data-step="4"
+      x1="386" y1="223" x2="386" y2="155"
+      stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="300"/>
+
+<circle class="ping-dot" cx="386" cy="230" r="7" fill="#3b82f6" opacity="0" data-step="4"/>
+
+<g id="node-3" class="step-item" data-step="4" filter="url(#shadow)">
+  <circle cx="386" cy="100" r="18" fill="#3b82f6"/>
+  <text x="386" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="white">3</text>
+  <rect x="351" y="122" width="70" height="20" rx="10" fill="#3b82f6" opacity=".15"/>
+  <text x="386" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#3b82f6">Dev</text>
+
+  <rect x="316" y="260" width="140" height="140" rx="12" fill="white" stroke="#3b82f6" stroke-width="1.8"/>
+  <rect x="316" y="260" width="140" height="34" rx="12" fill="#3b82f6"/>
+  <rect x="316" y="280" width="140" height="14" fill="#3b82f6"/>
+  <text x="386" y="278" text-anchor="middle" font-size="11" font-weight="700" fill="white">Dev: Scaffold Adapter</text>
+  <text x="331" y="312" font-size="9" fill="#374151">Claude Code:</text>
+  <text x="331" y="325" font-size="9" fill="#374151">Generates adapter</text>
+  <text x="331" y="338" font-size="9" fill="#374151">skeleton, wiring</text>
+  <text x="331" y="351" font-size="9" fill="#374151">and config stubs.</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 5 — NODE 4: Tester — 1:00 PM
+═══════════════════ -->
+<line id="conn-4" class="arrow-draw" data-step="5"
+      x1="524" y1="223" x2="524" y2="155"
+      stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="300"/>
+
+<circle class="ping-dot" cx="524" cy="230" r="7" fill="#f59e0b" opacity="0" data-step="5"/>
+
+<g id="node-4" class="step-item" data-step="5" filter="url(#shadow)">
+  <circle cx="524" cy="100" r="18" fill="#f59e0b"/>
+  <text x="524" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="white">4</text>
+  <rect x="489" y="122" width="70" height="20" rx="10" fill="#f59e0b" opacity=".15"/>
+  <text x="524" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#f59e0b">Tester</text>
+
+  <rect x="454" y="260" width="140" height="140" rx="12" fill="white" stroke="#f59e0b" stroke-width="1.8"/>
+  <rect x="454" y="260" width="140" height="34" rx="12" fill="#f59e0b"/>
+  <rect x="454" y="280" width="140" height="14" fill="#f59e0b"/>
+  <text x="524" y="278" text-anchor="middle" font-size="11" font-weight="700" fill="white">Tester: Gen Tests</text>
+  <text x="469" y="312" font-size="9" fill="#374151">Claude Code:</text>
+  <text x="469" y="325" font-size="9" fill="#374151">Creates unit tests,</text>
+  <text x="469" y="338" font-size="9" fill="#374151">contract tests,</text>
+  <text x="469" y="351" font-size="9" fill="#374151">and fixtures.</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 6 — PARALLEL BRACKET
+═══════════════════ -->
+<g id="parallel-bracket" class="step-item" data-step="6">
+  <!-- bracket over nodes 5,6,7 -->
+  <line x1="630" y1="62" x2="1110" y2="62" stroke="#6B7280" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="630" y1="62" x2="630" y2="75" stroke="#6B7280" stroke-width="1.2"/>
+  <line x1="1110" y1="62" x2="1110" y2="75" stroke="#6B7280" stroke-width="1.2"/>
+  <rect x="820" y="50" width="70" height="20" rx="10" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="1"/>
+  <text x="855" y="64" text-anchor="middle" font-size="10" font-weight="700" fill="#6B7280">parallel</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 6 — NODE 5: Dev — 2:00 PM
+═══════════════════ -->
+<line id="conn-5" class="arrow-draw" data-step="6"
+      x1="662" y1="223" x2="662" y2="155"
+      stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="300"/>
+
+<circle class="ping-dot" cx="662" cy="230" r="7" fill="#3b82f6" opacity="0" data-step="6"/>
+
+<g id="node-5" class="step-item" data-step="6" filter="url(#shadow)">
+  <circle cx="662" cy="100" r="18" fill="#3b82f6"/>
+  <text x="662" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="white">5</text>
+  <rect x="627" y="122" width="70" height="20" rx="10" fill="#3b82f6" opacity=".15"/>
+  <text x="662" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#3b82f6">Dev</text>
+
+  <rect x="592" y="260" width="140" height="155" rx="12" fill="white" stroke="#3b82f6" stroke-width="1.8"/>
+  <rect x="592" y="260" width="140" height="34" rx="12" fill="#3b82f6"/>
+  <rect x="592" y="280" width="140" height="14" fill="#3b82f6"/>
+  <text x="662" y="278" text-anchor="middle" font-size="10" font-weight="700" fill="white">Dev: Security Subagent</text>
+  <text x="607" y="312" font-size="9" fill="#374151">Claude Code:</text>
+  <text x="607" y="325" font-size="9" fill="#374151">Subagent scans</text>
+  <text x="607" y="338" font-size="9" fill="#374151">code, flags</text>
+  <text x="607" y="351" font-size="9" fill="#374151">vulnerabilities &amp;</text>
+  <text x="607" y="364" font-size="9" fill="#374151">secrets.</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 7 — NODE 6: DevOps — 3:00 PM
+═══════════════════ -->
+<line id="conn-6" class="arrow-draw" data-step="7"
+      x1="800" y1="223" x2="800" y2="155"
+      stroke="#ef4444" stroke-width="1.5" stroke-dasharray="300"/>
+
+<circle class="ping-dot" cx="800" cy="230" r="7" fill="#ef4444" opacity="0" data-step="7"/>
+
+<g id="node-6" class="step-item" data-step="7" filter="url(#shadow)">
+  <circle cx="800" cy="100" r="18" fill="#ef4444"/>
+  <text x="800" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="white">6</text>
+  <rect x="762" y="122" width="76" height="20" rx="10" fill="#ef4444" opacity=".15"/>
+  <text x="800" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#ef4444">DevOps</text>
+
+  <rect x="730" y="260" width="140" height="155" rx="12" fill="white" stroke="#ef4444" stroke-width="1.8"/>
+  <rect x="730" y="260" width="140" height="34" rx="12" fill="#ef4444"/>
+  <rect x="730" y="280" width="140" height="14" fill="#ef4444"/>
+  <text x="800" y="278" text-anchor="middle" font-size="10" font-weight="700" fill="white">DevOps: Docker &amp; CI</text>
+  <text x="745" y="312" font-size="9" fill="#374151">Claude Code:</text>
+  <text x="745" y="325" font-size="9" fill="#374151">Builds Dockerfile,</text>
+  <text x="745" y="338" font-size="9" fill="#374151">sets up CI pipeline</text>
+  <text x="745" y="351" font-size="9" fill="#374151">&amp; quality gates.</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 8 — NODE 7: Tester — 4:00 PM
+═══════════════════ -->
+<line id="conn-7" class="arrow-draw" data-step="8"
+      x1="938" y1="223" x2="938" y2="155"
+      stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="300"/>
+
+<circle class="ping-dot" cx="938" cy="230" r="7" fill="#f59e0b" opacity="0" data-step="8"/>
+
+<g id="node-7" class="step-item" data-step="8" filter="url(#shadow)">
+  <circle cx="938" cy="100" r="18" fill="#f59e0b"/>
+  <text x="938" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="white">7</text>
+  <rect x="903" y="122" width="70" height="20" rx="10" fill="#f59e0b" opacity=".15"/>
+  <text x="938" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#f59e0b">Tester</text>
+
+  <rect x="868" y="260" width="140" height="155" rx="12" fill="white" stroke="#f59e0b" stroke-width="1.8"/>
+  <rect x="868" y="260" width="140" height="34" rx="12" fill="#f59e0b"/>
+  <rect x="868" y="280" width="140" height="14" fill="#f59e0b"/>
+  <text x="938" y="278" text-anchor="middle" font-size="10" font-weight="700" fill="white">Tester: E2E Hook Tests</text>
+  <text x="883" y="312" font-size="9" fill="#374151">Claude Code:</text>
+  <text x="883" y="325" font-size="9" fill="#374151">Runs E2E via hooks,</text>
+  <text x="883" y="338" font-size="9" fill="#374151">validates WhatsApp</text>
+  <text x="883" y="351" font-size="9" fill="#374151">flows end-to-end.</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 9 — NODE 8: PM — 5:00 PM
+═══════════════════ -->
+<line id="conn-8" class="arrow-draw" data-step="9"
+      x1="1076" y1="223" x2="1076" y2="155"
+      stroke="#0891b2" stroke-width="1.5" stroke-dasharray="300"/>
+
+<circle class="ping-dot" cx="1076" cy="230" r="7" fill="#0891b2" opacity="0" data-step="9"/>
+
+<g id="node-8" class="step-item" data-step="9" filter="url(#shadow)">
+  <circle cx="1076" cy="100" r="18" fill="#0891b2"/>
+  <text x="1076" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="white">8</text>
+  <rect x="1041" y="122" width="70" height="20" rx="10" fill="#0891b2" opacity=".15"/>
+  <text x="1076" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#0891b2">PM</text>
+
+  <rect x="1006" y="260" width="140" height="155" rx="12" fill="white" stroke="#0891b2" stroke-width="1.8"/>
+  <rect x="1006" y="260" width="140" height="34" rx="12" fill="#0891b2"/>
+  <rect x="1006" y="280" width="140" height="14" fill="#0891b2"/>
+  <text x="1076" y="278" text-anchor="middle" font-size="10" font-weight="700" fill="white">PM: Sprint Review Skill</text>
+  <text x="1021" y="312" font-size="9" fill="#374151">Claude Code:</text>
+  <text x="1021" y="325" font-size="9" fill="#374151">Summarises metrics,</text>
+  <text x="1021" y="338" font-size="9" fill="#374151">risks, and next</text>
+  <text x="1021" y="351" font-size="9" fill="#374151">steps for review.</text>
+</g>
+
+<!-- ═══════════════════
+     STEP 10 — SUMMARY BADGE
+═══════════════════ -->
+<g id="summary-badge" class="badge-item" data-step="10">
+  <rect x="300" y="448" width="600" height="52" rx="14" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="600" y="469" text-anchor="middle" font-size="13" font-weight="800" fill="#065F46">
+    Full feature shipped in 8 hours — 4 roles, 1 Claude Code orchestrator
+  </text>
+  <text x="600" y="487" text-anchor="middle" font-size="11" fill="#047857">
+    PRD → Architecture → Scaffold → Tests → Security → CI/CD → E2E → Review
+  </text>
+</g>
+
+<!-- ═══════════════════
+     STEP 10 — ROLE ICONS bottom row
+═══════════════════ -->
+<g id="role-legend" class="step-item" data-step="10">
+  <!-- PM -->
+  <circle cx="380" cy="560" r="16" fill="#0891b2" opacity=".15"/>
+  <circle cx="380" cy="560" r="16" fill="none" stroke="#0891b2" stroke-width="1.8"/>
+  <text x="380" y="565" text-anchor="middle" font-size="10" font-weight="700" fill="#0891b2">PM</text>
+  <text x="380" y="582" text-anchor="middle" font-size="9" fill="#6B7280">×2</text>
+  <!-- Dev -->
+  <circle cx="480" cy="560" r="16" fill="#3b82f6" opacity=".15"/>
+  <circle cx="480" cy="560" r="16" fill="none" stroke="#3b82f6" stroke-width="1.8"/>
+  <text x="480" y="565" text-anchor="middle" font-size="10" font-weight="700" fill="#3b82f6">Dev</text>
+  <text x="480" y="582" text-anchor="middle" font-size="9" fill="#6B7280">×2</text>
+  <!-- Tester -->
+  <circle cx="600" cy="560" r="16" fill="#f59e0b" opacity=".15"/>
+  <circle cx="600" cy="560" r="16" fill="none" stroke="#f59e0b" stroke-width="1.8"/>
+  <text x="600" y="565" text-anchor="middle" font-size="9" font-weight="700" fill="#f59e0b">Test</text>
+  <text x="600" y="582" text-anchor="middle" font-size="9" fill="#6B7280">×2</text>
+  <!-- DevOps -->
+  <circle cx="720" cy="560" r="16" fill="#ef4444" opacity=".15"/>
+  <circle cx="720" cy="560" r="16" fill="none" stroke="#ef4444" stroke-width="1.8"/>
+  <text x="720" y="565" text-anchor="middle" font-size="9" font-weight="700" fill="#ef4444">Ops</text>
+  <text x="720" y="582" text-anchor="middle" font-size="9" fill="#6B7280">×1</text>
+  <!-- Claude Code -->
+  <circle cx="840" cy="560" r="16" fill="#1F2937"/>
+  <circle cx="840" cy="560" r="16" fill="none" stroke="#38BDF8" stroke-width="2"/>
+  <text x="840" y="565" text-anchor="middle" font-size="9" font-weight="700" fill="#38BDF8">AI</text>
+  <text x="840" y="582" text-anchor="middle" font-size="9" fill="#6B7280">Claude</text>
+</g>
+
+</svg>
+</div>
+
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 10</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> or <span class="key">SPACE</span> to advance
+  &nbsp;·&nbsp;
+  <span class="key">HOME</span> reset &nbsp;·&nbsp;
+  <span class="key">END</span> skip to end
+</div>
+
+<script>
+const TOTAL = 10;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function nextStep() {
+  if (step >= TOTAL) return;
+  step++;
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+  });
+  if (step >= 1) {
+    document.querySelectorAll('.ping-dot').forEach(d => d.classList.add('active'));
+  }
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'Home') location.reload();
+  if (e.key === 'End') { while (step < TOTAL) nextStep(); }
+});
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

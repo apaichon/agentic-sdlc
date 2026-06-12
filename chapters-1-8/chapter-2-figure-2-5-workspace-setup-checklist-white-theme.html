@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.5 — Workspace Setup Checklist and File Tree</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#F8F9FA; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:system-ui,-apple-system,sans-serif; user-select:none; }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#94a3b8; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#334155; border:1px solid #475569; border-radius:6px; padding:2px 10px; font-size:12px; color:#cbd5e1; }
+  #step-counter { font-size:12px; color:#64748b; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#334155; transition:background .3s, transform .3s; }
+  .dot.done { background:#0E7490; }
+  .dot.active { background:#38BDF8; transform:scale(1.4); }
+  .step-item { opacity:0; transform:scale(.88); transform-origin:center; transition:opacity .5s ease, transform .5s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw { opacity:0; stroke-dashoffset:300; transition:opacity .1s, stroke-dashoffset .6s ease; }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+  .badge-item { opacity:0; transform:scale(0); transform-origin:center; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  @keyframes checkPop { 0%{transform:scale(0) rotate(-20deg);opacity:0} 70%{transform:scale(1.2) rotate(5deg);opacity:1} 100%{transform:scale(1) rotate(0deg);opacity:1} }
+  .check-anim { animation:none; }
+  .check-anim.visible { animation:checkPop .4s cubic-bezier(.34,1.56,.64,1) forwards; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#00000018"/>
+  </filter>
+  <filter id="shadowMd" x="-15%" y="-15%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#00000022"/>
+  </filter>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+  </marker>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#6b7280"/>
+  </marker>
+</defs>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 0: Title + column headers + panel backgrounds -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- Main white card background -->
+<g class="step-item" data-step="0">
+  <!-- Left panel -->
+  <rect x="28" y="70" width="524" height="600" rx="14" fill="white" filter="url(#shadowMd)"/>
+  <!-- Right panel -->
+  <rect x="614" y="70" width="558" height="600" rx="14" fill="white" filter="url(#shadowMd)"/>
+
+  <!-- Title -->
+  <text x="600" y="44" text-anchor="middle" font-size="18" font-weight="800" fill="#1F2937" letter-spacing="0.02em">Figure 2.5 — Workspace Setup Checklist and File Tree</text>
+
+  <!-- Left column header -->
+  <rect x="28" y="70" width="524" height="44" rx="14" fill="#1e3a5f"/>
+  <rect x="28" y="95" width="524" height="19" fill="#1e3a5f"/>
+  <text x="290" y="98" text-anchor="middle" font-size="13" font-weight="700" fill="white" letter-spacing="0.12em">WORKSPACE SETUP CHECKLIST</text>
+
+  <!-- Right column header -->
+  <rect x="614" y="70" width="558" height="44" rx="14" fill="#134e4a"/>
+  <rect x="614" y="95" width="558" height="19" fill="#134e4a"/>
+  <text x="893" y="98" text-anchor="middle" font-size="13" font-weight="700" fill="white" letter-spacing="0.12em">RESULTING FILE TREE</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 1: Install Claude Code                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="1">
+  <!-- Row bg -->
+  <rect x="44" y="124" width="492" height="64" rx="10" fill="#eff6ff"/>
+  <!-- Circle badge -->
+  <circle cx="78" cy="156" r="18" fill="#3b82f6" filter="url(#shadow)"/>
+  <text x="78" y="161" text-anchor="middle" font-size="13" font-weight="800" fill="white">1</text>
+  <!-- Text -->
+  <text x="108" y="149" font-size="13" font-weight="700" fill="#1e3a5f">Install Claude Code</text>
+  <text x="108" y="168" font-size="11" fill="#4b5563">Install Claude Code CLI on your machine.</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 2: Create CLAUDE.md + file tree CLAUDE.md    -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="2">
+  <!-- Row bg -->
+  <rect x="44" y="196" width="492" height="64" rx="10" fill="#eff6ff"/>
+  <!-- Circle badge -->
+  <circle cx="78" cy="228" r="18" fill="#3b82f6" filter="url(#shadow)"/>
+  <text x="78" y="233" text-anchor="middle" font-size="13" font-weight="800" fill="white">2</text>
+  <!-- Text -->
+  <text x="108" y="221" font-size="13" font-weight="700" fill="#1e3a5f">Create CLAUDE.md</text>
+  <text x="108" y="240" font-size="11" fill="#4b5563">Create the project-wide instructions file.</text>
+</g>
+
+<!-- File tree: CLAUDE.md node (step 2) -->
+<!-- Root folder connector -->
+<g class="step-item" data-step="2">
+  <!-- Root folder -->
+  <rect x="650" y="116" width="32" height="26" rx="4" fill="#fbbf24"/>
+  <rect x="650" y="122" width="32" height="22" rx="3" fill="#f59e0b"/>
+  <rect x="650" y="108" width="14" height="10" rx="3" fill="#fbbf24"/>
+  <text x="692" y="132" font-size="13" font-weight="700" fill="#374151">/ (project root)</text>
+
+  <!-- Vertical trunk line from root -->
+  <line x1="666" y1="142" x2="666" y2="510" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <!-- Branch to CLAUDE.md -->
+  <line x1="666" y1="178" x2="694" y2="178" stroke="#d1d5db" stroke-width="1.5"/>
+
+  <!-- CLAUDE.md doc icon -->
+  <rect x="694" y="165" width="22" height="26" rx="3" fill="#bfdbfe"/>
+  <rect x="694" y="165" width="22" height="26" rx="3" fill="none" stroke="#3b82f6" stroke-width="1"/>
+  <line x1="699" y1="174" x2="711" y2="174" stroke="#3b82f6" stroke-width="1.2"/>
+  <line x1="699" y1="179" x2="711" y2="179" stroke="#3b82f6" stroke-width="1.2"/>
+  <line x1="699" y1="184" x2="707" y2="184" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="722" y="182" font-size="12" font-weight="600" fill="#1e40af">CLAUDE.md</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 3: Create role dev files + role files in tree -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="3">
+  <!-- Row bg - teal accent -->
+  <rect x="44" y="268" width="492" height="64" rx="10" fill="#ecfeff"/>
+  <!-- Circle badge teal -->
+  <circle cx="78" cy="300" r="18" fill="#0891b2" filter="url(#shadow)"/>
+  <text x="78" y="305" text-anchor="middle" font-size="13" font-weight="800" fill="white">3</text>
+  <!-- Text -->
+  <text x="108" y="293" font-size="13" font-weight="700" fill="#134e4a">Create role dev files</text>
+  <text x="108" y="312" font-size="11" fill="#4b5563">Create PM, Dev, Tester, and DevOps role files.</text>
+  <!-- Sub-step dots (teal) -->
+  <circle cx="390" cy="300" r="4" fill="#0891b2" opacity="0.5"/>
+  <circle cx="406" cy="300" r="4" fill="#0891b2" opacity="0.7"/>
+  <circle cx="422" cy="300" r="4" fill="#0891b2"/>
+</g>
+
+<!-- File tree: .claude/ folder + role files (step 3) -->
+<g class="step-item" data-step="3">
+  <!-- Branch to .claude/ folder -->
+  <line x1="666" y1="330" x2="694" y2="330" stroke="#d1d5db" stroke-width="1.5"/>
+  <!-- .claude folder icon -->
+  <rect x="694" y="318" width="28" height="22" rx="4" fill="#e5e7eb"/>
+  <rect x="694" y="322" width="28" height="20" rx="3" fill="#d1d5db"/>
+  <rect x="694" y="314" width="12" height="9" rx="3" fill="#e5e7eb"/>
+  <text x="728" y="333" font-size="12" font-weight="700" fill="#374151">.claude/</text>
+
+  <!-- Vertical line inside .claude -->
+  <line x1="710" y1="340" x2="710" y2="500" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <!-- pm.md -->
+  <line x1="710" y1="365" x2="735" y2="365" stroke="#d1d5db" stroke-width="1.5"/>
+  <rect x="735" y="353" width="20" height="24" rx="3" fill="#ccfbf1"/>
+  <rect x="735" y="353" width="20" height="24" rx="3" fill="none" stroke="#0891b2" stroke-width="1"/>
+  <line x1="739" y1="360" x2="750" y2="360" stroke="#0891b2" stroke-width="1"/>
+  <line x1="739" y1="365" x2="750" y2="365" stroke="#0891b2" stroke-width="1"/>
+  <text x="761" y="368" font-size="12" font-weight="600" fill="#0e7490">pm.md</text>
+
+  <!-- dev.md -->
+  <line x1="710" y1="400" x2="735" y2="400" stroke="#d1d5db" stroke-width="1.5"/>
+  <rect x="735" y="388" width="20" height="24" rx="3" fill="#bfdbfe"/>
+  <rect x="735" y="388" width="20" height="24" rx="3" fill="none" stroke="#3b82f6" stroke-width="1"/>
+  <line x1="739" y1="395" x2="750" y2="395" stroke="#3b82f6" stroke-width="1"/>
+  <line x1="739" y1="400" x2="750" y2="400" stroke="#3b82f6" stroke-width="1"/>
+  <text x="761" y="403" font-size="12" font-weight="600" fill="#1d4ed8">dev.md</text>
+
+  <!-- tester.md -->
+  <line x1="710" y1="435" x2="735" y2="435" stroke="#d1d5db" stroke-width="1.5"/>
+  <rect x="735" y="423" width="20" height="24" rx="3" fill="#ffedd5"/>
+  <rect x="735" y="423" width="20" height="24" rx="3" fill="none" stroke="#f97316" stroke-width="1"/>
+  <line x1="739" y1="430" x2="750" y2="430" stroke="#f97316" stroke-width="1"/>
+  <line x1="739" y1="435" x2="750" y2="435" stroke="#f97316" stroke-width="1"/>
+  <text x="761" y="438" font-size="12" font-weight="600" fill="#c2410c">tester.md</text>
+
+  <!-- devops.md -->
+  <line x1="710" y1="470" x2="735" y2="470" stroke="#d1d5db" stroke-width="1.5"/>
+  <rect x="735" y="458" width="20" height="24" rx="3" fill="#fee2e2"/>
+  <rect x="735" y="458" width="20" height="24" rx="3" fill="none" stroke="#ef4444" stroke-width="1"/>
+  <line x1="739" y1="465" x2="750" y2="465" stroke="#ef4444" stroke-width="1"/>
+  <line x1="739" y1="470" x2="750" y2="470" stroke="#ef4444" stroke-width="1"/>
+  <text x="761" y="473" font-size="12" font-weight="600" fill="#b91c1c">devops.md</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 4: Configure settings.json + tree node        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="4">
+  <rect x="44" y="340" width="492" height="64" rx="10" fill="#eff6ff"/>
+  <circle cx="78" cy="372" r="18" fill="#3b82f6" filter="url(#shadow)"/>
+  <text x="78" y="377" text-anchor="middle" font-size="13" font-weight="800" fill="white">4</text>
+  <text x="108" y="365" font-size="13" font-weight="700" fill="#1e3a5f">Configure settings.json</text>
+  <text x="108" y="384" font-size="11" fill="#4b5563">Configure hooks, MCP servers, and permissions.</text>
+</g>
+
+<!-- File tree: settings.json (step 4) -->
+<g class="step-item" data-step="4">
+  <!-- settings.json before pm.md - insert at top of .claude children -->
+  <!-- Branch -->
+  <line x1="710" y1="302" x2="735" y2="302" stroke="#d1d5db" stroke-width="1.5"/>
+  <rect x="735" y="290" width="20" height="24" rx="3" fill="#fed7aa"/>
+  <rect x="735" y="290" width="20" height="24" rx="3" fill="none" stroke="#f97316" stroke-width="1"/>
+  <line x1="739" y1="297" x2="750" y2="297" stroke="#f97316" stroke-width="1"/>
+  <line x1="739" y1="302" x2="750" y2="302" stroke="#f97316" stroke-width="1"/>
+  <text x="761" y="305" font-size="12" font-weight="600" fill="#c2410c">settings.json</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 5: Write glossary.md + file tree node         -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="5">
+  <rect x="44" y="412" width="492" height="64" rx="10" fill="#eff6ff"/>
+  <circle cx="78" cy="444" r="18" fill="#3b82f6" filter="url(#shadow)"/>
+  <text x="78" y="449" text-anchor="middle" font-size="13" font-weight="800" fill="white">5</text>
+  <text x="108" y="437" font-size="13" font-weight="700" fill="#1e3a5f">Write glossary.md</text>
+  <text x="108" y="456" font-size="11" fill="#4b5563">Document domain terms and definitions.</text>
+</g>
+
+<!-- File tree: glossary.md (step 5) -->
+<g class="step-item" data-step="5">
+  <line x1="666" y1="213" x2="694" y2="213" stroke="#d1d5db" stroke-width="1.5"/>
+  <!-- glossary doc icon gray -->
+  <rect x="694" y="200" width="22" height="26" rx="3" fill="#f3f4f6"/>
+  <rect x="694" y="200" width="22" height="26" rx="3" fill="none" stroke="#9ca3af" stroke-width="1"/>
+  <line x1="699" y1="209" x2="711" y2="209" stroke="#9ca3af" stroke-width="1.2"/>
+  <line x1="699" y1="214" x2="711" y2="214" stroke="#9ca3af" stroke-width="1.2"/>
+  <line x1="699" y1="219" x2="707" y2="219" stroke="#9ca3af" stroke-width="1.2"/>
+  <text x="722" y="217" font-size="12" font-weight="600" fill="#4b5563">glossary.md</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 6: Validate per role                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="6">
+  <rect x="44" y="484" width="492" height="64" rx="10" fill="#eff6ff"/>
+  <circle cx="78" cy="516" r="18" fill="#3b82f6" filter="url(#shadow)"/>
+  <text x="78" y="521" text-anchor="middle" font-size="13" font-weight="800" fill="white">6</text>
+  <text x="108" y="509" font-size="13" font-weight="700" fill="#1e3a5f">Validate per role</text>
+  <text x="108" y="528" font-size="11" fill="#4b5563">Run Claude Code as each role to validate setup.</text>
+  <!-- Validation badge - checkmark icons for each role -->
+  <g class="badge-item" data-step="6">
+    <rect x="290" y="505" width="54" height="22" rx="11" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+    <text x="317" y="520" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">✓ PM</text>
+    <rect x="350" y="505" width="60" height="22" rx="11" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+    <text x="380" y="520" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">✓ Dev</text>
+    <rect x="416" y="505" width="70" height="22" rx="11" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+    <text x="451" y="520" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">✓ Tester</text>
+    <rect x="492" y="505" width="36" height="22" rx="11" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+    <text x="510" y="520" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">✓ IT</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 7: Commit to git                              -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="7">
+  <rect x="44" y="556" width="492" height="64" rx="10" fill="#eff6ff"/>
+  <circle cx="78" cy="588" r="18" fill="#3b82f6" filter="url(#shadow)"/>
+  <text x="78" y="593" text-anchor="middle" font-size="13" font-weight="800" fill="white">7</text>
+  <text x="108" y="581" font-size="13" font-weight="700" fill="#1e3a5f">Commit to git</text>
+  <text x="108" y="600" font-size="11" fill="#4b5563">Commit all files to version control.</text>
+  <!-- git commit badge -->
+  <g class="badge-item" data-step="7">
+    <rect x="350" y="577" width="170" height="22" rx="11" fill="#1c1917" stroke="#57534e" stroke-width="1"/>
+    <text x="368" y="592" font-size="10" fill="#a8a29e" font-family="monospace">$ git commit -m "init"</text>
+    <circle cx="508" cy="588" r="6" fill="#16a34a"/>
+    <text x="508" y="592" text-anchor="middle" font-size="9" fill="white" font-weight="700">✓</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 8: Result arrow                               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="8">
+  <!-- Arrow background pill -->
+  <rect x="532" y="325" width="90" height="30" rx="15" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="577" y="343" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Result</text>
+</g>
+<!-- Dashed arrow line -->
+<line class="arrow-draw" data-step="8"
+  x1="548" y1="340" x2="622" y2="340"
+  stroke="#3b82f6" stroke-width="2" stroke-dasharray="300"
+  marker-end="url(#arrowBlue)"/>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 9: Full file tree + .claude/ folder visible   -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- "Complete" badge on file tree header -->
+<g class="badge-item" data-step="9">
+  <rect x="824" y="79" width="90" height="22" rx="11" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+  <text x="869" y="94" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">✓ COMPLETE</text>
+</g>
+
+<!-- File tree right-side summary label (step 9) -->
+<g class="step-item" data-step="9">
+  <!-- Summary count pills -->
+  <rect x="640" y="516" width="480" height="36" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="660" y="538" font-size="11" fill="#166534" font-weight="600">9 files configured</text>
+  <text x="760" y="538" font-size="11" fill="#6b7280">•</text>
+  <text x="775" y="538" font-size="11" fill="#166534">1 folder</text>
+  <text x="820" y="538" font-size="11" fill="#6b7280">•</text>
+  <text x="835" y="538" font-size="11" fill="#166534">Version controlled</text>
+
+  <!-- Completion checkmark circle -->
+  <circle cx="1090" cy="534" r="16" fill="#16a34a"/>
+  <text x="1090" y="539" text-anchor="middle" font-size="16" fill="white">✓</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- Divider between columns (subtle)                   -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="0">
+  <line x1="592" y1="80" x2="592" y2="660" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>
+</g>
+
+</svg>
+</div>
+
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 9</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> or <span class="key">SPACE</span> to advance &nbsp;|&nbsp;
+  <span class="key">END</span> to complete &nbsp;|&nbsp;
+  <span class="key">HOME</span> to reset
+</div>
+
+<script>
+const TOTAL = 9;
+let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) { const d=document.createElement('div'); d.className='dot'; d.id='dot-'+i; bar.appendChild(d); }
+}
+function nextStep() {
+  if (step >= TOTAL) return; step++;
+  document.querySelectorAll('[data-step]').forEach(el => { if (parseInt(el.dataset.step) <= step) el.classList.add('visible'); });
+  for (let i = 0; i <= TOTAL; i++) { const d=document.getElementById('dot-'+i); if(d) d.className='dot'+(i<step?' done':i===step?' active':''); }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+document.addEventListener('keydown', e => {
+  if (e.key===' '||e.key==='ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key==='Home') location.reload();
+  if (e.key==='End') { while(step<TOTAL) nextStep(); }
+});
+buildDots(); nextStep();
+</script>
+</body>
+</html>

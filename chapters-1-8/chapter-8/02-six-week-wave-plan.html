@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Six Week Wave Plan</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;background:#f0f2f5;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;user-select:none}.container{width:1200px;height:700px;cursor:pointer}svg{width:100%;height:100%;display:block;background:#fbfcff}.step-item{opacity:0;transform:scale(.9);transform-origin:50% 50%;transform-box:fill-box;transition:opacity .45s ease,transform .45s ease}.step-item.visible{opacity:1;transform:scale(1)}.arrow-draw{opacity:0;stroke-dasharray:1;stroke-dashoffset:1}.dot{width:8px;height:8px;border-radius:50%;background:#d8e0ec;transition:.25s}.dot.done{background:#0e7490}.dot.active{background:#2563eb;transform:scale(1.45)}#progress{display:flex;gap:8px;margin-top:10px}#counter{margin-top:6px;font-size:12px;color:#8491a7;letter-spacing:.08em}#hint{margin-top:12px;font-size:13px;color:#64748b;display:flex;gap:8px}.key{border:1px solid #cbd5e1;background:#e2e8f0;border-radius:6px;padding:2px 9px;font-size:12px}.lane{font-size:28px;font-weight:850}.task{font-size:17px;font-weight:750;fill:#0f172a}.small{font-size:13px;fill:#10203f}.flow.visible{animation:dash 1.4s linear infinite}@keyframes dash{to{stroke-dashoffset:-20}}.bob.visible{animation:bob 3.8s ease-in-out infinite}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#e8ecf3"/></pattern>
+<filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#26324a22"/></filter>
+<marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L0,7 L9,3.5 z" fill="#0b1c52"/></marker>
+</defs>
+<rect width="1200" height="700" fill="url(#grid)"/>
+
+<g class="step-item" data-step="0">
+  <text x="600" y="28" text-anchor="middle" font-size="24" font-weight="850" fill="#10203f">Six Week Agentic Delivery Waves</text>
+  <text x="600" y="684" text-anchor="middle" font-size="14" fill="#526078">Roles advance in parallel, then sync at merge and verification checkpoints.</text>
+</g>
+
+<g class="step-item" data-step="1"><g transform="translate(24,170)">
+  <rect width="168" height="374" rx="9" fill="#fff" stroke="#e5e7eb" filter="url(#shadow)"/>
+  <text x="82" y="64" text-anchor="middle" class="lane" fill="#e91e63">PM</text>
+  <text x="82" y="164" text-anchor="middle" class="lane" fill="#2563eb">Dev</text>
+  <text x="82" y="264" text-anchor="middle" class="lane" fill="#16a34a">Tester</text>
+  <text x="82" y="364" text-anchor="middle" class="lane" fill="#f97316">DevOps</text>
+  <line x1="10" y1="95" x2="158" y2="95" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <line x1="10" y1="195" x2="158" y2="195" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <line x1="10" y1="295" x2="158" y2="295" stroke="#d1d5db" stroke-dasharray="6 6"/>
+</g></g>
+
+<g class="step-item" data-step="2"><g transform="translate(210,40)">
+  <rect width="300" height="504" rx="12" fill="#f8fbff" stroke="#8bb8ff" stroke-width="2" filter="url(#shadow)"/>
+  <text x="150" y="52" text-anchor="middle" font-size="34" font-weight="850" fill="#0b5bd3">Wave 1</text>
+  <text x="150" y="85" text-anchor="middle" font-size="20" font-weight="750" fill="#0b5bd3">Weeks 1-2</text>
+  <path d="M18 110C55 92 77 120 118 106S176 123 214 108S270 114 292 95" fill="none" stroke="#4d86e8" stroke-width="2"/>
+  <line x1="0" y1="225" x2="300" y2="225" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <line x1="0" y1="325" x2="300" y2="325" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <line x1="0" y1="425" x2="300" y2="425" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <path d="M18 155H265L285 185L265 215H18Q0 185 18 155Z" fill="#fff0f6" stroke="#f06292"/><text x="150" y="190" text-anchor="middle" class="task">Generate PRD</text>
+  <path d="M18 255H265L285 285L265 315H18Q0 285 18 255Z" fill="#eef6ff" stroke="#60a5fa"/><text x="158" y="290" text-anchor="middle" class="task">Scaffold router</text>
+  <path d="M18 355H265L285 385L265 415H18Q0 385 18 355Z" fill="#effdf4" stroke="#4ade80"/><text x="158" y="390" text-anchor="middle" class="task">Unit tests for Ch.6</text>
+  <path d="M18 455H265L285 485L265 515H18Q0 485 18 455Z" fill="#fff7ed" stroke="#fb923c"/><text x="158" y="490" text-anchor="middle" class="task">Docker Compose + CI</text>
+</g></g>
+
+<g class="step-item bob" data-step="3"><g transform="translate(522,152)">
+  <rect width="66" height="392" rx="12" fill="#fff" stroke="#3b82f6" stroke-dasharray="7 6" stroke-width="2"/>
+  <path d="M33 42l21 10v28c0 28-21 42-21 42S12 108 12 80V52z" fill="#1d4ed8"/><path d="M22 74l9 10l17-24" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+  <text x="33" y="160" text-anchor="middle" font-size="19" font-weight="850" fill="#10203f">Sync</text>
+  <text x="33" y="190" text-anchor="middle" font-size="19" font-weight="850" fill="#10203f">Point:</text>
+  <text x="33" y="220" text-anchor="middle" font-size="19" font-weight="850" fill="#10203f">Merge</text>
+  <text x="33" y="250" text-anchor="middle" font-size="19" font-weight="850" fill="#10203f">Verify</text>
+  <path d="M20 320l13-24l13 24l-13 24z" fill="none" stroke="#1d4ed8" stroke-width="3"/><path d="M8 320h50M33 296v48" stroke="#1d4ed8" stroke-width="3"/>
+</g></g>
+
+<g class="step-item" data-step="4"><g transform="translate(600,40)">
+  <rect width="300" height="504" rx="12" fill="#fdfaff" stroke="#b58bea" stroke-width="2" filter="url(#shadow)"/>
+  <text x="150" y="52" text-anchor="middle" font-size="34" font-weight="850" fill="#6d28d9">Wave 2</text>
+  <text x="150" y="85" text-anchor="middle" font-size="20" font-weight="750" fill="#6d28d9">Weeks 3-4</text>
+  <path d="M18 110C55 92 77 120 118 106S176 123 214 108S270 114 292 95" fill="none" stroke="#8b5cf6" stroke-width="2"/>
+  <line x1="0" y1="225" x2="300" y2="225" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <line x1="0" y1="325" x2="300" y2="325" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <line x1="0" y1="425" x2="300" y2="425" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <path d="M18 155H265L285 185L265 215H18Q0 185 18 155Z" fill="#fff0f6" stroke="#f06292"/><text x="158" y="190" text-anchor="middle" class="task">Acceptance criteria</text>
+  <path d="M18 255H265L285 285L265 315H18Q0 285 18 255Z" fill="#eef6ff" stroke="#60a5fa"/><text x="158" y="290" text-anchor="middle" class="task">Slack adapter</text>
+  <path d="M18 355H265L285 385L265 415H18Q0 385 18 355Z" fill="#effdf4" stroke="#4ade80"/><text x="158" y="390" text-anchor="middle" class="task">Integration tests</text>
+  <path d="M18 455H265L285 485L265 515H18Q0 485 18 455Z" fill="#fff7ed" stroke="#fb923c"/><text x="158" y="490" text-anchor="middle" class="task">Multi-stage Dockerfiles</text>
+</g></g>
+
+<g class="step-item bob" data-step="5"><g transform="translate(912,152)">
+  <rect width="66" height="392" rx="12" fill="#fff" stroke="#3b82f6" stroke-dasharray="7 6" stroke-width="2"/>
+  <path d="M33 42l21 10v28c0 28-21 42-21 42S12 108 12 80V52z" fill="#1d4ed8"/><path d="M22 74l9 10l17-24" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+  <text x="33" y="160" text-anchor="middle" font-size="19" font-weight="850" fill="#10203f">Sync</text><text x="33" y="190" text-anchor="middle" font-size="19" font-weight="850" fill="#10203f">Point:</text><text x="33" y="220" text-anchor="middle" font-size="19" font-weight="850" fill="#10203f">Merge</text><text x="33" y="250" text-anchor="middle" font-size="19" font-weight="850" fill="#10203f">Verify</text>
+  <path d="M20 320l13-24l13 24l-13 24z" fill="none" stroke="#1d4ed8" stroke-width="3"/><path d="M8 320h50M33 296v48" stroke="#1d4ed8" stroke-width="3"/>
+</g></g>
+
+<g class="step-item" data-step="6"><g transform="translate(990,40)">
+  <rect width="190" height="504" rx="12" fill="#f7feff" stroke="#75c5cf" stroke-width="2" filter="url(#shadow)"/>
+  <text x="95" y="52" text-anchor="middle" font-size="34" font-weight="850" fill="#0f8b95">Wave 3</text>
+  <text x="95" y="85" text-anchor="middle" font-size="20" font-weight="750" fill="#0f8b95">Weeks 5-6</text>
+  <path d="M18 110C55 92 77 120 118 106S176 123 184 95" fill="none" stroke="#18a0a6" stroke-width="2"/>
+  <line x1="0" y1="225" x2="190" y2="225" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <line x1="0" y1="325" x2="190" y2="325" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <line x1="0" y1="425" x2="190" y2="425" stroke="#d1d5db" stroke-dasharray="6 6"/>
+  <path d="M18 155H160L180 185L160 215H18Q0 185 18 155Z" fill="#fff0f6" stroke="#f06292"/><text x="100" y="190" text-anchor="middle" class="task">Sprint review</text>
+  <path d="M18 255H160L180 285L160 315H18Q0 285 18 255Z" fill="#eef6ff" stroke="#60a5fa"/><text x="100" y="290" text-anchor="middle" class="task">WhatsApp adapter</text>
+  <path d="M18 355H160L180 385L160 415H18Q0 385 18 355Z" fill="#effdf4" stroke="#4ade80"/><text x="100" y="390" text-anchor="middle" class="task">E2E tests</text>
+  <path d="M18 455H160L180 485L160 515H18Q0 485 18 455Z" fill="#fff7ed" stroke="#fb923c"/><text x="100" y="490" text-anchor="middle" class="task">Blue-green deploy</text>
+</g></g>
+
+<path class="arrow-draw flow" data-step="7" pathLength="1" d="M185 620H1150" fill="none" stroke="#0b1c52" stroke-width="5" marker-end="url(#arrow)"/>
+<g class="step-item" data-step="7">
+  <circle cx="210" cy="620" r="8" fill="#0b1c52"/><circle cx="555" cy="620" r="8" fill="#0b1c52"/><circle cx="935" cy="620" r="8" fill="#0b1c52"/>
+  <text x="335" y="656" text-anchor="middle" font-size="20" font-weight="850" fill="#0b5bd3">Weeks 1-2</text>
+  <text x="735" y="656" text-anchor="middle" font-size="20" font-weight="850" fill="#6d28d9">Weeks 3-4</text>
+  <text x="1085" y="656" text-anchor="middle" font-size="20" font-weight="850" fill="#0f8b95">Weeks 5-6</text>
+</g>
+</svg>
+</div>
+<div id="progress"></div><div id="counter"></div><div id="hint"><span class="key">CLICK</span> advance <span class="key">RIGHT CLICK</span> back <span class="key">LEFT/RIGHT</span> step</div>
+<script>
+const TOTAL=7;let step=-1;const bar=document.getElementById("progress");for(let i=0;i<=TOTAL;i++){let d=document.createElement("div");d.className="dot";d.id="dot-"+i;bar.appendChild(d)}function isArrow(e){return e.classList.contains("arrow-draw")}function showArrow(e){e.style.transition="none";e.style.opacity=0;e.style.strokeDashoffset=1;e.getBoundingClientRect();e.style.transition="opacity .05s ease,stroke-dashoffset .75s ease .05s";e.style.opacity=1;e.style.strokeDashoffset=0;e.classList.add("visible")}function hideArrow(e){e.style.transition="none";e.style.opacity=0;e.style.strokeDashoffset=1;e.classList.remove("visible")}function render(){document.querySelectorAll("[data-step]").forEach(e=>{parseInt(e.dataset.step)<=step?(isArrow(e)?showArrow(e):e.classList.add("visible")):(isArrow(e)?hideArrow(e):e.classList.remove("visible"))});for(let i=0;i<=TOTAL;i++){let d=document.getElementById("dot-"+i);d.className="dot"+(i<step?" done":i===step?" active":"")}counter.textContent=`STEP ${step} / ${TOTAL}`}function nextStep(){if(step<TOTAL){step++;render()}}function prevStep(){if(step>0){step--;render()}}document.addEventListener("keydown",e=>{if(e.key===" "||e.key==="ArrowRight"){e.preventDefault();nextStep()}if(e.key==="ArrowLeft"){e.preventDefault();prevStep()}if(e.key==="Home"){step=0;render()}if(e.key==="End"){step=TOTAL;render()}});slide.addEventListener("contextmenu",e=>{e.preventDefault();prevStep()});if(new URLSearchParams(location.search).has("final")){step=TOTAL;render()}else{nextStep()}
+</script>
+</body>
+</html>

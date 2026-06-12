@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 6.2 — TDD-First Development Cycle · PostToolUse Hook</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  .arrow-draw  { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+  .arrow-dashed{ opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+
+  @keyframes dashFlow  { to { stroke-dashoffset:-20; } }
+  @keyframes glowPulse { 0%,100%{opacity:.15} 50%{opacity:.4} }
+  @keyframes rotateSlow{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes hookPulse { 0%,100%{opacity:.7} 50%{opacity:1} }
+  @keyframes spinGear  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  #refactor-pulse { animation:glowPulse 2.8s ease-in-out infinite; }
+  .gear-spin { animation:spinGear 4s linear infinite; transform-origin:50% 50%; transform-box:fill-box; }
+  .hook-pulse.visible { animation:hookPulse 1.4s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#6b7280"/>
+  </marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#059669"/>
+  </marker>
+  <marker id="arrowAmber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#f59e0b"/>
+  </marker>
+  <marker id="arrowGrayDash" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#9ca3af"/>
+  </marker>
+  <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000022"/>
+  </filter>
+  <filter id="glowBlue" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="6" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 0 — Title & subtitle                              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="0">
+  <text x="600" y="34" text-anchor="middle" font-size="22" font-weight="800" fill="#1e293b" letter-spacing="-.3">TDD-First Development Cycle</text>
+  <text x="600" y="56" text-anchor="middle" font-size="12.5" fill="#64748b" letter-spacing=".6">Write Tests First · Make Them Pass · Keep It Clean</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 1 — Center Refactor circle                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- Glow pulse ring behind center (always shown once step>=1, hidden via opacity class) -->
+<circle id="refactor-pulse" cx="592" cy="305" r="88" fill="#2563eb" opacity="0" style="opacity:0"/>
+
+<g class="step-item" data-step="1">
+  <g transform="translate(592,305)">
+    <!-- Outer decorative ring -->
+    <circle r="82" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3" opacity=".35"/>
+    <!-- Main blue circle -->
+    <circle r="72" fill="#2563eb" filter="url(#glowBlue)"/>
+    <circle r="72" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+    <!-- Refactor text -->
+    <text y="-10" text-anchor="middle" font-size="13" font-weight="800" fill="white" letter-spacing=".5">Refactor</text>
+    <text y="6" text-anchor="middle" font-size="9" fill="#bfdbfe">Improve Design</text>
+    <text y="20" text-anchor="middle" font-size="9" fill="#bfdbfe">Keep Tests Green</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 2 — Node 1: Generate Tests from Spec (top-left)  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="2">
+  <g transform="translate(60,90)">
+    <!-- Card background -->
+    <rect width="255" height="155" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="2" filter="url(#shadow)"/>
+    <!-- Red numbered circle -->
+    <circle cx="20" cy="20" r="14" fill="#dc2626"/>
+    <text x="20" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">1</text>
+    <!-- Title -->
+    <text x="42" y="16" font-size="11.5" font-weight="700" fill="#dc2626">Generate Tests</text>
+    <text x="42" y="30" font-size="11.5" font-weight="700" fill="#dc2626">from Spec</text>
+    <!-- Divider -->
+    <line x1="10" y1="44" x2="245" y2="44" stroke="#fca5a5" stroke-width="1"/>
+    <!-- Test cases -->
+    <text x="16" y="62" font-size="10.5" fill="#374151">✓ Should create message</text>
+    <text x="16" y="78" font-size="10.5" fill="#374151">✓ Should validate sender</text>
+    <text x="16" y="94" font-size="10.5" fill="#374151">✓ Should handle errors</text>
+    <!-- Code icon -->
+    <text x="16" y="116" font-size="10" fill="#6b7280">&lt;/&gt;</text>
+    <!-- TEST badge -->
+    <rect x="200" y="128" width="44" height="18" rx="5" fill="#dc2626"/>
+    <text x="222" y="140" text-anchor="middle" font-size="9.5" font-weight="700" fill="white">TEST</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 3 — Arrow: Node1 → Node2 (top, going right)      -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="3" pathLength="1"
+      d="M316,168 C380,140 560,130 748,168"
+      fill="none" stroke="#dc2626" stroke-width="2.2"
+      marker-end="url(#arrowRed)"/>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 4 — Node 2: Run Tests – All Fail (top-right)     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="4">
+  <g transform="translate(758,90)">
+    <rect width="255" height="155" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="2" filter="url(#shadow)"/>
+    <circle cx="20" cy="20" r="14" fill="#dc2626"/>
+    <text x="20" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">2</text>
+    <text x="42" y="16" font-size="11.5" font-weight="700" fill="#dc2626">Run Tests –</text>
+    <text x="42" y="30" font-size="11.5" font-weight="700" fill="#dc2626">All Fail</text>
+    <line x1="10" y1="44" x2="245" y2="44" stroke="#fca5a5" stroke-width="1"/>
+    <text x="16" y="62" font-size="10.5" fill="#dc2626">✗ test_create_message FAIL</text>
+    <text x="16" y="78" font-size="10.5" fill="#dc2626">✗ test_validate_sender FAIL</text>
+    <text x="16" y="94" font-size="10.5" fill="#dc2626">✗ test_handle_errors FAIL</text>
+    <!-- Failing badge -->
+    <rect x="180" y="128" width="64" height="18" rx="5" fill="#dc2626"/>
+    <text x="212" y="140" text-anchor="middle" font-size="9.5" font-weight="700" fill="white">● Failing</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 5 — PostToolUse Hook badge                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<g class="badge-item hook-pulse" data-step="5">
+  <g transform="translate(885,268)">
+    <rect x="-95" y="-18" width="200" height="36" rx="18" fill="#f59e0b" filter="url(#shadow)"/>
+    <rect x="-95" y="-18" width="200" height="36" rx="18" fill="none" stroke="#d97706" stroke-width="1.5"/>
+    <!-- Gear icon group -->
+    <g transform="translate(-72,0)" class="gear-spin">
+      <circle r="7" fill="none" stroke="#1e293b" stroke-width="1.8"/>
+      <circle r="3" fill="#1e293b"/>
+      <rect x="-1.5" y="-9" width="3" height="4" rx="1" fill="#1e293b"/>
+      <rect x="-1.5" y="5" width="3" height="4" rx="1" fill="#1e293b"/>
+      <rect x="-9" y="-1.5" width="4" height="3" rx="1" fill="#1e293b"/>
+      <rect x="5" y="-1.5" width="4" height="3" rx="1" fill="#1e293b"/>
+    </g>
+    <text x="-10" y="-5" text-anchor="middle" font-size="9.5" font-weight="800" fill="#1e293b">PostToolUse Hook</text>
+    <text x="-10" y="9" text-anchor="middle" font-size="8.5" fill="#292524">(automatic)</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 6 — Arrow: Node2 → Node3 (right side, going down) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M1008,248 C1040,300 1040,360 1008,408"
+      fill="none" stroke="#f59e0b" stroke-width="2.2"
+      marker-end="url(#arrowAmber)"/>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 7 — Node 3: Generate Implementation (bottom-right) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="7">
+  <g transform="translate(758,408)">
+    <rect width="255" height="160" rx="10" fill="#f0fdfa" stroke="#0891b2" stroke-width="2" filter="url(#shadow)"/>
+    <circle cx="20" cy="20" r="14" fill="#0891b2"/>
+    <text x="20" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">3</text>
+    <text x="42" y="16" font-size="11.5" font-weight="700" fill="#0e7490">Generate</text>
+    <text x="42" y="30" font-size="11.5" font-weight="700" fill="#0e7490">Implementation</text>
+    <line x1="10" y1="44" x2="245" y2="44" stroke="#99f6e4" stroke-width="1"/>
+    <!-- Code snippet -->
+    <rect x="12" y="50" width="231" height="72" rx="6" fill="#0f172a"/>
+    <text x="20" y="66" font-size="9" fill="#7dd3fc" font-family="monospace">func createMessage(input) {'{'}</text>
+    <text x="20" y="80" font-size="9" fill="#86efac" font-family="monospace">  if !input.valid {'{'} return err {'}'}</text>
+    <text x="20" y="94" font-size="9" fill="#fde68a" font-family="monospace">  return {'{'} ...input {'}'}</text>
+    <text x="20" y="108" font-size="9" fill="#7dd3fc" font-family="monospace">{'}'}</text>
+    <!-- CODE badge -->
+    <rect x="196" y="133" width="48" height="18" rx="5" fill="#0891b2"/>
+    <text x="220" y="145" text-anchor="middle" font-size="9.5" font-weight="700" fill="white">CODE</text>
+    <text x="16" y="148" font-size="10" fill="#6b7280">&lt;/&gt;</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 8 — Arrow: Node3 → Node4 (bottom, going left)    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="8" pathLength="1"
+      d="M757,488 C693,510 510,516 316,488"
+      fill="none" stroke="#059669" stroke-width="2.2"
+      marker-end="url(#arrowGreen)"/>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 9 — Node 4: Run Tests – All Pass (bottom-left)   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="9">
+  <g transform="translate(60,408)">
+    <rect width="255" height="160" rx="10" fill="#f0fdf4" stroke="#059669" stroke-width="2" filter="url(#shadow)"/>
+    <circle cx="20" cy="20" r="14" fill="#059669"/>
+    <text x="20" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="white">4</text>
+    <text x="42" y="16" font-size="11.5" font-weight="700" fill="#059669">Run Tests –</text>
+    <text x="42" y="30" font-size="11.5" font-weight="700" fill="#059669">All Pass</text>
+    <line x1="10" y1="44" x2="245" y2="44" stroke="#bbf7d0" stroke-width="1"/>
+    <text x="16" y="62" font-size="10.5" fill="#059669">✓ test_create_message PASS</text>
+    <text x="16" y="78" font-size="10.5" fill="#059669">✓ test_validate_sender PASS</text>
+    <text x="16" y="94" font-size="10.5" fill="#059669">✓ test_handle_errors PASS</text>
+    <!-- Passing badge -->
+    <rect x="176" y="132" width="68" height="18" rx="5" fill="#059669"/>
+    <text x="210" y="144" text-anchor="middle" font-size="9.5" font-weight="700" fill="white">● Passing</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 10 — Arrow: Node4 → Center Refactor (loop close) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="10" pathLength="1"
+      d="M186,406 C260,370 390,320 518,300"
+      fill="none" stroke="#2563eb" stroke-width="2.2"
+      marker-end="url(#arrowGreen)"/>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STEP 11 — Bottom comparison strip                      -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="11">
+  <g transform="translate(0,592)">
+    <!-- Strip background -->
+    <rect x="20" y="0" width="1160" height="92" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+
+    <!-- Label: Manual vs Agentic -->
+    <text x="600" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="1">MANUAL vs AGENTIC</text>
+
+    <!-- LEFT: Manual (Without Hook) -->
+    <rect x="28" y="24" width="510" height="60" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="42" y="40" font-size="10" font-weight="700" fill="#64748b">Manual (Without Hook)</text>
+
+    <!-- Manual steps -->
+    <!-- Step boxes -->
+    <rect x="38" y="46" width="72" height="26" rx="5" fill="#e2e8f0"/>
+    <text x="74" y="64" text-anchor="middle" font-size="8.5" fill="#475569">Run Tests</text>
+
+    <rect x="126" y="46" width="72" height="26" rx="5" fill="#e2e8f0"/>
+    <text x="162" y="64" text-anchor="middle" font-size="8.5" fill="#475569">Notice Fail</text>
+
+    <rect x="214" y="46" width="72" height="26" rx="5" fill="#e2e8f0"/>
+    <text x="250" y="64" text-anchor="middle" font-size="8.5" fill="#475569">Re-run Tests</text>
+
+    <rect x="302" y="46" width="72" height="26" rx="5" fill="#e2e8f0"/>
+    <text x="338" y="64" text-anchor="middle" font-size="8.5" fill="#475569">Fix</text>
+
+    <rect x="390" y="46" width="88" height="26" rx="5" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+    <text x="434" y="60" text-anchor="middle" font-size="7.5" fill="#dc2626">Slow Feedback</text>
+    <text x="434" y="70" text-anchor="middle" font-size="7.5" fill="#dc2626">Loop</text>
+
+    <!-- Manual dashed arrows -->
+    <line x1="110" y1="59" x2="126" y2="59" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <polygon points="124,56 129,59 124,62" fill="#9ca3af"/>
+    <line x1="198" y1="59" x2="214" y2="59" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <polygon points="212,56 217,59 212,62" fill="#9ca3af"/>
+    <line x1="286" y1="59" x2="302" y2="59" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <polygon points="300,56 305,59 300,62" fill="#9ca3af"/>
+    <line x1="374" y1="59" x2="390" y2="59" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <polygon points="388,56 393,59 388,62" fill="#9ca3af"/>
+
+    <!-- RIGHT: Agentic (With PostToolUse Hook) -->
+    <rect x="546" y="24" width="610" height="60" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+    <text x="560" y="40" font-size="10" font-weight="700" fill="#059669">Agentic (With PostToolUse Hook)</text>
+
+    <rect x="556" y="46" width="72" height="26" rx="5" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+    <text x="592" y="64" text-anchor="middle" font-size="8.5" fill="#059669">Run Tests</text>
+
+    <rect x="644" y="46" width="80" height="26" rx="5" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+    <text x="684" y="64" text-anchor="middle" font-size="8.5" fill="#92400e">Hook Triggers</text>
+
+    <rect x="740" y="46" width="90" height="26" rx="5" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+    <text x="785" y="60" text-anchor="middle" font-size="7.5" fill="#059669">Re-runs</text>
+    <text x="785" y="70" text-anchor="middle" font-size="7.5" fill="#059669">Automatically</text>
+
+    <rect x="846" y="46" width="60" height="26" rx="5" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+    <text x="876" y="64" text-anchor="middle" font-size="8.5" fill="#059669">Fix</text>
+
+    <!-- "More Flow" badge -->
+    <rect x="916" y="40" width="120" height="38" rx="8" fill="#059669"/>
+    <text x="976" y="55" text-anchor="middle" font-size="8" font-weight="700" fill="white">More Flow · Less Friction</text>
+    <text x="976" y="68" text-anchor="middle" font-size="8" font-weight="700" fill="#bbf7d0">Faster Delivery ⚡</text>
+
+    <!-- Agentic arrows (solid green) -->
+    <line x1="628" y1="59" x2="644" y2="59" stroke="#059669" stroke-width="1.5"/>
+    <polygon points="642,56 647,59 642,62" fill="#059669"/>
+    <line x1="724" y1="59" x2="740" y2="59" stroke="#059669" stroke-width="1.5"/>
+    <polygon points="738,56 743,59 738,62" fill="#059669"/>
+    <line x1="830" y1="59" x2="846" y2="59" stroke="#059669" stroke-width="1.5"/>
+    <polygon points="844,56 849,59 844,62" fill="#059669"/>
+    <line x1="906" y1="59" x2="916" y2="59" stroke="#059669" stroke-width="1.5"/>
+    <polygon points="914,56 919,59 914,62" fill="#059669"/>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- Phase label: Red phase (top arc label)                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<g class="step-item" data-step="3">
+  <text x="592" y="118" text-anchor="middle" font-size="10" fill="#dc2626" letter-spacing=".8" font-weight="600">● RED PHASE — Write &amp; Fail</text>
+</g>
+
+<!-- Phase label: Green phase (bottom arc label) -->
+<g class="step-item" data-step="8">
+  <text x="592" y="540" text-anchor="middle" font-size="10" fill="#059669" letter-spacing=".8" font-weight="600">● GREEN PHASE — Implement &amp; Pass</text>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 11</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> advance &nbsp;·&nbsp;
+  <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp;
+  <span class="key">← →</span> step &nbsp;·&nbsp;
+  <span class="key">Home</span> start &nbsp;·&nbsp;
+  <span class="key">End</span> finish
+</div>
+
+<script>
+const TOTAL = 11;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function showArrow(el) {
+  el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1'; el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) { el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1'; }
+function isArrow(el) { return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed'); }
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) { if (isArrow(el)) showArrow(el); else el.classList.add('visible'); }
+    else { if (isArrow(el)) hideArrow(el); else el.classList.remove('visible'); }
+  });
+  // Activate refactor pulse glow when center appears
+  const pulse = document.getElementById('refactor-pulse');
+  if (pulse) pulse.style.opacity = step >= 1 ? '0.18' : '0';
+
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

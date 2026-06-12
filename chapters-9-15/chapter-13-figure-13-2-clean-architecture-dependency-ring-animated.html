@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 13.2 — Clean Architecture Dependency Ring</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw   { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+  @keyframes rotateSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes glowPulse  { 0%,100%{opacity:.3} 50%{opacity:.8} }
+  #center-ring.active  { animation:rotateSlow 14s linear infinite; opacity:.35; }
+  #center-pulse.active { animation:glowPulse 3s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowIn" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#6b7280"/>
+  </marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000020"/>
+  </filter>
+</defs>
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- STEP 0: Title -->
+<g class="step-item" data-step="0">
+  <text x="600" y="36" text-anchor="middle" font-size="22" font-weight="800" fill="#1F2937">Clean Architecture Dependency Ring</text>
+  <text x="600" y="56" text-anchor="middle" font-size="13" fill="#6B7280">Arrows always point inward — outer layers depend on inner, never the reverse</text>
+</g>
+
+<!-- STEP 1: Handler ring (outermost, blue) -->
+<g class="step-item" data-step="1">
+  <g transform="translate(430,70)">
+    <circle cx="170" cy="280" r="270" fill="#dbeafe" stroke="#93c5fd" stroke-width="2.5"/>
+    <text x="170" y="30" text-anchor="middle" font-size="16" font-weight="800" fill="#1d4ed8">Handler</text>
+    <text x="170" y="50" text-anchor="middle" font-size="11" fill="#3b82f6">HTTP, gRPC, CLI — entry points</text>
+  </g>
+</g>
+
+<!-- STEP 2: Service ring -->
+<g class="step-item" data-step="2">
+  <g transform="translate(430,70)">
+    <circle cx="170" cy="280" r="210" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="2"/>
+    <text x="170" y="90" text-anchor="middle" font-size="15" font-weight="800" fill="#4338ca">Service</text>
+    <text x="170" y="108" text-anchor="middle" font-size="10" fill="#6366f1">Business logic &amp; use cases</text>
+  </g>
+</g>
+
+<!-- STEP 3: Repository/Adapter Interfaces ring -->
+<g class="step-item" data-step="3">
+  <g transform="translate(430,70)">
+    <circle cx="170" cy="280" r="148" fill="#dcfce7" stroke="#86efac" stroke-width="2"/>
+    <text x="170" y="166" text-anchor="middle" font-size="13" font-weight="800" fill="#15803d">Repository &amp;</text>
+    <text x="170" y="184" text-anchor="middle" font-size="13" font-weight="800" fill="#15803d">Adapter Interfaces</text>
+    <text x="170" y="202" text-anchor="middle" font-size="10" fill="#16a34a">Abstractions only — no concrete deps</text>
+  </g>
+</g>
+
+<!-- STEP 4: Domain core -->
+<g class="step-item" data-step="4">
+  <g transform="translate(430,70)">
+    <circle id="center-pulse" cx="170" cy="280" r="80" fill="#fef9c3" stroke="#fde68a" stroke-width="3"/>
+    <circle id="center-ring" cx="170" cy="280" r="90" fill="none" stroke="#fde68a" stroke-width="1.5" stroke-dasharray="8 5"/>
+    <text x="170" y="274" text-anchor="middle" font-size="16" font-weight="900" fill="#92400e">Domain</text>
+    <text x="170" y="294" text-anchor="middle" font-size="10" fill="#b45309">Entities, Value Objects</text>
+    <text x="170" y="308" text-anchor="middle" font-size="10" fill="#b45309">Pure Go — zero imports</text>
+  </g>
+</g>
+
+<!-- STEP 5: External systems left (MongoDB, Redis) -->
+<g class="step-item" data-step="5">
+  <g transform="translate(30,220)">
+    <rect width="150" height="70" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="75" y="28" text-anchor="middle" font-size="20">🍃</text>
+    <text x="75" y="48" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">MongoDB</text>
+    <text x="75" y="62" text-anchor="middle" font-size="10" fill="#9ca3af">message store</text>
+  </g>
+  <g transform="translate(30,320)">
+    <rect width="150" height="70" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="75" y="28" text-anchor="middle" font-size="20">🔴</text>
+    <text x="75" y="48" text-anchor="middle" font-size="13" font-weight="700" fill="#dc2626">Redis</text>
+    <text x="75" y="62" text-anchor="middle" font-size="10" fill="#9ca3af">session cache</text>
+  </g>
+</g>
+
+<!-- Arrows: MongoDB → Handler ring -->
+<path class="arrow-dashed" data-step="5" pathLength="1"
+      d="M180,255 L430,340"
+      fill="none" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowIn)"/>
+<path class="arrow-dashed" data-step="5" pathLength="1"
+      d="M180,355 L430,380"
+      fill="none" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowIn)"/>
+
+<!-- STEP 6: External systems right (Line API, WhatsApp API) -->
+<g class="step-item" data-step="6">
+  <g transform="translate(988,220)">
+    <rect width="160" height="70" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="80" y="28" text-anchor="middle" font-size="20">💚</text>
+    <text x="80" y="48" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">Line API</text>
+    <text x="80" y="62" text-anchor="middle" font-size="10" fill="#9ca3af">channel adapter</text>
+  </g>
+  <g transform="translate(988,320)">
+    <rect width="160" height="70" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="80" y="28" text-anchor="middle" font-size="20">💬</text>
+    <text x="80" y="48" text-anchor="middle" font-size="13" font-weight="700" fill="#25D366">WhatsApp API</text>
+    <text x="80" y="62" text-anchor="middle" font-size="10" fill="#9ca3af">channel adapter</text>
+  </g>
+</g>
+
+<!-- Arrows: API adapters → Handler ring -->
+<path class="arrow-dashed" data-step="6" pathLength="1"
+      d="M988,255 L770,340"
+      fill="none" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowIn)"/>
+<path class="arrow-dashed" data-step="6" pathLength="1"
+      d="M988,355 L770,380"
+      fill="none" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowIn)"/>
+
+<!-- STEP 7: Inward arrows label + rule banner -->
+<g class="step-item" data-step="7">
+  <g transform="translate(230,628)">
+    <rect width="740" height="44" rx="10" fill="#1e293b"/>
+    <text x="370" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">DEPENDENCY RULE</text>
+    <text x="60" y="36" text-anchor="middle" font-size="14" fill="#3b82f6">→</text>
+    <text x="370" y="36" text-anchor="middle" font-size="12" fill="white">Arrows always point inward — outer layers depend on inner, never the reverse</text>
+    <text x="680" y="36" text-anchor="middle" font-size="14" fill="#3b82f6">←</text>
+  </g>
+</g>
+
+<!-- STEP 8: Right panel — layer summary -->
+<g class="step-item" data-step="8">
+  <g transform="translate(20,68)">
+    <rect width="390" height="192" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="390" height="38" rx="12" fill="#1e293b"/>
+    <rect x="0" y="24" width="390" height="14" fill="#1e293b"/>
+    <text x="195" y="24" text-anchor="middle" font-size="12" font-weight="800" fill="white">FOUR LAYERS — OUTSIDE IN</text>
+    <text x="16" y="62" font-size="11" font-weight="700" fill="#1d4ed8">Handler</text>
+    <text x="100" y="62" font-size="10" fill="#6b7280">HTTP/gRPC/CLI — calls Service only</text>
+    <line x1="16" y1="72" x2="374" y2="72" stroke="#f1f5f9" stroke-width="1"/>
+    <text x="16" y="92" font-size="11" font-weight="700" fill="#4338ca">Service</text>
+    <text x="100" y="92" font-size="10" fill="#6b7280">Use cases — calls Interfaces only</text>
+    <line x1="16" y1="102" x2="374" y2="102" stroke="#f1f5f9" stroke-width="1"/>
+    <text x="16" y="122" font-size="11" font-weight="700" fill="#15803d">Repository/Adapter</text>
+    <text x="180" y="122" font-size="10" fill="#6b7280">Interfaces — pure Go types</text>
+    <line x1="16" y1="132" x2="374" y2="132" stroke="#f1f5f9" stroke-width="1"/>
+    <text x="16" y="152" font-size="11" font-weight="700" fill="#92400e">Domain</text>
+    <text x="100" y="152" font-size="10" fill="#6b7280">Entities, Value Objects — zero external imports</text>
+    <line x1="16" y1="162" x2="374" y2="162" stroke="#f1f5f9" stroke-width="1"/>
+    <text x="195" y="182" text-anchor="middle" font-size="10" fill="#94a3b8">Domain knows nothing about DB or HTTP</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 8</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+<script>
+const TOTAL = 8;
+let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+function showArrow(el) {
+  el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1'; el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) { el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1'; }
+function isArrow(el) { return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed'); }
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) { if (isArrow(el)) showArrow(el); else el.classList.add('visible'); }
+    else { if (isArrow(el)) hideArrow(el); else el.classList.remove('visible'); }
+  });
+  if (step >= 4) {
+    document.getElementById('center-pulse')?.classList.add('active');
+    document.getElementById('center-ring')?.classList.add('active');
+  } else {
+    document.getElementById('center-pulse')?.classList.remove('active');
+    document.getElementById('center-ring')?.classList.remove('active');
+  }
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+buildDots(); nextStep();
+</script>
+</body>
+</html>

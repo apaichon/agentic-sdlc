@@ -1,0 +1,138 @@
+ 	{
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "hr-bot",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "16b6c4fc-abb3-43ae-b50c-7f079cc46a8b",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          -480,
+          32
+        ],
+        "webhookId": "arise-hr-bot"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Minimal \"retriever\": pick the HR policy doc whose keywords best match the query.\nconst body = $json.body || {};\nconst query = (body.query || body.prompt || '').toString();\n\n// Richer corpus: each doc carries the core fact PLUS buried exceptions and\n// conditions, and several docs deliberately collide (two \"bonus\" docs, several\n// \"notice\"/\"probation\"/\"leave\" docs, the number 5 vs 10, 119 in two places).\n// The retriever returns only the SINGLE best doc, so multi-topic or ambiguous\n// questions get partial context — fertile ground for confidently-wrong answers.\nconst CORPUS = {\n  annual_leave:   \"Annual Leave: Full-time employees accrue 18 days of paid annual leave per calendar year. Up to 5 unused days carry over to the next year; the rest is forfeited on December 31. Managers (grade M3 and above) may instead carry over up to 10 days. Leave may not be taken during the first 90 days of probation. Part-time staff accrue on a pro-rata basis.\",\n  sick_leave:     \"Sick Leave: Employees receive 30 days of paid sick leave per calendar year. Absences of 1 to 2 days may be self-certified; a medical certificate is required for any absence of 3 or more consecutive days. Sick leave does not carry over and is not paid out on resignation. Employees in their first 3 months receive a reduced entitlement of 10 days.\",\n  parental_leave: \"Parental Leave: Primary caregivers receive 16 weeks of paid parental leave; secondary caregivers receive 4 weeks. Employees must have 12 months of continuous service to qualify. Leave must begin within 12 months of the birth or legal adoption. Notice of at least 8 weeks is required where practicable.\",\n  remote_work:    \"Remote Work: Employees may work remotely up to 3 days per week with manager approval. New employees may not work remotely during their first 3 months. Fully remote arrangements require Director sign-off and come with a 5000 THB per year home-office stipend. Core collaboration hours are 10:00 to 15:00 local time.\",\n  expenses:       \"Expense Reimbursement: Business expenses are reimbursed when submitted within 60 days with an itemized receipt. Meals while travelling are capped at 800 THB per day. Alcohol is not reimbursable. Client entertainment above 2000 THB requires prior VP approval. Personal expenses are never reimbursable.\",\n  overtime:       \"Overtime: Overtime is paid at 1.5x the hourly rate on workdays and 2x on public holidays. Overtime must be approved in advance. Employees above manager grade are not eligible for overtime pay. With approval, time off in lieu may be taken instead of pay.\",\n  referral:       \"Referral Bonus: Employees who refer an external candidate that is hired receive a 20000 THB referral bonus, paid in the payroll cycle after the new hire passes their 119-day probation. Referrals of contractors or interns do not qualify. There is no limit on the number of referrals.\",\n  health:         \"Health Insurance: All full-time employees are enrolled in group health insurance from day one. Coverage includes outpatient, inpatient, and dental up to 20000 THB per year. Optical is not covered. Dependents may be added at the employee's own cost. Pre-existing conditions are covered after a 90-day waiting period.\",\n  resignation:    \"Resignation and Notice: Permanent employees must give 30 days written notice. Employees still in their first year give 15 days notice. Unused annual leave is paid out on resignation; unused sick leave is not paid out.\",\n  probation:      \"Probation: New employees serve a probation period of 119 days. During probation either party may end employment with 7 days notice. No annual leave may be taken during probation. Performance is reviewed at day 60 and day 110.\",\n  performance_bonus: \"Performance Bonus: An annual performance bonus of up to one month's salary is paid in December to employees rated 4 or above in the annual review. Employees on a performance improvement plan are not eligible. This is separate from the referral bonus.\",\n  conduct:        \"Code of Conduct: Employees may not accept gifts worth more than 1000 THB from vendors or clients. Conflicts of interest must be declared to HR in writing. Harassment and discrimination are prohibited and may lead to termination.\"\n};\n\n// Keyword lists are intentionally overlapping so the single-best retriever can\n// pick the WRONG doc on ambiguous questions (e.g. \"bonus\", \"notice\", \"leave\").\nconst KEYWORDS = {\n  annual_leave:   [\"annual leave\",\"vacation\",\"holiday entitlement\",\"carry over\",\"carryover\",\"18 days\",\"leave\"],\n  sick_leave:     [\"sick\",\"medical certificate\",\"illness\",\"30 days\",\"self-certify\",\"self certify\"],\n  parental_leave: [\"parental\",\"maternity\",\"paternity\",\"caregiver\",\"baby\",\"adoption\",\"16 weeks\",\"newborn\",\"leave\"],\n  remote_work:    [\"remote\",\"work from home\",\"wfh\",\"home office\",\"stipend\",\"core hours\"],\n  expenses:       [\"expense\",\"reimburse\",\"meal\",\"alcohol\",\"receipt\",\"per diem\",\"entertainment\"],\n  overtime:       [\"overtime\",\"1.5x\",\"2x\",\"time off in lieu\",\"public holiday rate\"],\n  referral:       [\"referral\",\"refer\",\"referred\",\"referral bonus\",\"bonus\"],\n  health:         [\"health\",\"insurance\",\"dental\",\"medical plan\",\"dependent\",\"optical\",\"coverage\"],\n  resignation:    [\"resign\",\"resignation\",\"notice period\",\"quit\",\"leaving the company\",\"last day\",\"leave\"],\n  probation:      [\"probation\",\"probationary\",\"trial period\"],\n  performance_bonus: [\"performance bonus\",\"annual bonus\",\"year-end bonus\",\"year end bonus\",\"december bonus\",\"bonus\"],\n  conduct:        [\"gift\",\"gifts\",\"conduct\",\"conflict of interest\",\"vendor\"]\n};\n\nconst q = query.toLowerCase();\nlet best = null, bestScore = 0;\nfor (const [doc, words] of Object.entries(KEYWORDS)) {\n  let s = 0;\n  for (const w of words) { if (q.includes(w)) s += 1; }\n  if (s > bestScore) { bestScore = s; best = doc; }   // strict > : on a TIE the first-defined doc wins\n}\n\n// If nothing matched, return an empty-ish context so the bot must refuse.\nconst context = best ? CORPUS[best] : \"No relevant HR policy was found for this question.\";\n\n// Build the FULL OpenAI request body here (real values, no nested n8n expressions).\n// This is the bot's \"prompt\" — students edit the system message in Step 4.\nconst system = [\n  \"You are Acme Corp's HR assistant.\",\n  \"Answer the employee's question using ONLY the policy context provided.\",\n  \"If the context does not contain the answer, say you could not find it in policy and do not guess.\",\n  \"Be concise.\"\n].join(\" \");\n\nconst openaiBody = {\n  model: \"gpt-4o-mini\",\n  temperature: 0,\n  messages: [\n    { role: \"system\", content: system + \"\\n\\nCONTEXT:\\n\" + context },\n    { role: \"user\", content: query }\n  ]\n};\n\nreturn [{ json: { query, context, openaiBody } }];"
+        },
+        "id": "175e0c50-958d-43a2-94a0-d22c20d47a05",
+        "name": "Retrieve HR context",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -256,
+          32
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify($json.openaiBody) }}",
+          "options": {}
+        },
+        "id": "8d4a5bf4-1df4-4241-a004-2a43e5c3638c",
+        "name": "OpenAI Chat",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -48,
+          32
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "PRL5dvC1keqMj4rb",
+            "name": "OpenAI - Ton Arise"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Read the OpenAI chat response and the context we retrieved, return a clean contract.\nconst llm = $json;  // output of the HTTP Request (OpenAI) node\nconst answer = (llm.choices && llm.choices[0] && llm.choices[0].message && llm.choices[0].message.content) || \"\";\nconst model = llm.model || \"unknown\";\n\n// Pull the context forward from the retrieve node.\nconst ctx = $('Retrieve HR context').first().json.context;\nconst query = $('Retrieve HR context').first().json.query;\n\nreturn [{ json: { answer: answer.trim(), context: ctx, model, query } }];"
+        },
+        "id": "437b08b8-05e7-442b-a3c6-96700a84b81d",
+        "name": "Shape response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          192,
+          32
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify($json) }}",
+          "options": {}
+        },
+        "id": "df2223d4-0b23-4f6a-94d0-9b79ad76f0d4",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          400,
+          32
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Retrieve HR context",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Retrieve HR context": {
+        "main": [
+          [
+            {
+              "node": "OpenAI Chat",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat": {
+        "main": [
+          [
+            {
+              "node": "Shape response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Shape response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "instanceId": "46ff5621942b1c2af7d32ddd66a0578c65662df6b2e407e8523a38eb0a738ec4"
+    }
+  }

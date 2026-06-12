@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shared Git Worktrees</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;background:#f0f2f5;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#10203f;user-select:none}.container{width:1200px;height:700px;cursor:pointer}svg{width:100%;height:100%;display:block;background:#fbfcff}.grid line{stroke:#e7ebf3;stroke-width:1}.step-item{opacity:0;transform:scale(.9);transform-origin:50% 50%;transform-box:fill-box;transition:opacity .45s ease,transform .45s ease}.step-item.visible{opacity:1;transform:scale(1)}.arrow-draw,.arrow-dashed{opacity:0;stroke-dasharray:1;stroke-dashoffset:1}.card-title{font-size:20px;font-weight:800;fill:#10203f}.small{font-size:12px;fill:#10203f}.branch{font-size:15px;font-weight:700}.file-label{font-size:10px;font-weight:650;fill:#10203f}.progress{display:flex;gap:8px;margin-top:10px}.dot{width:8px;height:8px;border-radius:50%;background:#d8e0ec;transition:.25s}.dot.done{background:#0e7490}.dot.active{background:#2563eb;transform:scale(1.45)}#counter{margin-top:6px;font-size:12px;letter-spacing:.08em;color:#8491a7}#hint{margin-top:12px;font-size:13px;color:#64748b;display:flex;gap:8px;align-items:center}.key{border:1px solid #cbd5e1;background:#e2e8f0;border-radius:6px;padding:2px 9px;font-size:12px;color:#475569}.pulse.active{animation:pulse 2s infinite}.float.visible{animation:float 4s ease-in-out infinite}@keyframes pulse{0%,100%{opacity:.18;r:42}50%{opacity:.4;r:54}}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes dashFlow{to{stroke-dashoffset:-20}}.flow.visible{animation:dashFlow 1.6s linear infinite}
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#e8ecf3" stroke-width="1"/></pattern>
+<filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#26324a25"/></filter>
+<linearGradient id="mainGrad" x1="0" x2="1"><stop stop-color="#3047d4"/><stop offset="1" stop-color="#4a37b5"/></linearGradient>
+<marker id="arrowSlate" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#536178"/></marker>
+<marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/></marker>
+</defs>
+<rect width="1200" height="700" fill="url(#grid)"/>
+
+<g class="step-item" data-step="0">
+  <text x="600" y="48" text-anchor="middle" font-size="29" font-weight="850" fill="#10203f">Shared Git Worktrees</text>
+  <text x="600" y="76" text-anchor="middle" font-size="15" fill="#526078">Parallel Claude Code sessions isolate work and converge through protected PRs.</text>
+</g>
+
+<g class="step-item float" data-step="1">
+  <ellipse cx="600" cy="98" rx="158" ry="22" fill="#ffffff" stroke="#33445f" stroke-width="3"/>
+  <rect x="442" y="98" width="316" height="82" fill="#f8fafc" stroke="#33445f" stroke-width="3"/>
+  <ellipse cx="600" cy="180" rx="158" ry="22" fill="#f8fafc" stroke="#33445f" stroke-width="3"/>
+  <rect x="510" y="118" width="42" height="42" rx="8" fill="#f4511e" transform="rotate(45 531 139)"/>
+  <circle cx="526" cy="130" r="4" fill="#fff"/><circle cx="543" cy="148" r="4" fill="#fff"/><circle cx="543" cy="130" r="4" fill="#fff"/>
+  <path d="M526 130L543 148M543 130V148" stroke="#fff" stroke-width="4" fill="none"/>
+  <text x="575" y="135" font-size="24" font-weight="850" fill="#10203f">Shared .git</text>
+  <text x="575" y="164" font-size="24" font-weight="850" fill="#10203f">Repository</text>
+  <circle class="pulse" id="center-pulse" cx="600" cy="141" r="42" fill="#2563eb"/>
+</g>
+
+<path class="arrow-draw flow" data-step="2" pathLength="1" d="M600 202V232H170V265" fill="none" stroke="#536178" stroke-width="3" marker-end="url(#arrowSlate)"/>
+<path class="arrow-draw flow" data-step="3" pathLength="1" d="M600 202V232H450V265" fill="none" stroke="#536178" stroke-width="3" marker-end="url(#arrowSlate)"/>
+<path class="arrow-draw flow" data-step="4" pathLength="1" d="M600 202V232H730V265" fill="none" stroke="#536178" stroke-width="3" marker-end="url(#arrowSlate)"/>
+<path class="arrow-draw flow" data-step="5" pathLength="1" d="M600 202V232H1010V265" fill="none" stroke="#536178" stroke-width="3" marker-end="url(#arrowSlate)"/>
+
+<g class="step-item" data-step="2"><g transform="translate(54,285)">
+  <rect width="252" height="268" rx="10" fill="#fff1f6" stroke="#e91e63" stroke-width="2" filter="url(#shadow)"/>
+  <text x="126" y="39" text-anchor="middle" class="card-title">PM Worktree</text>
+  <text x="126" y="76" text-anchor="middle" class="branch" fill="#e91e63">feature/sprint-3-stories</text>
+  <line x1="16" y1="96" x2="236" y2="96" stroke="#e91e63"/>
+  <text x="52" y="190" text-anchor="middle" class="file-label">PRD.md</text><text x="126" y="190" text-anchor="middle" class="file-label">Stories.md</text><text x="200" y="190" text-anchor="middle" class="file-label">Roadmap.md</text>
+  <path d="M38 118h27l18 18v52H38zM65 118v18h18M50 152h22M50 166h28M50 180h17" fill="#fff" stroke="#e91e63" stroke-width="2"/>
+  <path d="M112 118h27l18 18v52h-45zM139 118v18h18M124 152h22M124 166h28M124 180h17" fill="#fff" stroke="#e91e63" stroke-width="2"/>
+  <path d="M186 118h27l18 18v52h-45zM213 118v18h18M198 152h22M198 166h28M198 180h17" fill="#fff" stroke="#e91e63" stroke-width="2"/>
+  <rect x="18" y="212" width="216" height="42" rx="8" fill="#fff" stroke="#e91e63" stroke-dasharray="5 4"/>
+  <text x="126" y="238" text-anchor="middle" font-size="18" font-weight="800" fill="#10203f">Claude Code Session</text>
+</g></g>
+
+<g class="step-item" data-step="3"><g transform="translate(334,285)">
+  <rect width="252" height="268" rx="10" fill="#f2f7ff" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+  <text x="126" y="39" text-anchor="middle" class="card-title">Dev Worktree</text>
+  <text x="126" y="76" text-anchor="middle" class="branch" fill="#2563eb">feature/slack-adapter</text>
+  <line x1="16" y1="96" x2="236" y2="96" stroke="#2563eb"/>
+  <text x="52" y="190" text-anchor="middle" class="file-label">adapter.go</text><text x="126" y="190" text-anchor="middle" class="file-label">types.go</text><text x="200" y="190" text-anchor="middle" class="file-label">parser.go</text>
+  <path d="M38 118h27l18 18v52H38zM65 118v18h18" fill="#fff" stroke="#2563eb" stroke-width="2"/><text x="61" y="160" text-anchor="middle" font-size="22" fill="#2563eb">&lt;/&gt;</text>
+  <path d="M112 118h27l18 18v52h-45zM139 118v18h18" fill="#fff" stroke="#2563eb" stroke-width="2"/><text x="135" y="161" text-anchor="middle" font-size="22" fill="#2563eb">{}</text>
+  <path d="M186 118h27l18 18v52h-45zM213 118v18h18" fill="#fff" stroke="#2563eb" stroke-width="2"/><text x="209" y="160" text-anchor="middle" font-size="22" fill="#2563eb">&lt;/&gt;</text>
+  <rect x="18" y="212" width="216" height="42" rx="8" fill="#fff" stroke="#2563eb" stroke-dasharray="5 4"/>
+  <text x="126" y="238" text-anchor="middle" font-size="18" font-weight="800" fill="#10203f">Claude Code Session</text>
+</g></g>
+
+<g class="step-item" data-step="4"><g transform="translate(614,285)">
+  <rect width="252" height="268" rx="10" fill="#effdf4" stroke="#16a34a" stroke-width="2" filter="url(#shadow)"/>
+  <text x="126" y="39" text-anchor="middle" class="card-title">Tester Worktree</text>
+  <text x="126" y="76" text-anchor="middle" class="branch" fill="#16a34a">feature/line-adapter-tests</text>
+  <line x1="16" y1="96" x2="236" y2="96" stroke="#16a34a"/>
+  <text x="52" y="190" text-anchor="middle" class="file-label">webhook_test.go</text><text x="126" y="190" text-anchor="middle" class="file-label">parser_test.go</text><text x="200" y="190" text-anchor="middle" class="file-label">flow_test.go</text>
+  <path d="M38 118h27l18 18v52H38zM65 118v18h18" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="61" y="162" text-anchor="middle" font-size="24" fill="#16a34a">T</text>
+  <path d="M112 118h27l18 18v52h-45zM139 118v18h18" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="135" y="162" text-anchor="middle" font-size="24" fill="#16a34a">T</text>
+  <path d="M186 118h27l18 18v52h-45zM213 118v18h18" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="209" y="162" text-anchor="middle" font-size="24" fill="#16a34a">T</text>
+  <rect x="18" y="212" width="216" height="42" rx="8" fill="#fff" stroke="#16a34a" stroke-dasharray="5 4"/>
+  <text x="126" y="238" text-anchor="middle" font-size="18" font-weight="800" fill="#10203f">Claude Code Session</text>
+</g></g>
+
+<g class="step-item" data-step="5"><g transform="translate(894,285)">
+  <rect width="252" height="268" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2" filter="url(#shadow)"/>
+  <text x="126" y="39" text-anchor="middle" class="card-title">DevOps Worktree</text>
+  <text x="126" y="76" text-anchor="middle" class="branch" fill="#f97316">feature/docker-optimization</text>
+  <line x1="16" y1="96" x2="236" y2="96" stroke="#f97316"/>
+  <text x="52" y="190" text-anchor="middle" class="file-label">Dockerfile</text><text x="126" y="190" text-anchor="middle" class="file-label">compose.yml</text><text x="200" y="190" text-anchor="middle" class="file-label">.env.example</text>
+  <path d="M38 118h27l18 18v52H38zM65 118v18h18" fill="#fff" stroke="#f97316" stroke-width="2"/><rect x="50" y="148" width="24" height="14" rx="2" fill="#2563eb"/><rect x="54" y="139" width="7" height="9" fill="#2563eb"/><rect x="64" y="139" width="7" height="9" fill="#2563eb"/><path d="M47 165h31l-6 8H53z" fill="#2563eb"/>
+  <path d="M112 118h27l18 18v52h-45zM139 118v18h18" fill="#fff" stroke="#f97316" stroke-width="2"/><text x="135" y="160" text-anchor="middle" font-size="14" font-weight="800" fill="#f97316">YAML</text>
+  <path d="M186 118h27l18 18v52h-45zM213 118v18h18" fill="#fff" stroke="#f97316" stroke-width="2"/><circle cx="209" cy="158" r="13" fill="none" stroke="#f97316" stroke-width="5"/><circle cx="209" cy="158" r="5" fill="#f97316"/><g stroke="#f97316" stroke-width="4"><path d="M209 138v8M209 170v8M189 158h8M221 158h8M195 144l6 6M217 166l6 6M223 144l-6 6M201 166l-6 6"/></g>
+  <rect x="18" y="212" width="216" height="42" rx="8" fill="#fff" stroke="#f97316" stroke-dasharray="5 4"/>
+  <text x="126" y="238" text-anchor="middle" font-size="18" font-weight="800" fill="#10203f">Claude Code Session</text>
+</g></g>
+
+<path class="arrow-dashed" data-step="6" pathLength="1" d="M180 553V612H430V642" fill="none" stroke="#536178" stroke-width="3" marker-end="url(#arrowSlate)"/>
+<path class="arrow-dashed" data-step="7" pathLength="1" d="M460 553V612H568V642" fill="none" stroke="#536178" stroke-width="3" marker-end="url(#arrowSlate)"/>
+<path class="arrow-dashed" data-step="8" pathLength="1" d="M740 553V612H600V642" fill="none" stroke="#536178" stroke-width="3" marker-end="url(#arrowSlate)"/>
+<path class="arrow-dashed" data-step="9" pathLength="1" d="M1020 553V612H734V642" fill="none" stroke="#536178" stroke-width="3" marker-end="url(#arrowSlate)"/>
+
+<g class="step-item" data-step="10">
+  <rect x="360" y="600" width="480" height="70" rx="8" fill="url(#mainGrad)" filter="url(#shadow)"/>
+  <rect x="492" y="615" width="32" height="34" rx="5" fill="#fff"/>
+  <path d="M498 615v-10a10 10 0 0 1 20 0v10" fill="none" stroke="#fff" stroke-width="5"/>
+  <circle cx="508" cy="632" r="6" fill="#3047d4"/>
+  <text x="555" y="634" font-size="28" font-weight="850" fill="#fff">main branch <tspan font-size="22" font-weight="650">(stable)</tspan></text>
+  <text x="555" y="656" font-size="14" fill="#dfe7ff">Protected - Code Review Required - CI/CD Passing</text>
+</g>
+</svg>
+</div>
+<div class="progress" id="progress"></div><div id="counter"></div><div id="hint"><span class="key">CLICK</span> advance <span class="key">RIGHT CLICK</span> back <span class="key">LEFT/RIGHT</span> step</div>
+<script>
+const TOTAL=10;let step=-1;const bar=document.getElementById("progress");for(let i=0;i<=TOTAL;i++){const d=document.createElement("div");d.className="dot";d.id="dot-"+i;bar.appendChild(d)}function isArrow(e){return e.classList.contains("arrow-draw")||e.classList.contains("arrow-dashed")}function showArrow(e){e.style.transition="none";e.style.opacity="0";e.style.strokeDashoffset="1";e.getBoundingClientRect();e.style.transition="opacity .05s ease,stroke-dashoffset .7s ease .05s";e.style.opacity="1";e.style.strokeDashoffset="0";e.classList.add("visible")}function hideArrow(e){e.style.transition="none";e.style.opacity="0";e.style.strokeDashoffset="1";e.classList.remove("visible")}function render(){document.querySelectorAll("[data-step]").forEach(e=>{parseInt(e.dataset.step)<=step?(isArrow(e)?showArrow(e):e.classList.add("visible")):(isArrow(e)?hideArrow(e):e.classList.remove("visible"))});document.getElementById("center-pulse")?.classList.toggle("active",step>=1);for(let i=0;i<=TOTAL;i++){const d=document.getElementById("dot-"+i);d.className="dot"+(i<step?" done":i===step?" active":"")}document.getElementById("counter").textContent=`STEP ${step} / ${TOTAL}`}function nextStep(){if(step<TOTAL){step++;render()}}function prevStep(){if(step>0){step--;render()}}document.addEventListener("keydown",e=>{if(e.key===" "||e.key==="ArrowRight"){e.preventDefault();nextStep()}if(e.key==="ArrowLeft"){e.preventDefault();prevStep()}if(e.key==="Home"){step=0;render()}if(e.key==="End"){step=TOTAL;render()}});document.getElementById("slide").addEventListener("contextmenu",e=>{e.preventDefault();prevStep()});if(new URLSearchParams(location.search).has("final")){step=TOTAL;render()}else{nextStep()}
+</script>
+</body>
+</html>

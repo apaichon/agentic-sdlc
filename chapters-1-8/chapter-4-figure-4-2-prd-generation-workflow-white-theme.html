@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 4.2 — Three-Phase PRD Generation Workflow</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  /* ── progress chrome ── */
+  #click-hint {
+    margin-top:12px; font-size:12px; color:#64748b;
+    letter-spacing:.05em; display:flex; align-items:center; gap:8px;
+  }
+  #click-hint .key {
+    background:#e2e8f0; border:1px solid #cbd5e1;
+    border-radius:5px; padding:2px 9px; font-size:11px; color:#475569;
+  }
+  #step-counter { font-size:11px; color:#94a3b8; margin-top:5px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  /* ── step-item: two-level nesting pattern ── */
+  /* The outer g.step-item has NO transform attribute in SVG. */
+  /* The inner g has transform="translate(X,Y)". */
+  .step-item {
+    opacity:0;
+    transform:scale(.88);
+    transform-origin:50% 50%;
+    transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  /* arrows are shown/hidden via JS style directly — no class toggle */
+  .arrow-draw { opacity:0; stroke-dasharray:1; stroke-dashoffset:1; }
+
+  /* ── continuous animations ── */
+  @keyframes glowPulse {
+    0%,100%{ opacity:.25; r:38px; }
+    50%    { opacity:.55; r:46px; }
+  }
+  @keyframes rotateSlow {
+    from{ transform:rotate(0deg); }
+    to  { transform:rotate(360deg); }
+  }
+  @keyframes nodePing {
+    0%,100%{ opacity:0; r:5px; }
+    50%    { opacity:.8; r:11px; }
+  }
+  @keyframes floatIn {
+    0%  { opacity:0; transform:translateY(6px); }
+    100%{ opacity:1; transform:translateY(0);   }
+  }
+
+  #ai-glow.active    { animation:glowPulse 2.8s ease-in-out infinite; }
+  #ai-ring.active    { animation:rotateSlow 14s linear infinite; opacity:.35; }
+  .ping-dot.active   { animation:nodePing 2.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Arrow markers -->
+  <marker id="arr-green" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/>
+  </marker>
+  <marker id="arr-purple" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#7c3aed"/>
+  </marker>
+  <marker id="arr-blue" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+  </marker>
+  <marker id="arr-teal" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#0E7490"/>
+  </marker>
+
+  <!-- Drop shadow filter -->
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000018"/>
+  </filter>
+
+  <!-- Softer card shadow -->
+  <filter id="cardshadow" x="-10%" y="-10%" width="120%" height="130%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000012"/>
+  </filter>
+
+  <!-- Glow filter for AI circle -->
+  <filter id="aiglow" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+
+  <!-- Diagonal hatch pattern for phase BGs -->
+  <pattern id="hatch-green" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="8" stroke="#16a34a" stroke-width=".4" opacity=".25"/>
+  </pattern>
+  <pattern id="hatch-purple" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="8" stroke="#7c3aed" stroke-width=".4" opacity=".25"/>
+  </pattern>
+  <pattern id="hatch-blue" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="8" stroke="#2563eb" stroke-width=".4" opacity=".25"/>
+  </pattern>
+</defs>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 0: Title + Phase headers + dividers               -->
+<!-- ─────────────────────────────────────────────────────── -->
+
+<!-- Overall background card -->
+<g class="step-item" data-step="0">
+  <g transform="translate(0,0)">
+    <rect x="10" y="10" width="1180" height="680" rx="16" ry="16"
+          fill="#F8F9FA" stroke="#E2E8F0" stroke-width="1.5" filter="url(#shadow)"/>
+  </g>
+</g>
+
+<!-- Title -->
+<g class="step-item" data-step="0">
+  <g transform="translate(0,0)">
+    <text x="600" y="48" text-anchor="middle" font-size="22" font-weight="800"
+          fill="#1E293B" font-family="system-ui,-apple-system,sans-serif">
+      Figure 4.2 — Three-Phase PRD Generation Workflow
+    </text>
+    <text x="600" y="70" text-anchor="middle" font-size="13" fill="#64748B"
+          font-family="system-ui,-apple-system,sans-serif">
+      From raw stakeholder inputs to an approved PRD — compressed from days to hours
+    </text>
+  </g>
+</g>
+
+<!-- Phase 1 header: Capture (green) -->
+<g class="step-item" data-step="0">
+  <g transform="translate(20,88)">
+    <!-- background column -->
+    <rect x="0" y="0" width="373" height="472" rx="0" ry="0" fill="url(#hatch-green)" opacity=".4"/>
+    <rect x="0" y="0" width="373" height="472" rx="0" ry="0" fill="#f0fdf4" opacity=".7"/>
+    <!-- header bar -->
+    <rect x="0" y="0" width="373" height="44" rx="10" ry="10" fill="#16a34a"/>
+    <!-- square off bottom corners of header -->
+    <rect x="0" y="24" width="373" height="20" fill="#16a34a"/>
+    <text x="186" y="26" text-anchor="middle" dominant-baseline="middle"
+          font-size="15" font-weight="700" fill="#ffffff"
+          font-family="system-ui,-apple-system,sans-serif">Phase 1: Capture</text>
+    <text x="186" y="39" text-anchor="middle" dominant-baseline="middle"
+          font-size="11" fill="#dcfce7"
+          font-family="system-ui,-apple-system,sans-serif">Collect raw inputs from any source</text>
+  </g>
+</g>
+
+<!-- Phase 2 header: Generation (purple) -->
+<g class="step-item" data-step="0">
+  <g transform="translate(400,88)">
+    <rect x="0" y="0" width="373" height="472" rx="0" ry="0" fill="url(#hatch-purple)" opacity=".4"/>
+    <rect x="0" y="0" width="373" height="472" rx="0" ry="0" fill="#faf5ff" opacity=".7"/>
+    <rect x="0" y="0" width="373" height="44" rx="10" ry="10" fill="#7c3aed"/>
+    <rect x="0" y="24" width="373" height="20" fill="#7c3aed"/>
+    <text x="186" y="26" text-anchor="middle" dominant-baseline="middle"
+          font-size="15" font-weight="700" fill="#ffffff"
+          font-family="system-ui,-apple-system,sans-serif">Phase 2: Generation</text>
+    <text x="186" y="39" text-anchor="middle" dominant-baseline="middle"
+          font-size="11" fill="#ede9fe"
+          font-family="system-ui,-apple-system,sans-serif">AI creates a structured first draft</text>
+  </g>
+</g>
+
+<!-- Phase 3 header: Refinement (blue) -->
+<g class="step-item" data-step="0">
+  <g transform="translate(780,88)">
+    <rect x="0" y="0" width="400" height="472" rx="0" ry="0" fill="url(#hatch-blue)" opacity=".4"/>
+    <rect x="0" y="0" width="400" height="472" rx="0" ry="0" fill="#eff6ff" opacity=".7"/>
+    <rect x="0" y="0" width="400" height="44" rx="10" ry="10" fill="#2563eb"/>
+    <rect x="0" y="24" width="400" height="20" fill="#2563eb"/>
+    <text x="200" y="26" text-anchor="middle" dominant-baseline="middle"
+          font-size="15" font-weight="700" fill="#ffffff"
+          font-family="system-ui,-apple-system,sans-serif">Phase 3: Refinement</text>
+    <text x="200" y="39" text-anchor="middle" dominant-baseline="middle"
+          font-size="11" fill="#dbeafe"
+          font-family="system-ui,-apple-system,sans-serif">Human review, edits, and approval</text>
+  </g>
+</g>
+
+<!-- Vertical dividers between phases -->
+<g class="step-item" data-step="0">
+  <g transform="translate(0,0)">
+    <line x1="393" y1="88" x2="393" y2="560" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <line x1="780" y1="88" x2="780" y2="560" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6,4"/>
+  </g>
+</g>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 1: Phase 1 input icons                            -->
+<!-- ─────────────────────────────────────────────────────── -->
+
+<!-- Meeting Transcripts icon -->
+<g class="step-item" data-step="1">
+  <g transform="translate(35,155)">
+    <!-- card -->
+    <rect x="0" y="0" width="80" height="74" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" filter="url(#cardshadow)"/>
+    <!-- document icon -->
+    <rect x="20" y="10" width="40" height="32" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+    <line x1="26" y1="18" x2="54" y2="18" stroke="#16a34a" stroke-width="1.5"/>
+    <line x1="26" y1="24" x2="54" y2="24" stroke="#16a34a" stroke-width="1.5"/>
+    <line x1="26" y1="30" x2="45" y2="30" stroke="#16a34a" stroke-width="1.5"/>
+    <!-- microphone dot -->
+    <circle cx="40" cy="47" r="5" fill="#16a34a" opacity=".7"/>
+    <text x="40" y="67" text-anchor="middle" font-size="9" fill="#166534"
+          font-family="system-ui,-apple-system,sans-serif" font-weight="600">Transcripts</text>
+  </g>
+</g>
+
+<!-- Email Threads icon -->
+<g class="step-item" data-step="1">
+  <g transform="translate(130,155)">
+    <rect x="0" y="0" width="80" height="74" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" filter="url(#cardshadow)"/>
+    <!-- envelope -->
+    <rect x="16" y="13" width="48" height="32" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+    <polyline points="16,13 40,30 64,13" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+    <!-- reply line -->
+    <line x1="22" y1="52" x2="58" y2="52" stroke="#16a34a" stroke-width="1.2" opacity=".5"/>
+    <text x="40" y="67" text-anchor="middle" font-size="9" fill="#166534"
+          font-family="system-ui,-apple-system,sans-serif" font-weight="600">Email Threads</text>
+  </g>
+</g>
+
+<!-- Slack / Chat icon -->
+<g class="step-item" data-step="1">
+  <g transform="translate(225,155)">
+    <rect x="0" y="0" width="80" height="74" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" filter="url(#cardshadow)"/>
+    <!-- chat bubble 1 -->
+    <rect x="12" y="10" width="44" height="22" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+    <polygon points="18,32 12,40 28,32" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+    <!-- chat bubble 2 -->
+    <rect x="28" y="34" width="40" height="18" rx="5" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.2"/>
+    <polygon points="58,52 68,58 52,52" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.2"/>
+    <text x="40" y="67" text-anchor="middle" font-size="9" fill="#166534"
+          font-family="system-ui,-apple-system,sans-serif" font-weight="600">Slack / Chat</text>
+  </g>
+</g>
+
+<!-- Whiteboards icon -->
+<g class="step-item" data-step="1">
+  <g transform="translate(320,155)">
+    <rect x="0" y="0" width="68" height="74" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" filter="url(#cardshadow)"/>
+    <!-- whiteboard frame -->
+    <rect x="10" y="10" width="48" height="36" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+    <!-- scribble shapes -->
+    <circle cx="24" cy="22" r="5" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+    <rect x="32" y="17" width="18" height="12" rx="2" fill="none" stroke="#059669" stroke-width="1.5"/>
+    <line x1="14" y1="33" x2="55" y2="33" stroke="#16a34a" stroke-width="1.2" opacity=".5"/>
+    <!-- camera dot for "photo" -->
+    <circle cx="34" cy="55" r="6" fill="#16a34a" opacity=".6"/>
+    <circle cx="34" cy="55" r="3" fill="#fff"/>
+    <text x="34" y="68" text-anchor="middle" font-size="9" fill="#166534"
+          font-family="system-ui,-apple-system,sans-serif" font-weight="600">Whiteboards</text>
+  </g>
+</g>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 2: Arrow → Raw Input Collection                   -->
+<!-- ─────────────────────────────────────────────────────── -->
+<path class="arrow-draw" data-step="2" pathLength="1"
+      d="M206,232 L206,280"
+      fill="none" stroke="#16a34a" stroke-width="2.5"
+      marker-end="url(#arr-green)"/>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 3: Raw Input Collection cylinder                  -->
+<!-- ─────────────────────────────────────────────────────── -->
+<g class="step-item" data-step="3">
+  <g transform="translate(128,282)">
+    <!-- cylinder body -->
+    <rect x="0" y="12" width="156" height="72" rx="0" fill="#dcfce7" stroke="#16a34a" stroke-width="1.8" filter="url(#cardshadow)"/>
+    <!-- cylinder top ellipse -->
+    <ellipse cx="78" cy="12" rx="78" ry="14" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.8"/>
+    <!-- cylinder bottom ellipse -->
+    <ellipse cx="78" cy="84" rx="78" ry="14" fill="#86efac" stroke="#16a34a" stroke-width="1.8"/>
+    <!-- lines inside -->
+    <line x1="20" y1="38" x2="136" y2="38" stroke="#16a34a" stroke-width="1" opacity=".5"/>
+    <line x1="20" y1="52" x2="136" y2="52" stroke="#16a34a" stroke-width="1" opacity=".5"/>
+    <line x1="20" y1="66" x2="136" y2="66" stroke="#16a34a" stroke-width="1" opacity=".35"/>
+    <text x="78" y="48" text-anchor="middle" dominant-baseline="middle"
+          font-size="12" font-weight="700" fill="#15803d"
+          font-family="system-ui,-apple-system,sans-serif">Raw Input</text>
+    <text x="78" y="62" text-anchor="middle" dominant-baseline="middle"
+          font-size="11" fill="#166534"
+          font-family="system-ui,-apple-system,sans-serif">Collection</text>
+    <text x="78" y="100" text-anchor="middle" font-size="10" fill="#166534" opacity=".8"
+          font-family="system-ui,-apple-system,sans-serif">All content unified</text>
+  </g>
+</g>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 4: Arrow → Claude Code AI Agent                   -->
+<!-- ─────────────────────────────────────────────────────── -->
+<path class="arrow-draw" data-step="4" pathLength="1"
+      d="M393,345 L500,345"
+      fill="none" stroke="#7c3aed" stroke-width="2.5"
+      marker-end="url(#arr-purple)"/>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 5: Claude Code AI Agent circle                    -->
+<!-- ─────────────────────────────────────────────────────── -->
+
+<!-- Glow pulse ring (behind the circle, animated) -->
+<circle id="ai-glow" cx="586" cy="295" r="38" fill="#7c3aed" opacity="0"/>
+<!-- Dashed rotating ring -->
+<circle id="ai-ring" cx="586" cy="295" r="55"
+        fill="none" stroke="#7c3aed" stroke-width="1.5"
+        stroke-dasharray="8,5" opacity="0"/>
+
+<g class="step-item" data-step="5">
+  <g transform="translate(530,240)">
+    <!-- main circle -->
+    <circle cx="56" cy="55" r="50" fill="#7c3aed" filter="url(#aiglow)"/>
+    <circle cx="56" cy="55" r="50" fill="url(#hatch-purple)" opacity=".2"/>
+    <!-- robot face -->
+    <!-- head -->
+    <rect x="30" y="25" width="52" height="44" rx="8" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1.5"/>
+    <!-- eyes -->
+    <rect x="37" y="36" width="12" height="9" rx="2" fill="#7c3aed"/>
+    <rect x="63" y="36" width="12" height="9" rx="2" fill="#7c3aed"/>
+    <!-- eye shine -->
+    <circle cx="41" cy="39" r="2" fill="#c4b5fd"/>
+    <circle cx="67" cy="39" r="2" fill="#c4b5fd"/>
+    <!-- mouth -->
+    <rect x="40" y="52" width="32" height="6" rx="3" fill="#7c3aed"/>
+    <!-- antenna -->
+    <line x1="56" y1="25" x2="56" y2="15" stroke="#ede9fe" stroke-width="2"/>
+    <circle cx="56" cy="13" r="4" fill="#a78bfa"/>
+    <!-- side ears -->
+    <rect x="20" y="38" width="10" height="18" rx="3" fill="#8b5cf6"/>
+    <rect x="82" y="38" width="10" height="18" rx="3" fill="#8b5cf6"/>
+    <!-- label -->
+    <text x="56" y="82" text-anchor="middle" font-size="9" fill="#f5f3ff"
+          font-family="system-ui,-apple-system,sans-serif" font-weight="700">Claude Code</text>
+    <text x="56" y="94" text-anchor="middle" font-size="9" fill="#ddd6fe"
+          font-family="system-ui,-apple-system,sans-serif">AI Agent</text>
+  </g>
+</g>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 6: Arrow → Draft PRD card                         -->
+<!-- ─────────────────────────────────────────────────────── -->
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M586,400 L586,428"
+      fill="none" stroke="#7c3aed" stroke-width="2.5"
+      marker-end="url(#arr-purple)"/>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 7: Draft PRD mini-card                            -->
+<!-- ─────────────────────────────────────────────────────── -->
+<g class="step-item" data-step="7">
+  <g transform="translate(445,430)">
+    <rect x="0" y="0" width="282" height="118" rx="12" fill="#ffffff"
+          stroke="#7c3aed" stroke-width="1.8" filter="url(#cardshadow)"/>
+    <!-- top accent bar -->
+    <rect x="0" y="0" width="282" height="8" rx="8" fill="#7c3aed"/>
+    <rect x="0" y="4" width="282" height="4" fill="#7c3aed"/>
+    <!-- title -->
+    <text x="141" y="26" text-anchor="middle" font-size="13" font-weight="700"
+          fill="#5b21b6" font-family="system-ui,-apple-system,sans-serif">Draft PRD</text>
+    <text x="141" y="40" text-anchor="middle" font-size="10" fill="#6b7280"
+          font-family="system-ui,-apple-system,sans-serif">Structured · Complete · Ready for review</text>
+    <!-- section tags -->
+    <rect x="12" y="52" width="78" height="20" rx="10" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
+    <text x="51" y="65" text-anchor="middle" font-size="10" fill="#5b21b6"
+          font-family="system-ui,-apple-system,sans-serif">📋 Overview</text>
+    <rect x="102" y="52" width="78" height="20" rx="10" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
+    <text x="141" y="65" text-anchor="middle" font-size="10" fill="#5b21b6"
+          font-family="system-ui,-apple-system,sans-serif">🎯 Goals</text>
+    <rect x="192" y="52" width="78" height="20" rx="10" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1"/>
+    <text x="231" y="65" text-anchor="middle" font-size="10" fill="#5b21b6"
+          font-family="system-ui,-apple-system,sans-serif">📝 Stories</text>
+    <!-- text lines (preview) -->
+    <rect x="12" y="82" width="180" height="6" rx="3" fill="#e5e7eb"/>
+    <rect x="12" y="94" width="220" height="6" rx="3" fill="#e5e7eb"/>
+    <rect x="12" y="106" width="140" height="6" rx="3" fill="#e5e7eb"/>
+    <!-- draft stamp -->
+    <rect x="218" y="82" width="52" height="28" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+    <text x="244" y="100" text-anchor="middle" font-size="10" font-weight="700"
+          fill="#b45309" font-family="system-ui,-apple-system,sans-serif">DRAFT</text>
+  </g>
+</g>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 8: Arrow → PM/Human                               -->
+<!-- ─────────────────────────────────────────────────────── -->
+<path class="arrow-draw" data-step="8" pathLength="1"
+      d="M727,340 L830,340"
+      fill="none" stroke="#2563eb" stroke-width="2.5"
+      marker-end="url(#arr-blue)"/>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 9: PM/Human figure + Review & Refine label        -->
+<!-- ─────────────────────────────────────────────────────── -->
+<g class="step-item" data-step="9">
+  <g transform="translate(820,200)">
+    <!-- PM figure background circle -->
+    <circle cx="80" cy="80" r="62" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <!-- head -->
+    <circle cx="80" cy="52" r="22" fill="#bfdbfe" stroke="#2563eb" stroke-width="1.5"/>
+    <!-- face details -->
+    <circle cx="73" cy="48" r="3" fill="#1d4ed8"/>
+    <circle cx="87" cy="48" r="3" fill="#1d4ed8"/>
+    <path d="M74,58 Q80,64 86,58" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- body -->
+    <path d="M50,80 Q50,100 80,105 Q110,100 110,80 L110,76 Q100,68 80,68 Q60,68 50,76 Z"
+          fill="#93c5fd" stroke="#2563eb" stroke-width="1.2"/>
+    <!-- red pen / annotation marker -->
+    <g transform="translate(96,38)">
+      <rect x="0" y="0" width="8" height="28" rx="2" fill="#ef4444" transform="rotate(-30,4,14)"/>
+      <polygon points="4,28 0,36 8,36" fill="#b91c1c" transform="rotate(-30,4,14)"/>
+    </g>
+    <!-- label badge -->
+    <rect x="-10" y="120" width="180" height="40" rx="8" fill="#1d4ed8"/>
+    <text x="80" y="136" text-anchor="middle" font-size="12" font-weight="700"
+          fill="#ffffff" font-family="system-ui,-apple-system,sans-serif">PM / Human</text>
+    <text x="80" y="150" text-anchor="middle" font-size="10"
+          fill="#bfdbfe" font-family="system-ui,-apple-system,sans-serif">Review &amp; Refine</text>
+    <!-- annotation sub-label -->
+    <text x="80" y="175" text-anchor="middle" font-size="9.5" fill="#1e40af"
+          font-family="system-ui,-apple-system,sans-serif">Annotate · Clarify · Validate</text>
+  </g>
+</g>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 10: Arrow → Final PRD                             -->
+<!-- ─────────────────────────────────────────────────────── -->
+<path class="arrow-draw" data-step="10" pathLength="1"
+      d="M900,412 L900,440"
+      fill="none" stroke="#2563eb" stroke-width="2.5"
+      marker-end="url(#arr-blue)"/>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 11: Final PRD card with green checkmark           -->
+<!-- ─────────────────────────────────────────────────────── -->
+<g class="step-item" data-step="11">
+  <g transform="translate(795,442)">
+    <rect x="0" y="0" width="210" height="118" rx="12" fill="#ffffff"
+          stroke="#16a34a" stroke-width="2" filter="url(#cardshadow)"/>
+    <!-- green top bar -->
+    <rect x="0" y="0" width="210" height="8" rx="8" fill="#16a34a"/>
+    <rect x="0" y="4" width="210" height="4" fill="#16a34a"/>
+    <!-- checkmark circle -->
+    <circle cx="105" cy="44" r="22" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <path d="M95,44 L102,52 L118,36" fill="none" stroke="#16a34a" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- labels -->
+    <text x="105" y="78" text-anchor="middle" font-size="13" font-weight="700"
+          fill="#15803d" font-family="system-ui,-apple-system,sans-serif">Final PRD</text>
+    <text x="105" y="92" text-anchor="middle" font-size="10" fill="#166534"
+          font-family="system-ui,-apple-system,sans-serif">✅ Approved</text>
+    <text x="105" y="108" text-anchor="middle" font-size="9.5" fill="#6b7280"
+          font-family="system-ui,-apple-system,sans-serif">Ready to execute</text>
+  </g>
+</g>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- STEP 12: Bottom comparison bar                         -->
+<!-- ─────────────────────────────────────────────────────── -->
+<g class="step-item" data-step="12">
+  <g transform="translate(20,574)">
+    <!-- bar background -->
+    <rect x="0" y="0" width="1160" height="60" rx="12" fill="#F1F5F9"
+          stroke="#E2E8F0" stroke-width="1.5" filter="url(#cardshadow)"/>
+
+    <!-- Traditional side -->
+    <rect x="10" y="8" width="560" height="44" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+    <!-- clock icon (SVG circle + hands) -->
+    <circle cx="40" cy="30" r="14" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.5"/>
+    <line x1="40" y1="30" x2="40" y2="20" stroke="#64748B" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="40" y1="30" x2="48" y2="34" stroke="#64748B" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- strikethrough text -->
+    <text x="62" y="27" font-size="14" font-weight="700" fill="#6B7280"
+          font-family="system-ui,-apple-system,sans-serif">Traditional:</text>
+    <text x="175" y="27" font-size="14" font-weight="700" fill="#94A3B8"
+          font-family="system-ui,-apple-system,sans-serif">3–5 days</text>
+    <line x1="173" y1="25" x2="252" y2="25" stroke="#EF4444" stroke-width="2"/>
+    <text x="62" y="44" font-size="11" fill="#9CA3AF"
+          font-family="system-ui,-apple-system,sans-serif">Manual drafting, reviews, back-and-forth cycles</text>
+
+    <!-- Agentic side -->
+    <rect x="590" y="8" width="560" height="44" rx="8" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1"/>
+    <!-- lightning bolt icon -->
+    <polygon points="628,16 618,32 626,32 622,46 636,28 626,28"
+             fill="#F59E0B" stroke="#D97706" stroke-width="1"/>
+    <text x="648" y="27" font-size="14" font-weight="700" fill="#92400E"
+          font-family="system-ui,-apple-system,sans-serif">Agentic:</text>
+    <text x="740" y="27" font-size="14" font-weight="800" fill="#D97706"
+          font-family="system-ui,-apple-system,sans-serif">2–4 hours</text>
+    <!-- lightning decorations -->
+    <polygon points="820,21 814,29 820,29 816,37 828,27 820,27"
+             fill="#FCD34D" opacity=".7"/>
+    <text x="648" y="44" font-size="11" fill="#78350F"
+          font-family="system-ui,-apple-system,sans-serif">AI-first draft, PM validation, same-day delivery</text>
+  </g>
+</g>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- Additional decorative ping dots on input icons         -->
+<!-- ─────────────────────────────────────────────────────── -->
+<circle class="ping-dot" cx="75" cy="192" r="5" fill="#16a34a" opacity="0"/>
+<circle class="ping-dot" cx="170" cy="192" r="5" fill="#16a34a" opacity="0"/>
+
+</svg>
+</div>
+
+<!-- Progress / navigation chrome -->
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 12</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> advance &nbsp;·&nbsp;
+  <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp;
+  <span class="key">← →</span> step &nbsp;·&nbsp;
+  <span class="key">Home</span> start &nbsp;·&nbsp;
+  <span class="key">End</span> finish
+</div>
+
+<script>
+const TOTAL = 12;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function showArrow(el) {
+  // Reset to hidden state
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+  // Force reflow so the browser registers the reset before transitioning
+  el.getBoundingClientRect();
+  // Now animate in
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1';
+  el.style.strokeDashoffset = '0';
+}
+
+function hideArrow(el) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.style.strokeDashoffset = '1';
+}
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) {
+      if (el.classList.contains('arrow-draw')) {
+        showArrow(el);
+      } else {
+        el.classList.add('visible');
+      }
+    } else {
+      if (el.classList.contains('arrow-draw')) {
+        hideArrow(el);
+      } else {
+        el.classList.remove('visible');
+      }
+    }
+  });
+
+  // Activate idle animations when AI agent appears (step 5)
+  const aiGlow = document.getElementById('ai-glow');
+  const aiRing = document.getElementById('ai-ring');
+  if (step >= 5) {
+    aiGlow && aiGlow.classList.add('active');
+    aiRing && aiRing.classList.add('active');
+    document.querySelectorAll('.ping-dot').forEach(d => d.classList.add('active'));
+  } else {
+    aiGlow && aiGlow.classList.remove('active');
+    aiRing && aiRing.classList.remove('active');
+    document.querySelectorAll('.ping-dot').forEach(d => d.classList.remove('active'));
+  }
+
+  // Update progress dots
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home')       { step = 0; render(); }
+  if (e.key === 'End')        { step = TOTAL; render(); }
+});
+
+// Right-click goes back
+document.getElementById('slide').addEventListener('contextmenu', e => {
+  e.preventDefault();
+  prevStep();
+});
+
+buildDots();
+nextStep(); // auto-advance to step 0 on load
+</script>
+</body>
+</html>

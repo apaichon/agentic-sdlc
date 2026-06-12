@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMS Gateway Failover + Circuit Breaker</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  /* ── progress chrome ── */
+  #click-hint { margin-top:14px; font-size:13px; color:#64748b; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:2px 10px; font-size:12px; color:#475569; }
+  #step-counter { font-size:12px; color:#94a3b8; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .3s, transform .3s; }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  .step-item {
+    opacity:0; transform:scale(.88);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .badge-item {
+    opacity:0; transform:scale(0);
+    transform-origin:50% 50%; transform-box:fill-box;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  /* Arrow pattern — must be TOP-LEVEL paths, never inside .step-item */
+  .arrow-draw   { opacity:0; stroke-dasharray:1;         stroke-dashoffset:1; }
+  .arrow-dashed { opacity:0; stroke-dasharray:0.06 0.03; stroke-dashoffset:1; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+  </marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+  </marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/>
+  </marker>
+  <marker id="arrowAmber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#d97706"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#00000020"/>
+  </filter>
+</defs>
+
+<!-- Canvas background -->
+<rect width="1200" height="700" fill="#F8F9FA"/>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 0: Title + subtitle
+     ═══════════════════════════════════════════════ -->
+<g class="step-item" data-step="0">
+  <g transform="translate(0,0)">
+    <text x="600" y="32" text-anchor="middle" font-size="22" font-weight="800" fill="#1F2937">SMS Gateway Failover + Circuit Breaker</text>
+    <text x="600" y="52" text-anchor="middle" font-size="12" fill="#6B7280">Provider cascade failover with distributed state management via Redis circuit breaker pattern</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 1: Section 1 header
+     ═══════════════════════════════════════════════ -->
+<g class="step-item" data-step="1">
+  <g transform="translate(20,62)">
+    <rect width="340" height="26" rx="5" fill="#1e40af"/>
+    <text x="10" y="18" font-size="12" font-weight="700" fill="white">① SMS GATEWAY FAILOVER CHAIN</text>
+  </g>
+</g>
+
+<!-- Left rail: 95% Traffic label + Failover in order -->
+<g class="step-item" data-step="2">
+  <g transform="translate(22,100)">
+    <rect width="110" height="50" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="55" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">95% Traffic</text>
+    <text x="55" y="34" text-anchor="middle" font-size="9" fill="#2563eb">Failover in order</text>
+    <text x="55" y="46" text-anchor="middle" font-size="9" fill="#6b7280">↓ cascade</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 2: Twilio provider row
+     ═══════════════════════════════════════════════ -->
+<g class="step-item" data-step="2">
+  <g transform="translate(160,92)">
+    <rect width="280" height="54" rx="10" fill="white" stroke="#f22f46" stroke-width="2" filter="url(#shadow)"/>
+    <!-- Twilio logo circle -->
+    <circle cx="28" cy="27" r="18" fill="#f22f46"/>
+    <text x="28" y="31" text-anchor="middle" font-size="11" font-weight="900" fill="white">T</text>
+    <text x="60" y="20" font-size="13" font-weight="700" fill="#1F2937">Twilio</text>
+    <text x="60" y="35" font-size="10" fill="#6b7280">Primary</text>
+    <rect x="130" y="16" width="70" height="22" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+    <text x="165" y="31" text-anchor="middle" font-size="10" font-weight="600" fill="#16a34a">Primary 95%</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 3: Arrow Twilio → Delivered (green solid)
+             + Delivered checkmark circle
+     ═══════════════════════════════════════════════ -->
+<!-- Delivered checkmark circle -->
+<g class="step-item" data-step="3">
+  <g transform="translate(830,90)">
+    <circle cx="55" cy="30" r="30" fill="#16a34a" filter="url(#shadow)"/>
+    <text x="55" y="25" text-anchor="middle" font-size="18" fill="white">✓</text>
+    <text x="55" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="white">Delivered</text>
+    <text x="55" y="72" text-anchor="middle" font-size="9" fill="#16a34a">All providers route here on success</text>
+  </g>
+</g>
+
+<!-- Arrow: Twilio success → Delivered -->
+<path class="arrow-draw" data-step="3" pathLength="1"
+      d="M440,119 L835,120"
+      fill="none" stroke="#16a34a" stroke-width="2.5"
+      marker-end="url(#arrowGreen)"/>
+<text class="step-item" data-step="3" x="570" y="113" text-anchor="middle" font-size="10" font-weight="600" fill="#16a34a">Success ✓</text>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 4: Fail arrow Twilio → Vonage (red dashed)
+     ═══════════════════════════════════════════════ -->
+<path class="arrow-dashed" data-step="4" pathLength="1"
+      d="M300,146 L300,168"
+      fill="none" stroke="#dc2626" stroke-width="2"
+      marker-end="url(#arrowRed)"/>
+<g class="step-item" data-step="4">
+  <g transform="translate(305,150)">
+    <rect width="36" height="16" rx="4" fill="#fee2e2"/>
+    <text x="18" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">Fail</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 5: Vonage provider row
+     ═══════════════════════════════════════════════ -->
+<g class="step-item" data-step="5">
+  <g transform="translate(160,172)">
+    <rect width="280" height="54" rx="10" fill="white" stroke="#6b7280" stroke-width="2" filter="url(#shadow)"/>
+    <!-- Vonage logo -->
+    <circle cx="28" cy="27" r="18" fill="#6b7280"/>
+    <text x="28" y="32" text-anchor="middle" font-size="13" font-weight="900" fill="white">V</text>
+    <text x="60" y="20" font-size="13" font-weight="700" fill="#1F2937">Vonage</text>
+    <text x="60" y="35" font-size="10" fill="#6b7280">Secondary</text>
+    <rect x="130" y="16" width="60" height="22" rx="6" fill="#f3f4f6" stroke="#6b7280" stroke-width="1"/>
+    <text x="160" y="31" text-anchor="middle" font-size="10" font-weight="600" fill="#6b7280">Secondary</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 6: Arrow Vonage → Delivered (green solid)
+     ═══════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="6" pathLength="1"
+      d="M440,199 L835,126"
+      fill="none" stroke="#16a34a" stroke-width="2.5"
+      marker-end="url(#arrowGreen)"/>
+<g class="step-item" data-step="6">
+  <g transform="translate(560,185)">
+    <text x="0" y="0" font-size="10" font-weight="600" fill="#16a34a">Success ✓</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 7: Fail arrow Vonage → AWS SNS (red dashed)
+     ═══════════════════════════════════════════════ -->
+<path class="arrow-dashed" data-step="7" pathLength="1"
+      d="M300,226 L300,248"
+      fill="none" stroke="#dc2626" stroke-width="2"
+      marker-end="url(#arrowRed)"/>
+<g class="step-item" data-step="7">
+  <g transform="translate(305,230)">
+    <rect width="36" height="16" rx="4" fill="#fee2e2"/>
+    <text x="18" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="#dc2626">Fail</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 8: AWS SNS provider row
+     ═══════════════════════════════════════════════ -->
+<g class="step-item" data-step="8">
+  <g transform="translate(160,252)">
+    <rect width="280" height="54" rx="10" fill="white" stroke="#f97316" stroke-width="2" filter="url(#shadow)"/>
+    <!-- AWS logo circle -->
+    <circle cx="28" cy="27" r="18" fill="#f97316"/>
+    <text x="28" y="32" text-anchor="middle" font-size="9" font-weight="900" fill="white">AWS</text>
+    <text x="60" y="20" font-size="13" font-weight="700" fill="#1F2937">AWS SNS</text>
+    <text x="60" y="35" font-size="10" fill="#6b7280">Tertiary</text>
+    <rect x="130" y="16" width="54" height="22" rx="6" fill="#fff7ed" stroke="#f97316" stroke-width="1"/>
+    <text x="157" y="31" text-anchor="middle" font-size="10" font-weight="600" fill="#f97316">Tertiary</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 9: Arrow AWS SNS → Delivered (green solid)
+     ═══════════════════════════════════════════════ -->
+<path class="arrow-draw" data-step="9" pathLength="1"
+      d="M440,279 L835,134"
+      fill="none" stroke="#16a34a" stroke-width="2.5"
+      marker-end="url(#arrowGreen)"/>
+<g class="step-item" data-step="9">
+  <g transform="translate(560,250)">
+    <text x="0" y="0" font-size="10" font-weight="600" fill="#16a34a">Success ✓</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 10: Dead Letter Queue card
+     ═══════════════════════════════════════════════ -->
+<!-- Fail arrow AWS → DLQ -->
+<path class="arrow-dashed" data-step="10" pathLength="1"
+      d="M300,306 L300,326"
+      fill="none" stroke="#dc2626" stroke-width="2"
+      marker-end="url(#arrowRed)"/>
+
+<g class="step-item" data-step="10">
+  <g transform="translate(150,328)">
+    <rect width="310" height="50" rx="8" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <!-- Queue icon -->
+    <rect x="10" y="12" width="22" height="6" rx="3" fill="#9ca3af"/>
+    <rect x="10" y="22" width="18" height="6" rx="3" fill="#9ca3af"/>
+    <rect x="10" y="32" width="14" height="6" rx="3" fill="#9ca3af"/>
+    <text x="45" y="22" font-size="12" font-weight="700" fill="#4b5563">Dead Letter Queue</text>
+    <text x="45" y="36" font-size="9" fill="#9ca3af">Messages that fail all providers land here</text>
+  </g>
+</g>
+
+<!-- Section divider -->
+<g class="step-item" data-step="10">
+  <g transform="translate(0,0)">
+    <line x1="20" y1="392" x2="1180" y2="392" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="6,3"/>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 11: Section 2 header + Redis box
+     ═══════════════════════════════════════════════ -->
+<g class="step-item" data-step="11">
+  <g transform="translate(20,400)">
+    <rect width="360" height="26" rx="5" fill="#7c3aed"/>
+    <text x="10" y="18" font-size="12" font-weight="700" fill="white">② CIRCUIT BREAKER STATE MACHINE</text>
+  </g>
+</g>
+
+<!-- Redis (Shared State) box -->
+<g class="step-item" data-step="11">
+  <g transform="translate(450,418)">
+    <rect width="140" height="50" rx="8" fill="white" stroke="#dc2626" stroke-width="2" filter="url(#shadow)"/>
+    <!-- Redis logo -->
+    <circle cx="18" cy="25" r="12" fill="#dc2626"/>
+    <text x="18" y="30" text-anchor="middle" font-size="8" font-weight="900" fill="white">R</text>
+    <text x="80" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">Redis</text>
+    <text x="80" y="34" text-anchor="middle" font-size="9" fill="#6b7280">Shared State</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 12: Closed circle (left) + Open circle (center)
+              + arrows between them (via Redis)
+     ═══════════════════════════════════════════════ -->
+<!-- Closed state circle -->
+<g class="step-item" data-step="12">
+  <g transform="translate(115,465)">
+    <circle cx="65" cy="65" r="65" fill="#059669" filter="url(#shadow)"/>
+    <!-- Lock icon closed -->
+    <rect x="47" y="52" width="36" height="26" rx="4" fill="white" opacity="0.9"/>
+    <path d="M56,52 Q56,40 74,40 Q92,40 92,52" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+    <rect x="61" y="60" width="8" height="8" rx="2" fill="#059669" opacity="0.8"/>
+    <text x="65" y="104" text-anchor="middle" font-size="13" font-weight="800" fill="white">CLOSED</text>
+    <text x="65" y="118" text-anchor="middle" font-size="9" fill="#d1fae5">Requests flow</text>
+    <text x="65" y="130" text-anchor="middle" font-size="9" fill="#d1fae5">through normally</text>
+  </g>
+</g>
+
+<!-- Open state circle -->
+<g class="step-item" data-step="12">
+  <g transform="translate(455,465)">
+    <circle cx="65" cy="65" r="65" fill="#dc2626" filter="url(#shadow)"/>
+    <!-- Lock icon open -->
+    <rect x="47" y="52" width="36" height="26" rx="4" fill="white" opacity="0.9"/>
+    <path d="M56,52 Q56,36 68,36 Q84,30 90,44" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+    <rect x="61" y="60" width="8" height="8" rx="2" fill="#dc2626" opacity="0.8"/>
+    <text x="65" y="104" text-anchor="middle" font-size="13" font-weight="800" fill="white">OPEN</text>
+    <text x="65" y="118" text-anchor="middle" font-size="9" fill="#fecaca">Requests blocked.</text>
+    <text x="65" y="130" text-anchor="middle" font-size="9" fill="#fecaca">Fail fast.</text>
+  </g>
+</g>
+
+<!-- Arrow: Closed → Redis (blue dashed, goes up to Redis) -->
+<path class="arrow-dashed" data-step="12" pathLength="1"
+      d="M245,510 Q310,455 450,445"
+      fill="none" stroke="#2563eb" stroke-width="2"
+      marker-end="url(#arrowBlue)"/>
+
+<!-- Arrow: Redis → Open (red dashed, goes down to Open) -->
+<path class="arrow-dashed" data-step="12" pathLength="1"
+      d="M590,455 Q640,455 520,490"
+      fill="none" stroke="#dc2626" stroke-width="2"
+      marker-end="url(#arrowRed)"/>
+
+<!-- "N consecutive failures" label above Closed→Open path -->
+<g class="step-item" data-step="12">
+  <g transform="translate(280,438)">
+    <rect width="150" height="16" rx="4" fill="#fee2e2"/>
+    <text x="75" y="12" text-anchor="middle" font-size="9" font-weight="600" fill="#dc2626">N consecutive failures</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════
+     STEP 13: Half-Open circle (right)
+              + Open → Half-Open arrow
+              + Half-Open → Closed (probe succeeds, green)
+              + Half-Open → Open (probe fails, red)
+     ═══════════════════════════════════════════════ -->
+<!-- Half-Open state circle -->
+<g class="step-item" data-step="13">
+  <g transform="translate(795,465)">
+    <circle cx="65" cy="65" r="65" fill="#d97706" filter="url(#shadow)"/>
+    <!-- Hourglass icon -->
+    <text x="65" y="60" text-anchor="middle" font-size="28" fill="white">⏳</text>
+    <text x="65" y="96" text-anchor="middle" font-size="12" font-weight="800" fill="white">HALF-OPEN</text>
+    <text x="65" y="110" text-anchor="middle" font-size="8" fill="#fef3c7">Limited probes to test</text>
+    <text x="65" y="122" text-anchor="middle" font-size="8" fill="#fef3c7">if service is healthy</text>
+  </g>
+</g>
+
+<!-- Arrow: Open → Half-Open (timeout expires) -->
+<path class="arrow-draw" data-step="13" pathLength="1"
+      d="M588,530 Q690,490 795,530"
+      fill="none" stroke="#d97706" stroke-width="2.5"
+      marker-end="url(#arrowAmber)"/>
+
+<!-- "timeout expires" label -->
+<g class="step-item" data-step="13">
+  <g transform="translate(640,490)">
+    <rect width="110" height="16" rx="4" fill="#fef3c7"/>
+    <text x="55" y="12" text-anchor="middle" font-size="9" font-weight="600" fill="#d97706">timeout expires</text>
+  </g>
+</g>
+
+<!-- Arrow: Half-Open → Closed probe succeeds (green arc above) -->
+<path class="arrow-draw" data-step="13" pathLength="1"
+      d="M795,500 Q520,410 248,490"
+      fill="none" stroke="#16a34a" stroke-width="2.5"
+      marker-end="url(#arrowGreen)"/>
+
+<!-- "probe succeeds" label -->
+<g class="step-item" data-step="13">
+  <g transform="translate(470,424)">
+    <rect width="100" height="16" rx="4" fill="#dcfce7"/>
+    <text x="50" y="12" text-anchor="middle" font-size="9" font-weight="600" fill="#16a34a">probe succeeds</text>
+  </g>
+</g>
+
+<!-- Arrow: Half-Open → Open probe fails (red arc below) -->
+<path class="arrow-draw" data-step="13" pathLength="1"
+      d="M860,595 Q710,640 590,597"
+      fill="none" stroke="#dc2626" stroke-width="2.5"
+      marker-end="url(#arrowRed)"/>
+
+<!-- "probe fails" label -->
+<g class="step-item" data-step="13">
+  <g transform="translate(680,630)">
+    <rect width="80" height="16" rx="4" fill="#fee2e2"/>
+    <text x="40" y="12" text-anchor="middle" font-size="9" font-weight="600" fill="#dc2626">probe fails</text>
+  </g>
+</g>
+
+<!-- Bottom legend -->
+<g class="step-item" data-step="13">
+  <g transform="translate(980,480)">
+    <rect width="195" height="150" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="97" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#374151">Legend</text>
+    <line x1="10" y1="28" x2="185" y2="28" stroke="#e5e7eb" stroke-width="1"/>
+    <!-- Green solid -->
+    <line x1="16" y1="46" x2="56" y2="46" stroke="#16a34a" stroke-width="2.5"/>
+    <polygon points="56,42 64,46 56,50" fill="#16a34a"/>
+    <text x="72" y="50" font-size="10" fill="#374151">Success / probe ok</text>
+    <!-- Red dashed -->
+    <line x1="16" y1="68" x2="56" y2="68" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,3"/>
+    <polygon points="56,64 64,68 56,72" fill="#dc2626"/>
+    <text x="72" y="72" font-size="10" fill="#374151">Failure / fail-fast</text>
+    <!-- Blue dashed -->
+    <line x1="16" y1="90" x2="56" y2="90" stroke="#2563eb" stroke-width="2" stroke-dasharray="6,3"/>
+    <polygon points="56,86 64,90 56,94" fill="#2563eb"/>
+    <text x="72" y="94" font-size="10" fill="#374151">State update</text>
+    <!-- Amber solid -->
+    <line x1="16" y1="112" x2="56" y2="112" stroke="#d97706" stroke-width="2.5"/>
+    <polygon points="56,108 64,112 56,116" fill="#d97706"/>
+    <text x="72" y="116" font-size="10" fill="#374151">Timeout / probe</text>
+    <!-- Redis note -->
+    <circle cx="24" cy="134" r="8" fill="#dc2626"/>
+    <text x="24" y="138" text-anchor="middle" font-size="7" font-weight="900" fill="white">R</text>
+    <text x="40" y="138" font-size="10" fill="#374151">Redis = shared CB state</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 13</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> advance &nbsp;·&nbsp;
+  <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp;
+  <span class="key">← →</span> step &nbsp;·&nbsp;
+  <span class="key">Home</span> start &nbsp;·&nbsp;
+  <span class="key">End</span> finish
+</div>
+
+<script>
+const TOTAL = 13;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function showArrow(el) {
+  el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1';
+  el.getBoundingClientRect();
+  el.style.transition = 'opacity 0.05s ease, stroke-dashoffset 0.6s ease 0.05s';
+  el.style.opacity = '1'; el.style.strokeDashoffset = '0';
+}
+function hideArrow(el) { el.style.transition = 'none'; el.style.opacity = '0'; el.style.strokeDashoffset = '1'; }
+function isArrow(el) { return el.classList.contains('arrow-draw') || el.classList.contains('arrow-dashed'); }
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) { if (isArrow(el)) showArrow(el); else el.classList.add('visible'); }
+    else { if (isArrow(el)) hideArrow(el); else el.classList.remove('visible'); }
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+document.getElementById('slide').addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

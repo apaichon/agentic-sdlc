@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 3.4 — Subagent Architecture</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F8F9FA; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  /* ── progress chrome ── */
+  #click-hint { margin-top:14px; font-size:13px; color:#6B7280; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#E5E7EB; border:1px solid #D1D5DB; border-radius:6px; padding:2px 10px; font-size:12px; color:#374151; }
+  #step-counter { font-size:12px; color:#9CA3AF; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#D1D5DB; transition:background .3s, transform .3s; }
+  .dot.done   { background:#2563EB; }
+  .dot.active { background:#3B82F6; transform:scale(1.4); }
+
+  /* ── reveal animation classes ── */
+  .step-item { opacity:0; transform:scale(.88); transform-origin:center; transition:opacity .5s ease, transform .5s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  .arrow-draw { opacity:0; stroke-dashoffset:400; transition:opacity .15s, stroke-dashoffset .6s ease; }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+
+  .badge-item { opacity:0; transform:scale(0); transform-origin:center; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+
+  /* ── continuous animations ── */
+  @keyframes dashFlow  { to { stroke-dashoffset:-20; } }
+  @keyframes glowPulse { 0%,100%{opacity:.15} 50%{opacity:.5} }
+  @keyframes rotateSlow{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes nodePing  { 0%,100%{opacity:0} 50%{opacity:.7} }
+
+  .spoke-line.visible  { animation:dashFlow 1.6s linear infinite; }
+  #ai-glow.active      { animation:glowPulse 2.8s ease-in-out infinite; }
+  #ai-ring.active      { animation:rotateSlow 10s linear infinite; opacity:.35; }
+  .ping-dot.active     { animation:nodePing 2.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Solid arrow marker - blue for spawns -->
+  <marker id="arrowBlue" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#2563EB"/>
+  </marker>
+  <!-- Solid arrow marker - red for security -->
+  <marker id="arrowRed" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#EF4444"/>
+  </marker>
+  <!-- Solid arrow marker - gray for doc -->
+  <marker id="arrowGray" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#6B7280"/>
+  </marker>
+  <!-- Solid arrow marker - orange for perf -->
+  <marker id="arrowOrange" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#F59E0B"/>
+  </marker>
+  <!-- Dashed return arrow markers -->
+  <marker id="arrowBlueDash" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#93C5FD"/>
+  </marker>
+  <marker id="arrowRedDash" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#FCA5A5"/>
+  </marker>
+  <marker id="arrowGrayDash" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#9CA3AF"/>
+  </marker>
+  <marker id="arrowOrangeDash" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#FCD34D"/>
+  </marker>
+  <!-- Drop shadow -->
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000018"/>
+  </filter>
+  <!-- Hub glow filter -->
+  <filter id="hubGlow" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 0: Title -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g id="title-group" class="step-item" data-step="0">
+  <text x="600" y="38" text-anchor="middle" font-size="26" font-weight="800" fill="#111827" letter-spacing=".01em">Figure 3.4 — Subagent Architecture</text>
+  <text x="600" y="62" text-anchor="middle" font-size="14" fill="#6B7280">Hub-and-spoke orchestration: one main session spawns specialized subagents in parallel</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 1: Center Hub — Main Claude Code Session -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<g data-step="1">
+  <!-- Glow ring (glowPulse on activation) -->
+  <ellipse id="ai-glow" cx="600" cy="340" rx="138" ry="93" fill="#DBEAFE" opacity=".15"/>
+  <!-- Rotating dashed ring (rotateSlow on activation) -->
+  <g id="ai-ring-wrapper" style="transform-origin:600px 340px">
+    <ellipse id="ai-ring" cx="600" cy="340" rx="128" ry="84"
+      fill="none" stroke="#3B82F6" stroke-width="1.5"
+      stroke-dasharray="8 6" opacity=".35"
+      style="transform-origin:600px 340px"/>
+  </g>
+  <!-- Hub ellipse -->
+  <ellipse cx="600" cy="340" rx="112" ry="72"
+    fill="white" stroke="#2563EB" stroke-width="2.5"
+    filter="url(#shadow)" class="step-item" data-step="1"/>
+  <!-- Person/AI icon -->
+  <g class="step-item" data-step="1">
+    <!-- Head circle -->
+    <circle cx="600" cy="316" r="12" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+    <!-- Body arc -->
+    <path d="M578,348 Q578,330 600,328 Q622,330 622,348" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+    <!-- Circuit dots on head -->
+    <circle cx="596" cy="313" r="2" fill="#2563EB"/>
+    <circle cx="604" cy="313" r="2" fill="#2563EB"/>
+    <circle cx="600" cy="320" r="1.5" fill="#2563EB"/>
+  </g>
+  <!-- Hub labels -->
+  <text x="600" y="364" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1D4ED8" class="step-item" data-step="1">Main Claude Code Session</text>
+  <text x="600" y="381" text-anchor="middle" font-size="10.5" fill="#6B7280" class="step-item" data-step="1">Primary: Code Generation</text>
+  <text x="600" y="395" text-anchor="middle" font-size="10" fill="#9CA3AF" font-style="italic" class="step-item" data-step="1">(Sonnet)</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 2: Spawns arrow → Security Reviewer + node -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- Spawns arrow: hub → security (solid blue) -->
+<line x1="694" y1="291" x2="848" y2="196"
+  stroke="#2563EB" stroke-width="2.2"
+  stroke-dasharray="320" stroke-dashoffset="320"
+  marker-end="url(#arrowBlue)"
+  class="arrow-draw spoke-line" data-step="2"/>
+<!-- "spawns" label on arrow -->
+<g class="step-item" data-step="2">
+  <rect x="730" y="222" width="54" height="18" rx="4" fill="#DBEAFE"/>
+  <text x="757" y="234" text-anchor="middle" font-size="10" fill="#1D4ED8" font-weight="600">spawns</text>
+</g>
+
+<!-- Security Reviewer Node (top-right, x=900, y=130, 240×180) -->
+<g class="step-item" data-step="2" filter="url(#shadow)">
+  <!-- Card body -->
+  <rect x="780" y="80" width="240" height="185" rx="10" ry="10"
+    fill="white" stroke="#EF4444" stroke-width="2"/>
+  <!-- Red header bar -->
+  <rect x="780" y="80" width="240" height="36" rx="10" ry="10" fill="#EF4444"/>
+  <rect x="780" y="100" width="240" height="16" fill="#EF4444"/>
+  <!-- Header text -->
+  <text x="900" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="white">Security Reviewer</text>
+  <!-- Model pill badge -->
+  <rect x="845" y="108" width="110" height="20" rx="10" fill="#FEE2E2" class="badge-item" data-step="2"/>
+  <text x="900" y="122" text-anchor="middle" font-size="10" fill="#B91C1C" font-weight="600" class="badge-item" data-step="2">Model: Opus</text>
+  <!-- Divider -->
+  <line x1="796" y1="136" x2="1004" y2="136" stroke="#FCA5A5" stroke-width="1"/>
+  <!-- Focus bullets -->
+  <text x="796" y="154" font-size="10.5" fill="#374151">
+    <tspan x="796" dy="0">• OWASP Top 10</tspan>
+    <tspan x="796" dy="18">• Webhook signatures</tspan>
+    <tspan x="796" dy="18">• NoSQL injection</tspan>
+    <tspan x="796" dy="18">• Secrets in code</tspan>
+  </text>
+</g>
+<!-- Ping dot on Security node -->
+<circle cx="900" cy="130" r="7" fill="#EF4444" opacity="0" class="ping-dot" data-step="2"/>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 3: Report dashed arrow ← Security Reviewer -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- Report arrow: security → hub (dashed red) -->
+<line x1="842" y1="208" x2="700" y2="298"
+  stroke="#FCA5A5" stroke-width="2" stroke-dasharray="8 5"
+  stroke-dashoffset="400"
+  marker-end="url(#arrowRedDash)"
+  class="arrow-draw spoke-line" data-step="3"/>
+<!-- "report" label -->
+<g class="step-item" data-step="3">
+  <rect x="742" y="270" width="46" height="18" rx="4" fill="#FEE2E2"/>
+  <text x="765" y="282" text-anchor="middle" font-size="10" fill="#B91C1C" font-weight="600">report</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 4: Spawns arrow → Doc Generator + node -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- Spawns arrow: hub → doc gen (solid blue) -->
+<line x1="488" y1="330" x2="342" y2="330"
+  stroke="#2563EB" stroke-width="2.2"
+  stroke-dasharray="320" stroke-dashoffset="320"
+  marker-end="url(#arrowBlue)"
+  class="arrow-draw spoke-line" data-step="4"/>
+<!-- "spawns" label -->
+<g class="step-item" data-step="4">
+  <rect x="393" y="313" width="54" height="18" rx="4" fill="#DBEAFE"/>
+  <text x="420" y="325" text-anchor="middle" font-size="10" fill="#1D4ED8" font-weight="600">spawns</text>
+</g>
+
+<!-- Doc Generator Node (left, x=120, y=300, 220×160) -->
+<g class="step-item" data-step="4" filter="url(#shadow)">
+  <!-- Card body -->
+  <rect x="20" y="260" width="220" height="160" rx="10" ry="10"
+    fill="white" stroke="#6B7280" stroke-width="2"/>
+  <!-- Gray/blue header bar -->
+  <rect x="20" y="260" width="220" height="36" rx="10" ry="10" fill="#4B5563"/>
+  <rect x="20" y="280" width="220" height="16" fill="#4B5563"/>
+  <!-- Header text -->
+  <text x="130" y="281" text-anchor="middle" font-size="11.5" font-weight="700" fill="white">Doc Generator</text>
+  <!-- Model pill badge -->
+  <rect x="75" y="290" width="110" height="20" rx="10" fill="#E5E7EB" class="badge-item" data-step="4"/>
+  <text x="130" y="304" text-anchor="middle" font-size="10" fill="#374151" font-weight="600" class="badge-item" data-step="4">Model: Sonnet</text>
+  <!-- Divider -->
+  <line x1="36" y1="318" x2="224" y2="318" stroke="#D1D5DB" stroke-width="1"/>
+  <!-- Focus bullets -->
+  <text x="36" y="336" font-size="10.5" fill="#374151">
+    <tspan x="36" dy="0">• API docs</tspan>
+    <tspan x="36" dy="18">• Mermaid diagrams</tspan>
+    <tspan x="36" dy="18">• Changelog entries</tspan>
+  </text>
+</g>
+<!-- Ping dot on Doc node -->
+<circle cx="130" cy="340" r="7" fill="#6B7280" opacity="0" class="ping-dot" data-step="4"/>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 5: Report dashed arrow ← Doc Generator -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- Report arrow: doc gen → hub (dashed gray) -->
+<line x1="342" y1="344" x2="488" y2="344"
+  stroke="#9CA3AF" stroke-width="2" stroke-dasharray="8 5"
+  stroke-dashoffset="400"
+  marker-end="url(#arrowGrayDash)"
+  class="arrow-draw spoke-line" data-step="5"/>
+<!-- "report" label -->
+<g class="step-item" data-step="5">
+  <rect x="393" y="348" width="46" height="18" rx="4" fill="#F3F4F6"/>
+  <text x="416" y="360" text-anchor="middle" font-size="10" fill="#4B5563" font-weight="600">report</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 6: Spawns arrow → Performance Analyzer + node -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- Spawns arrow: hub → perf analyzer (solid orange) -->
+<line x1="710" y1="355" x2="972" y2="420"
+  stroke="#F59E0B" stroke-width="2.2"
+  stroke-dasharray="320" stroke-dashoffset="320"
+  marker-end="url(#arrowOrange)"
+  class="arrow-draw spoke-line" data-step="6"/>
+<!-- "spawns" label -->
+<g class="step-item" data-step="6">
+  <rect x="798" y="365" width="54" height="18" rx="4" fill="#FEF3C7"/>
+  <text x="825" y="377" text-anchor="middle" font-size="10" fill="#92400E" font-weight="600">spawns</text>
+</g>
+
+<!-- Performance Analyzer Node (right, x=980, y=380, 220×160) -->
+<g class="step-item" data-step="6" filter="url(#shadow)">
+  <!-- Card body -->
+  <rect x="970" y="390" width="220" height="165" rx="10" ry="10"
+    fill="white" stroke="#F59E0B" stroke-width="2"/>
+  <!-- Orange header bar -->
+  <rect x="970" y="390" width="220" height="36" rx="10" ry="10" fill="#F59E0B"/>
+  <rect x="970" y="410" width="220" height="16" fill="#F59E0B"/>
+  <!-- Header text -->
+  <text x="1080" y="410" text-anchor="middle" font-size="11" font-weight="700" fill="white">Performance Analyzer</text>
+  <!-- Model pill badge -->
+  <rect x="1025" y="420" width="110" height="20" rx="10" fill="#FEF3C7" class="badge-item" data-step="6"/>
+  <text x="1080" y="434" text-anchor="middle" font-size="10" fill="#92400E" font-weight="600" class="badge-item" data-step="6">Model: Sonnet</text>
+  <!-- Divider -->
+  <line x1="986" y1="448" x2="1174" y2="448" stroke="#FDE68A" stroke-width="1"/>
+  <!-- Focus bullets -->
+  <text x="986" y="466" font-size="10.5" fill="#374151">
+    <tspan x="986" dy="0">• Goroutine leaks</tspan>
+    <tspan x="986" dy="18">• N+1 queries</tspan>
+    <tspan x="986" dy="18">• Missing indexes</tspan>
+    <tspan x="986" dy="18">• Context timeouts</tspan>
+  </text>
+</g>
+<!-- Ping dot on Perf node -->
+<circle cx="1080" cy="472" r="7" fill="#F59E0B" opacity="0" class="ping-dot" data-step="6"/>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 7: Report dashed arrow ← Performance Analyzer -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- Report arrow: perf → hub (dashed orange) -->
+<line x1="968" y1="410" x2="714" y2="365"
+  stroke="#FCD34D" stroke-width="2" stroke-dasharray="8 5"
+  stroke-dashoffset="400"
+  marker-end="url(#arrowOrangeDash)"
+  class="arrow-draw spoke-line" data-step="7"/>
+<!-- "report" label -->
+<g class="step-item" data-step="7">
+  <rect x="817" y="390" width="46" height="18" rx="4" fill="#FEF9C3"/>
+  <text x="840" y="402" text-anchor="middle" font-size="10" fill="#92400E" font-weight="600">report</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 8: Bottom Banner — shared codebase -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<g class="step-item" data-step="8">
+  <!-- Banner rect -->
+  <rect x="100" y="618" width="1000" height="52" rx="10" ry="10"
+    fill="white" stroke="#2563EB" stroke-width="2" filter="url(#shadow)"/>
+  <!-- Code brackets icon -->
+  <text x="134" y="650" font-size="22" fill="#2563EB" font-family="monospace" font-weight="900">&lt;/&gt;</text>
+  <!-- Banner text -->
+  <text x="600" y="645" text-anchor="middle" font-size="14" font-weight="600" fill="#1E40AF">
+    All subagents read the same codebase in parallel
+  </text>
+  <!-- Sub-text -->
+  <text x="600" y="662" text-anchor="middle" font-size="11" fill="#6B7280">
+    Shared read access — no conflicts, maximum throughput
+  </text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- AI-ring wrapper needs rotation around hub center -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Overlay ring group with correct transform-origin via JS -->
+
+</svg>
+</div>
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 8</div>
+<div id="click-hint"><span class="key">CLICK</span> advance &nbsp;·&nbsp; <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp; <span class="key">← →</span> step &nbsp;·&nbsp; <span class="key">Home</span> start &nbsp;·&nbsp; <span class="key">End</span> finish</div>
+
+<script>
+const TOTAL = 8;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+    else el.classList.remove('visible');
+  });
+  if (step >= 1) {
+    document.getElementById('ai-glow')?.classList.add('active');
+    document.getElementById('ai-ring')?.classList.add('active');
+  } else {
+    document.getElementById('ai-glow')?.classList.remove('active');
+    document.getElementById('ai-ring')?.classList.remove('active');
+  }
+  if (step >= 2) document.querySelectorAll('.ping-dot').forEach(d => d.classList.add('active'));
+  else document.querySelectorAll('.ping-dot').forEach(d => d.classList.remove('active'));
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep() { if (step > 0) { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End') { step = TOTAL; render(); }
+});
+
+document.getElementById('slide').addEventListener('contextmenu', e => {
+  e.preventDefault(); prevStep();
+});
+
+buildDots();
+nextStep();
+</script>
+</body>
+</html>

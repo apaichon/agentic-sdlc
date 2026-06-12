@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 4.1 — The RISEN Prompting Framework</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#F0F2F5;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; min-height:100vh;
+    font-family:system-ui,-apple-system,sans-serif; user-select:none;
+  }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+
+  /* ── progress chrome ── */
+  #click-hint {
+    margin-top:14px; font-size:13px; color:#64748b;
+    letter-spacing:.04em; display:flex; align-items:center; gap:8px;
+  }
+  #click-hint .key {
+    background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px;
+    padding:2px 10px; font-size:12px; color:#475569;
+  }
+  #step-counter { font-size:12px; color:#64748b; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot {
+    width:8px; height:8px; border-radius:50%;
+    background:#e2e8f0; transition:background .3s, transform .3s;
+  }
+  .dot.done   { background:#0E7490; }
+  .dot.active { background:#3b82f6; transform:scale(1.4); }
+
+  /* ── step-item: two-level nesting pattern ── */
+  /* The outer <g data-step> has NO transform; CSS scale acts here */
+  .step-item {
+    opacity:0;
+    transform:scale(.88);
+    transform-origin:50% 50%;
+    transform-box:fill-box;
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .step-item.visible { opacity:1; transform:scale(1); }
+
+  /* ── arrow draw-on ── */
+  .arrow-draw {
+    opacity:0;
+    stroke-dasharray:1;
+    stroke-dashoffset:1;
+    transition:opacity .05s ease, stroke-dashoffset .6s ease;
+  }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Arrowhead markers -->
+  <marker id="arrowCyan" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+    <path d="M0,0 L0,7 L9,3.5 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowGray" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+    <path d="M0,0 L0,7 L9,3.5 z" fill="#64748b"/>
+  </marker>
+  <marker id="arrowViolet" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+    <path d="M0,0 L0,7 L9,3.5 z" fill="#7c3aed"/>
+  </marker>
+
+  <!-- Funnel clip path: trapezoid widest at top (y=120), narrowest at bottom (y=580) -->
+  <!-- Top width: 380px centered at x=500 → x=310 to x=690 -->
+  <!-- Bottom width: 80px centered at x=500 → x=460 to x=540 -->
+  <clipPath id="funnelClip">
+    <polygon points="310,120 690,120 540,580 460,580"/>
+  </clipPath>
+
+  <!-- Drop shadow filter -->
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#00000018"/>
+  </filter>
+  <filter id="shadowMd" x="-10%" y="-10%" width="120%" height="130%">
+    <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#00000022"/>
+  </filter>
+</defs>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Canvas background -->
+<rect x="0" y="0" width="1200" height="700" fill="#F8F9FA" rx="16"/>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 0: Title + section labels (always visible after step 0) -->
+<g class="step-item" data-step="0">
+  <g transform="translate(0,0)">
+    <!-- Title -->
+    <text x="600" y="52" text-anchor="middle" font-size="22" font-weight="800" fill="#1e293b" letter-spacing=".02em">Figure 4.1  The RISEN Prompting Framework</text>
+    <text x="600" y="74" text-anchor="middle" font-size="13" fill="#64748b">Transform raw stakeholder input into structured, actionable requirements</text>
+
+    <!-- Left column label -->
+    <text x="160" y="115" text-anchor="middle" font-size="14" font-weight="700" fill="#475569" letter-spacing=".06em">RAW STAKEHOLDER INPUT</text>
+
+    <!-- Right column label -->
+    <text x="975" y="115" text-anchor="middle" font-size="14" font-weight="700" fill="#475569" letter-spacing=".06em">STRUCTURED PRD</text>
+
+    <!-- Funnel label -->
+    <text x="500" y="115" text-anchor="middle" font-size="13" font-weight="600" fill="#94a3b8" letter-spacing=".08em">RISEN FILTER</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 1: Raw input message boxes (3 stacked) -->
+
+<!-- Message 1: Email snippet -->
+<g class="step-item" data-step="1">
+  <g transform="translate(55,135)">
+    <rect width="210" height="90" rx="8" fill="#ffffff" filter="url(#shadow)" stroke="#e2e8f0" stroke-width="1"/>
+    <!-- email icon bar -->
+    <rect width="210" height="22" rx="8" fill="#f1f5f9"/>
+    <rect x="0" y="14" width="210" height="8" fill="#f1f5f9"/>
+    <circle cx="16" cy="11" r="5" fill="#ef4444" opacity=".7"/>
+    <circle cx="30" cy="11" r="5" fill="#f59e0b" opacity=".7"/>
+    <circle cx="44" cy="11" r="5" fill="#22c55e" opacity=".7"/>
+    <text x="105" y="14" text-anchor="middle" font-size="9" fill="#94a3b8" font-weight="600">EMAIL</text>
+    <text x="12" y="38" font-size="9" fill="#94a3b8" font-weight="600">FROM:</text>
+    <text x="45" y="38" font-size="9" fill="#475569">stakeholder@corp.com</text>
+    <text x="12" y="51" font-size="9.5" fill="#1e293b" font-weight="600">Re: New feature request</text>
+    <text x="12" y="64" font-size="9" fill="#64748b">"We need the dashboard to show</text>
+    <text x="12" y="76" font-size="9" fill="#64748b">real-time data for all users..."</text>
+  </g>
+</g>
+
+<!-- Message 2: Slack/chat snippet -->
+<g class="step-item" data-step="1">
+  <g transform="translate(55,245)">
+    <rect width="210" height="88" rx="8" fill="#ffffff" filter="url(#shadow)" stroke="#e2e8f0" stroke-width="1"/>
+    <rect width="210" height="22" rx="8" fill="#4a154b" opacity=".9"/>
+    <rect x="0" y="14" width="210" height="8" fill="#4a154b" opacity=".9"/>
+    <text x="105" y="15" text-anchor="middle" font-size="9" fill="#ffffff" font-weight="700">#product-feedback</text>
+    <!-- avatar circle -->
+    <circle cx="22" cy="38" r="10" fill="#7c3aed" opacity=".8"/>
+    <text x="22" y="42" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">JL</text>
+    <text x="38" y="34" font-size="9" fill="#475569" font-weight="700">Jordan L.</text>
+    <text x="38" y="46" font-size="9" fill="#94a3b8">10:34 AM</text>
+    <text x="12" y="61" font-size="9" fill="#1e293b">"The export function is broken</text>
+    <text x="12" y="73" font-size="9" fill="#1e293b">again — clients are complaining"</text>
+  </g>
+</g>
+
+<!-- Message 3: Meeting note snippet -->
+<g class="step-item" data-step="1">
+  <g transform="translate(55,353)">
+    <rect width="210" height="96" rx="8" fill="#ffffff" filter="url(#shadow)" stroke="#e2e8f0" stroke-width="1"/>
+    <rect width="210" height="22" rx="8" fill="#f8fafc"/>
+    <rect x="0" y="14" width="210" height="8" fill="#f8fafc"/>
+    <!-- notepad lines icon -->
+    <rect x="8" y="5" width="14" height="16" rx="2" fill="#0891b2" opacity=".7"/>
+    <line x1="10" y1="9" x2="20" y2="9" stroke="#fff" stroke-width="1.2"/>
+    <line x1="10" y1="12" x2="20" y2="12" stroke="#fff" stroke-width="1.2"/>
+    <line x1="10" y1="15" x2="16" y2="15" stroke="#fff" stroke-width="1.2"/>
+    <text x="105" y="15" text-anchor="middle" font-size="9" fill="#475569" font-weight="700">MEETING NOTES — Sprint Planning</text>
+    <text x="12" y="37" font-size="9" fill="#64748b">Action items from Q3 review:</text>
+    <text x="12" y="50" font-size="9" fill="#1e293b">• Performance targets missing SLA</text>
+    <text x="12" y="62" font-size="9" fill="#1e293b">• Need user auth overhaul by Q4</text>
+    <text x="12" y="74" font-size="9" fill="#1e293b">• Analytics dashboard priority #1</text>
+    <text x="12" y="86" font-size="9" fill="#94a3b8" font-style="italic">...and 7 more items</text>
+  </g>
+</g>
+
+<!-- "Unstructured" label under messages -->
+<g class="step-item" data-step="1">
+  <g transform="translate(55,460)">
+    <rect width="210" height="28" rx="6" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+    <text x="105" y="18" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="600">⚠ Unstructured · Vague · Incomplete</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 2: Arrow from raw inputs → funnel entry -->
+<g class="step-item" data-step="2">
+  <g transform="translate(0,0)">
+    <path class="arrow-draw" pathLength="1"
+      d="M 270,325 C 288,325 298,320 308,240"
+      fill="none" stroke="#0891b2" stroke-width="2.5"
+      stroke-dasharray="1" stroke-dashoffset="1"
+      marker-end="url(#arrowCyan)"/>
+    <!-- small label on arrow -->
+    <text x="278" y="315" font-size="9" fill="#0891b2" font-weight="600" transform="rotate(-8,278,315)">transform</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Funnel outline (always drawn as background, revealed at step 3) -->
+<!-- We draw the funnel outline once; the bands clip inside it -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 3: R — Role band (violet, top ~120→216, widest) -->
+<g class="step-item" data-step="3">
+  <g transform="translate(0,0)">
+    <!-- Band as trapezoid polygon clipped inside funnel -->
+    <!-- Row top=120 bottom=216, left/right interpolated: -->
+    <!-- at y=120: x=310–690 (full top) -->
+    <!-- at y=216: delta=(216-120)/(580-120)=96/460≈0.209 -->
+    <!--   left=310+(460-310)*0.209=310+31.3=341, right=690-(690-540)*0.209=690-31.3=659 -->
+    <polygon points="310,120 690,120 659,216 341,216"
+      fill="#7c3aed" opacity=".92" clip-path="url(#funnelClip)"/>
+    <!-- Letter badge -->
+    <text x="335" y="178" font-size="38" font-weight="900" fill="#ffffff" opacity=".95">R</text>
+    <!-- Label -->
+    <text x="380" y="162" font-size="17" font-weight="700" fill="#ffffff">Role</text>
+    <text x="380" y="182" font-size="12" fill="#e9d5ff">Act as: Senior PM</text>
+    <!-- right-side example tag -->
+    <rect x="570" y="148" width="108" height="30" rx="6" fill="#ffffff" opacity=".18"/>
+    <text x="624" y="165" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="600">Senior PM</text>
+    <!-- outer funnel stroke clip for this row -->
+    <polygon points="310,120 690,120 659,216 341,216"
+      fill="none" stroke="#5b21b6" stroke-width="1.2" clip-path="url(#funnelClip)"/>
+  </g>
+</g>
+
+<!-- STEP 4: I — Instructions band (blue, rows 216→312) -->
+<!-- at y=312: delta=192/460≈0.417 → left=310+62.6=373, right=690-62.6=627 -->
+<g class="step-item" data-step="4">
+  <g transform="translate(0,0)">
+    <polygon points="341,216 659,216 627,312 373,312"
+      fill="#2563eb" opacity=".92" clip-path="url(#funnelClip)"/>
+    <text x="390" y="273" font-size="34" font-weight="900" fill="#ffffff" opacity=".95">I</text>
+    <text x="425" y="258" font-size="16" font-weight="700" fill="#ffffff">Instructions</text>
+    <text x="425" y="276" font-size="11" fill="#bfdbfe">Task: Draft requirements</text>
+    <rect x="550" y="245" width="62" height="28" rx="6" fill="#ffffff" opacity=".18"/>
+    <text x="581" y="263" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="600">Draft req.</text>
+    <polygon points="341,216 659,216 627,312 373,312"
+      fill="none" stroke="#1d4ed8" stroke-width="1.2" clip-path="url(#funnelClip)"/>
+  </g>
+</g>
+
+<!-- STEP 5: S — Steps band (teal, rows 312→408) -->
+<!-- at y=408: delta=288/460≈0.626 → left=310+93.9=404, right=690-93.9=596 -->
+<g class="step-item" data-step="5">
+  <g transform="translate(0,0)">
+    <polygon points="373,312 627,312 596,408 404,408"
+      fill="#059669" opacity=".92" clip-path="url(#funnelClip)"/>
+    <text x="416" y="368" font-size="30" font-weight="900" fill="#ffffff" opacity=".95">S</text>
+    <text x="450" y="356" font-size="15" font-weight="700" fill="#ffffff">Steps</text>
+    <text x="450" y="374" font-size="10" fill="#a7f3d0">Capture→organize→validate</text>
+    <polygon points="373,312 627,312 596,408 404,408"
+      fill="none" stroke="#047857" stroke-width="1.2" clip-path="url(#funnelClip)"/>
+  </g>
+</g>
+
+<!-- STEP 6: E — End Goal band (amber, rows 408→492) -->
+<!-- at y=492: delta=372/460≈0.809 → left=310+121.3=431, right=690-121.3=569 -->
+<g class="step-item" data-step="6">
+  <g transform="translate(0,0)">
+    <polygon points="404,408 596,408 569,492 431,492"
+      fill="#d97706" opacity=".92" clip-path="url(#funnelClip)"/>
+    <text x="438" y="456" font-size="26" font-weight="900" fill="#ffffff" opacity=".95">E</text>
+    <text x="467" y="445" font-size="13" font-weight="700" fill="#ffffff">End Goal</text>
+    <text x="467" y="461" font-size="9.5" fill="#fde68a">Actionable PRD</text>
+    <polygon points="404,408 596,408 569,492 431,492"
+      fill="none" stroke="#b45309" stroke-width="1.2" clip-path="url(#funnelClip)"/>
+  </g>
+</g>
+
+<!-- STEP 7: N — Narrowing Constraints band (dark navy, rows 492→580) -->
+<!-- at y=580: left=460, right=540 (full bottom) -->
+<g class="step-item" data-step="7">
+  <g transform="translate(0,0)">
+    <polygon points="431,492 569,492 540,580 460,580"
+      fill="#1e3a5f" opacity=".96" clip-path="url(#funnelClip)"/>
+    <text x="464" y="542" font-size="22" font-weight="900" fill="#ffffff" opacity=".95">N</text>
+    <text x="488" y="530" font-size="11" font-weight="700" fill="#ffffff">Narrowing</text>
+    <text x="488" y="545" font-size="9" fill="#93c5fd">Scope · metrics</text>
+    <text x="488" y="557" font-size="9" fill="#93c5fd">constraints</text>
+    <polygon points="431,492 569,492 540,580 460,580"
+      fill="none" stroke="#0f172a" stroke-width="1.2" clip-path="url(#funnelClip)"/>
+  </g>
+</g>
+
+<!-- Funnel outer outline (draw on top of bands, visible from step 3) -->
+<g class="step-item" data-step="3">
+  <g transform="translate(0,0)">
+    <polygon points="310,120 690,120 540,580 460,580"
+      fill="none" stroke="#334155" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- top opening dashes -->
+    <line x1="310" y1="120" x2="690" y2="120" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <!-- bottom spout dashes -->
+    <line x1="460" y1="580" x2="540" y2="580" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,4"/>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 8: Arrow from funnel bottom → PRD card -->
+<g class="step-item" data-step="8">
+  <g transform="translate(0,0)">
+    <!-- Arrow exits funnel bottom-right corner, curves right to PRD card -->
+    <path class="arrow-draw" pathLength="1"
+      d="M 540,580 C 600,600 700,590 815,420"
+      fill="none" stroke="#0891b2" stroke-width="2.5"
+      stroke-dasharray="1" stroke-dashoffset="1"
+      marker-end="url(#arrowCyan)"/>
+    <text x="670" y="615" text-anchor="middle" font-size="10" fill="#0891b2" font-weight="600">structured output</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STEP 9: PRD document card -->
+<g class="step-item" data-step="9">
+  <g transform="translate(820,148)">
+    <!-- Card background -->
+    <rect width="318" height="392" rx="12" fill="#ffffff" filter="url(#shadowMd)" stroke="#e2e8f0" stroke-width="1.5"/>
+
+    <!-- Card header -->
+    <rect width="318" height="52" rx="12" fill="#0f172a"/>
+    <rect x="0" y="40" width="318" height="12" fill="#0f172a"/>
+    <!-- doc icon -->
+    <rect x="14" y="12" width="22" height="28" rx="3" fill="#ffffff" opacity=".2"/>
+    <line x1="18" y1="19" x2="32" y2="19" stroke="#fff" stroke-width="1.5" opacity=".7"/>
+    <line x1="18" y1="24" x2="32" y2="24" stroke="#fff" stroke-width="1.5" opacity=".7"/>
+    <line x1="18" y1="29" x2="26" y2="29" stroke="#fff" stroke-width="1.5" opacity=".7"/>
+    <text x="46" y="28" font-size="15" font-weight="800" fill="#ffffff">Product Requirements</text>
+    <text x="46" y="44" font-size="11" fill="#94a3b8">Document (PRD) · v1.0</text>
+
+    <!-- PRD sections list -->
+    <!-- Section 1: Overview -->
+    <rect x="14" y="66" width="290" height="44" rx="6" fill="#f8fafc" stroke="#f1f5f9" stroke-width="1"/>
+    <rect x="14" y="66" width="4" height="44" rx="2" fill="#7c3aed"/>
+    <text x="26" y="83" font-size="10" font-weight="700" fill="#7c3aed" letter-spacing=".05em">OVERVIEW</text>
+    <text x="26" y="98" font-size="9.5" fill="#475569">Product context, background &amp; goals summary</text>
+
+    <!-- Section 2: Problem Statement -->
+    <rect x="14" y="116" width="290" height="44" rx="6" fill="#f8fafc" stroke="#f1f5f9" stroke-width="1"/>
+    <rect x="14" y="116" width="4" height="44" rx="2" fill="#2563eb"/>
+    <text x="26" y="133" font-size="10" font-weight="700" fill="#2563eb" letter-spacing=".05em">PROBLEM STATEMENT</text>
+    <text x="26" y="148" font-size="9.5" fill="#475569">Pain points, opportunity &amp; hypothesis</text>
+
+    <!-- Section 3: Goals & Metrics -->
+    <rect x="14" y="166" width="290" height="44" rx="6" fill="#f8fafc" stroke="#f1f5f9" stroke-width="1"/>
+    <rect x="14" y="166" width="4" height="44" rx="2" fill="#059669"/>
+    <text x="26" y="183" font-size="10" font-weight="700" fill="#059669" letter-spacing=".05em">GOALS &amp; METRICS</text>
+    <text x="26" y="198" font-size="9.5" fill="#475569">OKRs, KPIs, measurable success criteria</text>
+
+    <!-- Section 4: User Stories -->
+    <rect x="14" y="216" width="290" height="44" rx="6" fill="#f8fafc" stroke="#f1f5f9" stroke-width="1"/>
+    <rect x="14" y="216" width="4" height="44" rx="2" fill="#d97706"/>
+    <text x="26" y="233" font-size="10" font-weight="700" fill="#d97706" letter-spacing=".05em">USER STORIES</text>
+    <text x="26" y="248" font-size="9.5" fill="#475569">As a [user] I want [goal] so that [reason]</text>
+
+    <!-- Section 5: Requirements -->
+    <rect x="14" y="266" width="290" height="36" rx="6" fill="#f8fafc" stroke="#f1f5f9" stroke-width="1"/>
+    <rect x="14" y="266" width="4" height="36" rx="2" fill="#0891b2"/>
+    <text x="26" y="281" font-size="10" font-weight="700" fill="#0891b2" letter-spacing=".05em">REQUIREMENTS</text>
+    <text x="26" y="294" font-size="9.5" fill="#475569">Functional &amp; non-functional specs</text>
+
+    <!-- Section 6: Constraints & Assumptions -->
+    <rect x="14" y="308" width="290" height="36" rx="6" fill="#f8fafc" stroke="#f1f5f9" stroke-width="1"/>
+    <rect x="14" y="308" width="4" height="36" rx="2" fill="#1e3a5f"/>
+    <text x="26" y="323" font-size="10" font-weight="700" fill="#1e3a5f" letter-spacing=".05em">CONSTRAINTS &amp; ASSUMPTIONS</text>
+    <text x="26" y="336" font-size="9.5" fill="#475569">Scope limits, dependencies, risks</text>
+
+    <!-- Section 7: Success Metrics -->
+    <rect x="14" y="350" width="290" height="34" rx="6" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+    <rect x="14" y="350" width="4" height="34" rx="2" fill="#059669"/>
+    <text x="26" y="365" font-size="10" font-weight="700" fill="#059669" letter-spacing=".05em">SUCCESS METRICS</text>
+    <text x="26" y="378" font-size="9.5" fill="#475569">Quantified outcomes &amp; acceptance criteria</text>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Decorative: funnel entry annotation lines (visible step 3+) -->
+<g class="step-item" data-step="3">
+  <g transform="translate(0,0)">
+    <!-- small "RISEN" acronym label at top of funnel -->
+    <text x="500" y="108" text-anchor="middle" font-size="11" font-weight="800" fill="#334155" letter-spacing=".25em">R·I·S·E·N</text>
+  </g>
+</g>
+
+<!-- PRD checkmark badge (visible at step 9) -->
+<g class="step-item" data-step="9">
+  <g transform="translate(1098,148)">
+    <circle r="18" fill="#059669" cx="0" cy="0"/>
+    <path d="M -9,0 L -3,6 L 9,-6" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Step 0 static subtitle / tagline strip at bottom -->
+<g class="step-item" data-step="0">
+  <g transform="translate(0,0)">
+    <rect x="370" y="624" width="460" height="32" rx="8" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="600" y="644" text-anchor="middle" font-size="11" fill="#64748b">
+      <tspan font-weight="700" fill="#7c3aed">R</tspan>ole ·
+      <tspan font-weight="700" fill="#2563eb"> I</tspan>nstructions ·
+      <tspan font-weight="700" fill="#059669"> S</tspan>teps ·
+      <tspan font-weight="700" fill="#d97706"> E</tspan>nd Goal ·
+      <tspan font-weight="700" fill="#1e3a5f"> N</tspan>arrowing Constraints
+    </text>
+  </g>
+</g>
+
+</svg>
+</div>
+
+<!-- Progress chrome -->
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 9</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> advance &nbsp;·&nbsp;
+  <span class="key">RIGHT-CLICK</span> back &nbsp;·&nbsp;
+  <span class="key">← →</span> step &nbsp;·&nbsp;
+  <span class="key">Home</span> start &nbsp;·&nbsp;
+  <span class="key">End</span> finish
+</div>
+
+<script>
+const TOTAL = 9;
+let step = -1;
+
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    bar.appendChild(d);
+  }
+}
+
+function render() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+    else el.classList.remove('visible');
+  });
+  for (let i = 0; i <= TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+
+function nextStep() { if (step < TOTAL) { step++; render(); } }
+function prevStep()  { if (step > 0)    { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  if (e.key === 'Home') { step = 0; render(); }
+  if (e.key === 'End')  { step = TOTAL; render(); }
+});
+
+document.getElementById('slide').addEventListener('contextmenu', e => {
+  e.preventDefault(); prevStep();
+});
+
+buildDots();
+nextStep(); // auto-show step 0
+</script>
+</body>
+</html>

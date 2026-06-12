@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 2.4 — MCP Server Ecosystem: Extending Claude Code's Reach</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#F8F9FA; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:system-ui,-apple-system,sans-serif; user-select:none; }
+  .container { width:1200px; height:700px; position:relative; cursor:pointer; }
+  svg { width:100%; height:100%; }
+  #click-hint { margin-top:14px; font-size:13px; color:#94a3b8; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+  #click-hint .key { background:#334155; border:1px solid #475569; border-radius:6px; padding:2px 10px; font-size:12px; color:#cbd5e1; }
+  #step-counter { font-size:12px; color:#64748b; margin-top:6px; letter-spacing:.08em; }
+  #progress-bar { display:flex; gap:8px; margin-top:10px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#334155; transition:background .3s, transform .3s; }
+  .dot.done { background:#0E7490; }
+  .dot.active { background:#38BDF8; transform:scale(1.4); }
+  .step-item { opacity:0; transform:scale(.88); transform-origin:center; transition:opacity .5s ease, transform .5s ease; }
+  .step-item.visible { opacity:1; transform:scale(1); }
+  .arrow-draw { opacity:0; stroke-dashoffset:300; transition:opacity .1s, stroke-dashoffset .6s ease; }
+  .arrow-draw.visible { opacity:1; stroke-dashoffset:0; }
+  .badge-item { opacity:0; transform:scale(0); transform-origin:center; transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .badge-item.visible { opacity:1; transform:scale(1); }
+  @keyframes dashFlow { to { stroke-dashoffset:-20; } }
+  @keyframes glowPulse { 0%,100%{opacity:.15} 50%{opacity:.5} }
+  @keyframes rotateSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .spoke-line.visible { animation:dashFlow 1.6s linear infinite; }
+  #ai-glow.active { animation:glowPulse 2.8s ease-in-out infinite; }
+  #ai-ring.active { animation:rotateSlow 10s linear infinite; opacity:.35; }
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Arrow markers -->
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#22c55e"/>
+  </marker>
+  <marker id="arrowGreenBack" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto-start-reverse">
+    <path d="M0,0 L0,6 L8,3 z" fill="#22c55e"/>
+  </marker>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowTealBack" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto-start-reverse">
+    <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+  </marker>
+  <marker id="arrowMongo" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+  </marker>
+  <marker id="arrowMongoBack" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto-start-reverse">
+    <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+  </marker>
+  <!-- Drop shadow -->
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000018"/>
+  </filter>
+  <!-- Glow filter for hub -->
+  <filter id="hubGlow" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <!-- Panel background gradient -->
+  <linearGradient id="panelGradGH" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#f0fdf4"/>
+    <stop offset="100%" stop-color="#dcfce7"/>
+  </linearGradient>
+  <linearGradient id="panelGradFS" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#ecfeff"/>
+    <stop offset="100%" stop-color="#cffafe"/>
+  </linearGradient>
+  <linearGradient id="panelGradMG" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#f0fdf4"/>
+    <stop offset="100%" stop-color="#bbf7d0"/>
+  </linearGradient>
+  <!-- Hub gradient -->
+  <radialGradient id="hubGrad" cx="50%" cy="40%" r="60%">
+    <stop offset="0%" stop-color="#1e40af"/>
+    <stop offset="100%" stop-color="#0f172a"/>
+  </radialGradient>
+</defs>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 0: TITLE                                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g id="title-group" class="step-item" data-step="0">
+  <text x="600" y="38" text-anchor="middle" font-size="22" font-weight="800" fill="#1e293b" letter-spacing=".01em">Figure 2.4 — MCP Server Ecosystem: Extending Claude Code's Reach</text>
+  <line x1="160" y1="50" x2="1040" y2="50" stroke="#e2e8f0" stroke-width="1.5"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 1: CENTER HUB — Claude Code AI                  -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- Glow ring (behind hub) -->
+<circle id="ai-glow" cx="600" cy="320" r="72" fill="#3b82f6" opacity="0" class="step-item" data-step="1" filter="url(#hubGlow)"/>
+
+<!-- Rotating dashed ring -->
+<g id="ai-ring" class="step-item" data-step="1" style="transform-origin:600px 320px; opacity:0;">
+  <circle cx="600" cy="320" r="75" fill="none" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="6 5"/>
+</g>
+
+<!-- Hub circle -->
+<circle cx="600" cy="320" r="58" fill="url(#hubGrad)" filter="url(#shadow)" class="step-item" data-step="1"/>
+<circle cx="600" cy="320" r="58" fill="none" stroke="#3b82f6" stroke-width="2" class="step-item" data-step="1"/>
+
+<!-- AI text inside hub -->
+<text x="600" y="310" text-anchor="middle" font-size="26" font-weight="900" fill="white" class="step-item" data-step="1">AI</text>
+<text x="600" y="330" text-anchor="middle" font-size="10" font-weight="600" fill="#93c5fd" letter-spacing=".12em" class="step-item" data-step="1">CLAUDE CODE</text>
+
+<!-- Hub label below -->
+<text x="600" y="396" text-anchor="middle" font-size="13" font-weight="600" fill="#1e293b" class="step-item" data-step="1">Claude Code</text>
+<text x="600" y="413" text-anchor="middle" font-size="11" fill="#64748b" class="step-item" data-step="1">AI Orchestrator</text>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 2: GITHUB MCP SERVER + SPOKE LINE               -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- Spoke line: hub (600,265) → github node bottom (600,163) -->
+<line x1="600" y1="263" x2="600" y2="168"
+  stroke="#22c55e" stroke-width="2.5"
+  stroke-dasharray="8 5"
+  marker-end="url(#arrowGreen)"
+  marker-start="url(#arrowGreenBack)"
+  class="arrow-draw spoke-line" data-step="2"/>
+
+<!-- Lock icon on spoke (midpoint ~y=215) -->
+<g class="badge-item" data-step="2" style="transform-origin:614px 215px">
+  <rect x="605" y="205" width="18" height="16" rx="3" fill="#1e293b" opacity=".85"/>
+  <rect x="609" y="211" width="10" height="8" rx="1.5" fill="#22c55e"/>
+  <path d="M610,211 Q610,207 615,207 Q620,207 620,211" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+  <circle cx="614.5" cy="215" r="1.5" fill="#fff"/>
+</g>
+
+<!-- GitHub MCP Server node -->
+<g class="step-item" data-step="2" filter="url(#shadow)">
+  <rect x="500" y="98" width="200" height="52" rx="10" fill="#22c55e"/>
+  <rect x="500" y="98" width="200" height="52" rx="10" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+  <!-- GitHub icon (simplified octocat circle) -->
+  <circle cx="525" cy="124" r="12" fill="white" opacity=".25"/>
+  <text x="525" y="129" text-anchor="middle" font-size="14" fill="white">⬡</text>
+  <!-- Label -->
+  <text x="612" y="119" text-anchor="middle" font-size="13" font-weight="700" fill="white">GitHub MCP Server</text>
+  <text x="612" y="137" text-anchor="middle" font-size="10" fill="#dcfce7" letter-spacing=".05em">MCP · REST · GitHub API</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 3: GITHUB CAPABILITIES PANEL                    -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="3" filter="url(#shadow)">
+  <rect x="735" y="75" width="210" height="112" rx="10" fill="url(#panelGradGH)" stroke="#22c55e" stroke-width="1.5"/>
+  <!-- Header -->
+  <rect x="735" y="75" width="210" height="28" rx="10" fill="#22c55e"/>
+  <rect x="735" y="90" width="210" height="13" fill="#22c55e"/>
+  <text x="840" y="94" text-anchor="middle" font-size="11" font-weight="700" fill="white" letter-spacing=".05em">Capabilities</text>
+  <!-- Items -->
+  <text x="751" y="120" font-size="11" fill="#166534">✦ Create issues</text>
+  <text x="751" y="138" font-size="11" fill="#166534">✦ Open PRs</text>
+  <text x="751" y="156" font-size="11" fill="#166534">✦ Review code</text>
+  <text x="751" y="174" font-size="11" fill="#166534">✦ Manage boards</text>
+</g>
+<!-- Connector from GitHub server to panel -->
+<line x1="700" y1="124" x2="733" y2="124" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4 3" class="arrow-draw" data-step="3"/>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 4: FILESYSTEM MCP SERVER + SPOKE LINE           -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- Spoke line: hub (545,300) → filesystem node right (345,320) -->
+<line x1="543" y1="305" x2="349" y2="320"
+  stroke="#0891b2" stroke-width="2.5"
+  stroke-dasharray="8 5"
+  marker-end="url(#arrowTeal)"
+  marker-start="url(#arrowTealBack)"
+  class="arrow-draw spoke-line" data-step="4"/>
+
+<!-- Lock icon on spoke (midpoint ~x=447,y=312) -->
+<g class="badge-item" data-step="4" style="transform-origin:447px 312px">
+  <rect x="438" y="303" width="18" height="16" rx="3" fill="#1e293b" opacity=".85"/>
+  <rect x="442" y="309" width="10" height="8" rx="1.5" fill="#0891b2"/>
+  <path d="M443,309 Q443,305 447.5,305 Q452,305 452,309" fill="none" stroke="#0891b2" stroke-width="1.5"/>
+  <circle cx="447" cy="313" r="1.5" fill="#fff"/>
+</g>
+
+<!-- Filesystem MCP Server node -->
+<g class="step-item" data-step="4" filter="url(#shadow)">
+  <rect x="110" y="294" width="220" height="52" rx="10" fill="#0891b2"/>
+  <rect x="110" y="294" width="220" height="52" rx="10" fill="none" stroke="#0e7490" stroke-width="1.5"/>
+  <!-- Folder icon -->
+  <rect x="127" y="308" width="18" height="14" rx="2" fill="white" opacity=".25"/>
+  <rect x="125" y="312" width="22" height="12" rx="2" fill="white" opacity=".3"/>
+  <text x="238" y="315" text-anchor="middle" font-size="13" font-weight="700" fill="white">Filesystem MCP</text>
+  <text x="238" y="333" text-anchor="middle" font-size="10" fill="#cffafe" letter-spacing=".05em">Server</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 5: FILESYSTEM CAPABILITIES PANEL                -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="5" filter="url(#shadow)">
+  <rect x="8" y="260" width="215" height="120" rx="10" fill="url(#panelGradFS)" stroke="#0891b2" stroke-width="1.5"/>
+  <!-- Header -->
+  <rect x="8" y="260" width="215" height="28" rx="10" fill="#0891b2"/>
+  <rect x="8" y="275" width="215" height="13" fill="#0891b2"/>
+  <text x="115" y="279" text-anchor="middle" font-size="11" font-weight="700" fill="white" letter-spacing=".05em">Capabilities</text>
+  <!-- Items -->
+  <text x="22" y="306" font-size="10.5" fill="#164e63">✦ Scoped file access</text>
+  <text x="22" y="322" font-size="10.5" fill="#164e63">✦ Read/write within</text>
+  <text x="30" y="337" font-size="10.5" fill="#164e63">  project</text>
+  <text x="22" y="355" font-size="10.5" fill="#164e63">✦ Directory boundaries</text>
+</g>
+<!-- Connector from Filesystem server to panel -->
+<line x1="110" y1="320" x2="223" y2="320" stroke="#0891b2" stroke-width="1.5" stroke-dasharray="4 3" class="arrow-draw" data-step="5"/>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 6: MONGODB MCP SERVER + SPOKE LINE              -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- Spoke line: hub (657,305) → mongodb node left (855,320) -->
+<line x1="658" y1="305" x2="855" y2="316"
+  stroke="#16a34a" stroke-width="2.5"
+  stroke-dasharray="8 5"
+  marker-end="url(#arrowMongo)"
+  marker-start="url(#arrowMongoBack)"
+  class="arrow-draw spoke-line" data-step="6"/>
+
+<!-- Lock icon on spoke (midpoint ~x=757,y=310) -->
+<g class="badge-item" data-step="6" style="transform-origin:757px 310px">
+  <rect x="748" y="301" width="18" height="16" rx="3" fill="#1e293b" opacity=".85"/>
+  <rect x="752" y="307" width="10" height="8" rx="1.5" fill="#16a34a"/>
+  <path d="M753,307 Q753,303 757.5,303 Q762,303 762,307" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+  <circle cx="757" cy="311" r="1.5" fill="#fff"/>
+</g>
+
+<!-- MongoDB MCP Server node -->
+<g class="step-item" data-step="6" filter="url(#shadow)">
+  <rect x="860" y="294" width="220" height="52" rx="10" fill="#16a34a"/>
+  <rect x="860" y="294" width="220" height="52" rx="10" fill="none" stroke="#15803d" stroke-width="1.5"/>
+  <!-- Mongo leaf icon (stylised) -->
+  <ellipse cx="884" cy="320" rx="9" ry="13" fill="white" opacity=".25"/>
+  <path d="M884,308 Q888,316 884,333 Q880,316 884,308 Z" fill="white" opacity=".5"/>
+  <text x="980" y="315" text-anchor="middle" font-size="13" font-weight="700" fill="white">MongoDB MCP</text>
+  <text x="980" y="333" text-anchor="middle" font-size="10" fill="#bbf7d0" letter-spacing=".05em">Server</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 7: MONGODB CAPABILITIES PANEL                   -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="7" filter="url(#shadow)">
+  <rect x="978" y="257" width="212" height="112" rx="10" fill="url(#panelGradMG)" stroke="#16a34a" stroke-width="1.5"/>
+  <!-- Header -->
+  <rect x="978" y="257" width="212" height="28" rx="10" fill="#16a34a"/>
+  <rect x="978" y="272" width="212" height="13" fill="#16a34a"/>
+  <text x="1084" y="276" text-anchor="middle" font-size="11" font-weight="700" fill="white" letter-spacing=".05em">Capabilities</text>
+  <!-- Items -->
+  <text x="994" y="302" font-size="11" fill="#14532d">✦ Query schemas</text>
+  <text x="994" y="320" font-size="11" fill="#14532d">✦ Examine documents</text>
+  <text x="994" y="338" font-size="11" fill="#14532d">✦ Validate structures</text>
+  <text x="994" y="356" font-size="11" fill="#14532d">✦ Aggregate data</text>
+</g>
+<!-- Connector from MongoDB server to panel -->
+<line x1="1080" y1="294" x2="1080" y2="269" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3" class="arrow-draw" data-step="7"/>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- STEP 8: SETTINGS.JSON CODE BLOCK + FOOTNOTE          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="8">
+  <!-- Code block background -->
+  <rect x="80" y="440" width="840" height="148" rx="12" fill="#0f172a" filter="url(#shadow)"/>
+  <rect x="80" y="440" width="840" height="148" rx="12" fill="none" stroke="#334155" stroke-width="1.5"/>
+  <!-- Top bar (traffic lights) -->
+  <rect x="80" y="440" width="840" height="30" rx="12" fill="#1e293b"/>
+  <rect x="80" y="458" width="840" height="12" fill="#1e293b"/>
+  <circle cx="104" cy="455" r="5" fill="#ef4444" opacity=".8"/>
+  <circle cx="122" cy="455" r="5" fill="#f59e0b" opacity=".8"/>
+  <circle cx="140" cy="455" r="5" fill="#22c55e" opacity=".8"/>
+  <text x="165" y="459" font-size="11" fill="#94a3b8" font-family="monospace" letter-spacing=".05em">settings.json</text>
+
+  <!-- Line 1 -->
+  <text x="100" y="488" font-family="'Courier New',monospace" font-size="11" fill="#94a3b8">{</text>
+  <text x="116" y="488" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"mcpServers"</text>
+  <text x="213" y="488" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">: {</text>
+
+  <!-- Line 2 — github -->
+  <text x="132" y="504" font-family="'Courier New',monospace" font-size="11" fill="#86efac">"github"</text>
+  <text x="196" y="504" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">: {</text>
+  <text x="225" y="504" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"command"</text>
+  <text x="305" y="504" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">:</text>
+  <text x="314" y="504" font-family="'Courier New',monospace" font-size="11" fill="#fbbf24">"npx"</text>
+  <text x="348" y="504" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">,</text>
+  <text x="356" y="504" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"args"</text>
+  <text x="396" y="504" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">:</text>
+  <text x="404" y="504" font-family="'Courier New',monospace" font-size="11" fill="#fbbf24">["@mcp-server-github"]</text>
+  <text x="550" y="504" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">,</text>
+  <text x="558" y="504" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"env"</text>
+  <text x="590" y="504" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">: {</text>
+  <text x="610" y="504" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"GITHUB_TOKEN"</text>
+  <text x="718" y="504" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">:</text>
+  <text x="726" y="504" font-family="'Courier New',monospace" font-size="11" fill="#fbbf24">"$GITHUB_TOKEN"</text>
+  <text x="830" y="504" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">} }</text>
+
+  <!-- Line 3 — divider -->
+  <line x1="96" y1="512" x2="906" y2="512" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Line 4 — mongodb -->
+  <text x="132" y="528" font-family="'Courier New',monospace" font-size="11" fill="#86efac">"mongodb"</text>
+  <text x="204" y="528" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">: {</text>
+  <text x="233" y="528" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"command"</text>
+  <text x="313" y="528" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">:</text>
+  <text x="322" y="528" font-family="'Courier New',monospace" font-size="11" fill="#fbbf24">"npx"</text>
+  <text x="356" y="528" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">,</text>
+  <text x="364" y="528" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"args"</text>
+  <text x="404" y="528" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">:</text>
+  <text x="412" y="528" font-family="'Courier New',monospace" font-size="11" fill="#fbbf24">["@mcp-server-mongodb"]</text>
+  <text x="560" y="528" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">,</text>
+  <text x="568" y="528" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"env"</text>
+  <text x="600" y="528" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">: {</text>
+  <text x="620" y="528" font-family="'Courier New',monospace" font-size="11" fill="#7dd3fc">"MONGO_DEV_URI"</text>
+  <text x="726" y="528" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">:</text>
+  <text x="734" y="528" font-family="'Courier New',monospace" font-size="11" fill="#fbbf24">"$MONGO_DEV_URI"</text>
+  <text x="842" y="528" font-family="'Courier New',monospace" font-size="11" fill="#e2e8f0">} }</text>
+
+  <!-- Line 5 — closing -->
+  <text x="100" y="544" font-family="'Courier New',monospace" font-size="11" fill="#94a3b8">} }</text>
+
+  <!-- Syntax highlight bar on left edge -->
+  <rect x="80" y="470" width="4" height="112" rx="2" fill="#3b82f6" opacity=".6"/>
+</g>
+
+<!-- Secure footnote -->
+<g class="step-item" data-step="8">
+  <text x="600" y="606" text-anchor="middle" font-size="13" fill="#475569">🔒 Secure connection via MCP protocol</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- DECORATIVE: thin connecting line from code block    -->
+<!-- to title area (right side label)                    -->
+<!-- ═══════════════════════════════════════════════════ -->
+<g class="step-item" data-step="8">
+  <!-- Label callout for code block -->
+  <rect x="860" y="452" width="170" height="48" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="945" y="470" text-anchor="middle" font-size="11" font-weight="600" fill="#1e40af">Configuration</text>
+  <text x="945" y="486" text-anchor="middle" font-size="10" fill="#3b82f6">All MCP servers registered</text>
+  <text x="945" y="498" text-anchor="middle" font-size="10" fill="#3b82f6">in one settings file</text>
+  <line x1="860" y1="476" x2="920" y2="476" stroke="#93c5fd" stroke-width="1" stroke-dasharray="3 2"/>
+</g>
+
+</svg>
+</div>
+
+<div id="progress-bar"></div>
+<div id="step-counter">STEP 0 / 8</div>
+<div id="click-hint">
+  <span class="key">CLICK</span> or <span class="key">SPACE</span> to advance &nbsp;·&nbsp;
+  <span class="key">Home</span> reset &nbsp;·&nbsp;
+  <span class="key">End</span> jump to last
+</div>
+
+<script>
+const TOTAL = 8;
+let step = -1;
+function buildDots() {
+  const bar = document.getElementById('progress-bar');
+  for (let i = 0; i <= TOTAL; i++) { const d=document.createElement('div'); d.className='dot'; d.id='dot-'+i; bar.appendChild(d); }
+}
+function nextStep() {
+  if (step >= TOTAL) return; step++;
+  document.querySelectorAll('[data-step]').forEach(el => { if (parseInt(el.dataset.step) <= step) el.classList.add('visible'); });
+  if (step >= 1) { document.getElementById('ai-glow')?.classList.add('active'); document.getElementById('ai-ring')?.classList.add('active'); }
+  for (let i = 0; i <= TOTAL; i++) { const d=document.getElementById('dot-'+i); if(d) d.className='dot'+(i<step?' done':i===step?' active':''); }
+  document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
+}
+document.addEventListener('keydown', e => {
+  if (e.key===' '||e.key==='ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key==='Home') location.reload();
+  if (e.key==='End') { while(step<TOTAL) nextStep(); }
+});
+buildDots(); nextStep();
+</script>
+</body>
+</html>
