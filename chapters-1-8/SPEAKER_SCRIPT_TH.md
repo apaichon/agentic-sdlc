@@ -130,6 +130,12 @@
 
 **Speaker script:** ทุก sprint เราเรียก /sprint-plan เพื่อทำ 6 ขั้นตอนซ้ำได้ครับ อ่าน PRD และ stories, analyze complexity, estimate points, build dependencies, allocate to sprint แล้ว output เป็น MD และ JSON จากนั้น PM review และ refine ก่อน sprint execution พอจบ sprint ก็เอาข้อมูลกลับเข้า retrospective จุดสำคัญคือ planning กลายเป็น workflow ที่ reusable ไม่ใช่งาน manual ที่แต่ละครั้งทำไม่เหมือนกัน
 
+### 4.C Prompt Engineering Frameworks Cheatsheet
+
+**Key message:** Prompt framework ต้องเลือกให้เหมาะกับงาน: งานสั้นใช้ RTF หรือ TAG, งานซับซ้อนใช้ RISEN, SCOPE, RAG หรือ Reflexion
+
+**Speaker script:** Cheatsheet นี้เป็นตัวช่วยเลือก prompt framework ครับ ด้านซ้ายคือ universal prompt formula ที่ควรมี Role, Task, Context, Requirements, Format และ Tone/Style ส่วนตารางด้านขวาช่วยเลือก framework ให้เหมาะกับงาน เช่น RTF สำหรับ prompt ง่าย ๆ, TAG สำหรับ quick instruction, RISEN สำหรับ step-by-step task execution, Few-shot สำหรับ style matching, ReAct สำหรับงานที่ต้อง reasoning และใช้ tools, และ RAG สำหรับตอบจาก documents หรือ sources ประเด็นสำคัญคืออย่าใช้ framework เดียวกับทุกงาน ให้เลือกตาม complexity, context, constraints และ expected output
+
 ## Chapter 5
 
 ### 5.1 RabbitMQ Fanout Exchange Topology

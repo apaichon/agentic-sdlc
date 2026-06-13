@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering Frameworks Cheatsheet</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #071642;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.sheet {
+  width: min(1180px, 100%);
+  min-height: 660px;
+  background: #f8fafc;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0,0,0,.34);
+  border: 1px solid rgba(255,255,255,.28);
+}
+.hero {
+  background: linear-gradient(135deg, #06133b 0%, #102a6b 56%, #0b1b49 100%);
+  color: white;
+  text-align: center;
+  padding: 18px 24px 20px;
+  position: relative;
+}
+.hero h1 {
+  margin: 0;
+  font-size: clamp(34px, 4.3vw, 56px);
+  line-height: 1;
+  letter-spacing: 1px;
+  font-weight: 950;
+}
+.hero strong {
+  display: inline-block;
+  color: #facc15;
+}
+.hero p {
+  margin: 8px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #e0f2fe;
+}
+.hero .icon {
+  position: absolute;
+  top: 24px;
+  width: 62px;
+  height: 62px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  background: rgba(147,197,253,.18);
+  border: 1px solid rgba(147,197,253,.35);
+}
+.hero .left { left: 24px; }
+.hero .right { right: 24px; }
+.top-grid {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 10px;
+  padding: 10px 14px 8px;
+}
+.panel {
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: white;
+  overflow: hidden;
+}
+.panel-title {
+  padding: 7px 14px;
+  color: white;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: .2px;
+}
+.blue { background: linear-gradient(90deg, #1d4ed8, #2563eb); }
+.green { background: linear-gradient(90deg, #15803d, #16a34a); }
+.purple { background: linear-gradient(90deg, #5b21b6, #7c3aed); }
+.formula-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 170px;
+  gap: 10px;
+  min-height: 69px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #dbeafe;
+  align-items: center;
+}
+.formula-row:last-child { border-bottom: none; }
+.f-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 3px solid currentColor;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 22px;
+}
+.formula-row h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.1;
+}
+.formula-row p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  font-weight: 650;
+}
+.snippet {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: #0f172a;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 7px;
+}
+.role { color: #2563eb; }
+.task { color: #15803d; }
+.context { color: #ea580c; }
+.requirements { color: #7c3aed; }
+.format { color: #db2777; }
+.tone { color: #0f8993; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  background: #fefce8;
+  color: #111827;
+  padding: 7px 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+td {
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  vertical-align: top;
+  font-weight: 650;
+}
+.badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: white;
+  display: inline-grid;
+  place-items: center;
+  font-weight: 900;
+}
+.details {
+  padding: 0 14px 14px;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.card {
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  padding: 8px;
+  min-height: 150px;
+}
+.card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.card p, .card li {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 650;
+}
+.card ul {
+  margin: 3px 0 8px 18px;
+  padding: 0;
+}
+.wide { grid-column: span 2; }
+.tips {
+  grid-column: span 3;
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+.footer {
+  background: #071642;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.gold { color: #facc15; }
+@media (max-width: 900px) {
+  body { align-items: flex-start; padding: 0; }
+  .sheet { border-radius: 0; }
+  .top-grid { grid-template-columns: 1fr; }
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .wide, .tips { grid-column: span 2; }
+  .formula-row { grid-template-columns: 48px 1fr; }
+  .snippet { grid-column: 2; }
+  .hero .icon { display: none; }
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+  <section class="hero">
+    <div class="icon left">💬</div>
+    <div class="icon right">🧠</div>
+    <h1>PROMPT ENGINEERING FRAMEWORKS <strong>CHEATSHEET</strong></h1>
+    <p>Use the right framework to get better, clearer, and more accurate AI responses.</p>
+  </section>
+
+  <section class="top-grid">
+    <div class="panel">
+      <div class="panel-title blue">UNIVERSAL PROMPT FORMULA</div>
+      <div class="formula-row role"><div class="f-icon">R</div><div><h3>ROLE</h3><p>Who the AI should act as.</p></div><div class="snippet">Act as a ...</div></div>
+      <div class="formula-row task"><div class="f-icon">T</div><div><h3>TASK</h3><p>What you want the AI to do.</p></div><div class="snippet">Your task is to ...</div></div>
+      <div class="formula-row context"><div class="f-icon">C</div><div><h3>CONTEXT</h3><p>Background information.</p></div><div class="snippet">Use this context ...</div></div>
+      <div class="formula-row requirements"><div class="f-icon">R</div><div><h3>REQUIREMENTS</h3><p>Rules, constraints, or important points.</p></div><div class="snippet">Follow these requirements ...</div></div>
+      <div class="formula-row format"><div class="f-icon">F</div><div><h3>FORMAT</h3><p>How the output should be structured.</p></div><div class="snippet">Format the answer as ...</div></div>
+      <div class="formula-row tone"><div class="f-icon">S</div><div><h3>TONE / STYLE</h3><p>The tone or style of the response.</p></div><div class="snippet">Tone / style: ...</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title green">QUICK FRAMEWORK REFERENCE</div>
+      <table>
+        <thead><tr><th>#</th><th>Framework</th><th>Stands For</th><th>Best Used For</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge" style="background:#2563eb">1</span></td><td>RTF</td><td>Role, Task, Format</td><td>Simple everyday prompts</td></tr>
+          <tr><td><span class="badge" style="background:#16a34a">2</span></td><td>TAG</td><td>Task, Action, Goal</td><td>Quick instructions</td></tr>
+          <tr><td><span class="badge" style="background:#f97316">3</span></td><td>CO-STAR</td><td>Context, Objective, Style, Tone, Audience, Response</td><td>Writing and marketing</td></tr>
+          <tr><td><span class="badge" style="background:#8b5cf6">4</span></td><td>CLEAR</td><td>Context, Length, Examples, Audience, Role</td><td>Schoolwork and explanations</td></tr>
+          <tr><td><span class="badge" style="background:#ec4899">5</span></td><td>RACE</td><td>Role, Action, Context, Expectation</td><td>Professional tasks</td></tr>
+          <tr><td><span class="badge" style="background:#4f46e5">6</span></td><td>RISEN</td><td>Role, Instructions, Steps, End Goal, Narrowing</td><td>Step-by-step execution</td></tr>
+          <tr><td><span class="badge" style="background:#0f8993">7</span></td><td>SCOPE</td><td>Situation, Constraints, Objective, Persona, Expected Output</td><td>Complex work with limits</td></tr>
+          <tr><td><span class="badge" style="background:#f97316">8</span></td><td>APE</td><td>Action, Purpose, Expectation</td><td>Fast productivity prompts</td></tr>
+          <tr><td><span class="badge" style="background:#5b8c3a">9</span></td><td>CARE</td><td>Context, Action, Result, Example</td><td>Teaching and editing</td></tr>
+          <tr><td><span class="badge" style="background:#db2777">10</span></td><td>FEW-SHOT</td><td>Give examples before the task</td><td>Style matching</td></tr>
+          <tr><td><span class="badge" style="background:#1d4ed8">11</span></td><td>ZERO-SHOT</td><td>Ask directly without examples</td><td>Simple questions</td></tr>
+          <tr><td><span class="badge" style="background:#059669">12</span></td><td>ReAct</td><td>Reasoning + Acting</td><td>Research and tools</td></tr>
+          <tr><td><span class="badge" style="background:#7c3aed">13</span></td><td>REFLEXION</td><td>Draft, critique, improve</td><td>Editing and improving work</td></tr>
+          <tr><td><span class="badge" style="background:#92400e">14</span></td><td>RAG</td><td>Retrieval-Augmented Generation</td><td>Answering from documents</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="details">
+    <div class="panel-title purple">FRAMEWORK DETAILS &amp; EXAMPLES</div>
+    <div class="cards">
+      <div class="card"><h3><span class="badge" style="background:#2563eb">1</span>RTF</h3><p><b>Structure:</b></p><ul><li>Role</li><li>Task</li><li>Format</li></ul><p><b>Example:</b> Act as an English tutor. Explain active vs passive voice as a table.</p></div>
+      <div class="card"><h3><span class="badge" style="background:#16a34a">2</span>TAG</h3><p><b>Structure:</b></p><ul><li>Task</li><li>Action</li><li>Goal</li></ul><p><b>Example:</b> Task: Summarize. Action: Highlight 5 points. Goal: Understand quickly.</p></div>
+      <div class="card"><h3><span class="badge" style="background:#f97316">3</span>CO-STAR</h3><p><b>Structure:</b></p><ul><li>Context</li><li>Objective</li><li>Style</li><li>Tone</li><li>Audience</li><li>Response</li></ul></div>
+      <div class="card"><h3><span class="badge" style="background:#8b5cf6">4</span>CLEAR</h3><p><b>Structure:</b></p><ul><li>Context</li><li>Length</li><li>Examples</li><li>Audience</li><li>Role</li></ul></div>
+      <div class="card"><h3><span class="badge" style="background:#ec4899">5</span>RACE</h3><p><b>Structure:</b></p><ul><li>Role</li><li>Action</li><li>Context</li><li>Expectation</li></ul><p><b>Example:</b> You are a history tutor. Explain causes of World War I.</p></div>
+      <div class="card"><h3><span class="badge" style="background:#4f46e5">6</span>RISEN</h3><p><b>Structure:</b></p><ul><li>Role</li><li>Instructions</li><li>Steps</li><li>End Goal</li><li>Narrowing</li></ul></div>
+      <div class="card"><h3><span class="badge" style="background:#0f8993">7</span>SCOPE</h3><p><b>Structure:</b></p><ul><li>Situation</li><li>Constraints</li><li>Objective</li><li>Persona</li><li>Expected Output</li></ul></div>
+      <div class="card"><h3><span class="badge" style="background:#f97316">8</span>APE</h3><p><b>Structure:</b></p><ul><li>Action</li><li>Purpose</li><li>Expectation</li></ul><p><b>Example:</b> Create a revision checklist for a math exam.</p></div>
+      <div class="card"><h3><span class="badge" style="background:#5b8c3a">9</span>CARE</h3><p><b>Structure:</b></p><ul><li>Context</li><li>Action</li><li>Result</li><li>Example</li></ul><p><b>Example:</b> Proofread this paragraph and explain fixes.</p></div>
+      <div class="card"><h3><span class="badge" style="background:#db2777">10</span>FEW-SHOT</h3><p><b>Structure:</b></p><ul><li>Example input</li><li>Example output</li><li>New task</li></ul><p><b>Use:</b> Style matching and classification.</p></div>
+      <div class="card"><h3><span class="badge" style="background:#1d4ed8">11</span>ZERO-SHOT</h3><p><b>Structure:</b></p><ul><li>Ask directly without examples</li></ul><p><b>Example:</b> Explain gravity using one simple example.</p></div>
+      <div class="card"><h3><span class="badge" style="background:#059669">12</span>ReAct</h3><p><b>Structure:</b></p><ul><li>Reasoning</li><li>Acting</li></ul><p><b>Use:</b> Research, tools, and problem solving.</p></div>
+      <div class="card wide"><h3><span class="badge" style="background:#7c3aed">13</span>REFLEXION</h3><p><b>Structure:</b> Draft → Critique → Improve</p><p><b>Example:</b> Write a paragraph, critique it, then rewrite it better.</p></div>
+      <div class="card wide"><h3><span class="badge" style="background:#92400e">14</span>RAG</h3><p><b>Structure:</b> Use provided documents as context.</p><p><b>Example:</b> Answer only from the notes below. Do not add outside information.</p></div>
+      <div class="card tips"><h3>TIPS FOR BETTER PROMPTS</h3><ul><li>Be clear and specific.</li><li>Provide enough context.</li><li>Set constraints and rules.</li><li>Choose the right format.</li><li>Iterate and improve your prompt.</li></ul></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span><span class="gold">★</span> A good prompt = clear instructions + relevant context + desired output</span>
+    <span class="gold">BETTER PROMPTS → BETTER RESULTS</span>
+  </footer>
+</main>
+</body>
+</html>

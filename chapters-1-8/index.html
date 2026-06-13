@@ -161,8 +161,8 @@ body { font-family:system-ui,-apple-system,sans-serif; background:#0f172a; color
   <div id="nav-controls">
     <button id="btn-first" title="First page">&#8676;</button>
     <button id="btn-prev" title="Previous (← key)">&#8592;</button>
-    <input id="page-input" type="number" min="1" max="42" value="1" title="Jump to page">
-    <span id="page-total">/ 42</span>
+    <input id="page-input" type="number" min="1" max="43" value="1" title="Jump to page">
+    <span id="page-total">/ 43</span>
     <button id="btn-next" title="Next (→ key)">&#8594;</button>
     <button id="btn-last" title="Last page">&#8677;</button>
   </div>
@@ -222,6 +222,7 @@ const PAGES = [
   { ch:4, chTitle:"Ch 4: Prompt Engineering",page:20, fig:"4.3", title:"User Story Anatomy",                    file:"chapter-4-figure-4-3-user-story-anatomy-white-theme.html" },
   { ch:4, chTitle:"Ch 4: Prompt Engineering",page:21, fig:"4.4", title:"Sprint Backlog Dependency Graph",       file:"chapter-4-figure-4-4-sprint-backlog-dependency-graph-white-theme.html" },
   { ch:4, chTitle:"Ch 4: Prompt Engineering",page:22, fig:"4.5", title:"/sprint-plan Skill Cycle",              file:"chapter-4-figure-4-5-sprint-plan-skill-cycle-white-theme.html" },
+  { ch:4, chTitle:"Ch 4: Prompt Engineering",page:23, fig:"4.C", title:"Prompt Engineering Frameworks Cheatsheet", file:"chapter-4-prompt-engineering-frameworks-cheatsheet.html" },
   // Chapter 5 — Messaging Architecture
   { ch:5, chTitle:"Ch 5: Messaging Architecture",page:23, fig:"5.1", title:"RabbitMQ Fanout Exchange Topology", file:"chapter-5-figure-5-1-rabbitmq-fanout-exchange-topology-animated.html" },
   { ch:5, chTitle:"Ch 5: Messaging Architecture",page:24, fig:"5.2", title:"MongoDB Unified Message Schema",    file:"chapter-5-figure-5-2-mongodb-unified-message-schema-animated.html" },
@@ -248,6 +249,7 @@ const PAGES = [
   { ch:8, chTitle:"Ch 8: Parallel Execution", page:42, fig:"8.5", title:"Parallel PR & CI Timeline",           file:"chapter-8/05-parallel-pr-ci-timeline.html" },
 ];
 
+PAGES.forEach((p, i) => { p.page = i + 1; });
 const TOTAL_PAGES = PAGES.length;
 let currentPage = 1;
 

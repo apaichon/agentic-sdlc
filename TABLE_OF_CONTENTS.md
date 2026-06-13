@@ -1,17 +1,17 @@
 # AI Agentic SDLC — Course Table of Contents
 
-**15 chapters · 81 figures** across two viewer apps.
+**15 chapters · 82 figures** across two viewer apps.
 
 ---
 
-## Part 1: Foundations — Chapters 1–8 (42 figures)
+## Part 1: Foundations — Chapters 1–8 (43 figures)
 
 | Ch | Topic | Figures |
 |----|-------|---------|
 | **1** | **AI-Augmented SDLC** | 1.1 Traditional vs Agentic SDLC · 1.2 Agentic Team Roles · 1.3 Chat & SMS Architecture · 1.4 Agentic Development Principles · 1.5 WhatsApp Adapter Timeline |
 | **2** | **Claude Code Setup** | 2.1 Permission Modes Spectrum · 2.2 CLAUDE.md as AI Constitution · 2.3 Role File Inheritance Model · 2.4 MCP Server Ecosystem · 2.5 Workspace Setup Checklist |
 | **3** | **Hooks & Skills** | 3.1 Hook Lifecycle Sequence · 3.2 PreToolUse Decision Tree · 3.3 Skills Library · 3.4 Subagent Architecture · 3.5 Settings Control Plane · 3.H Claude Code 101 Handbook · 3.C Cheat Sheet |
-| **4** | **Prompt Engineering** | 4.1 RISEN Prompting Framework · 4.2 Three-Phase PRD Generation Workflow · 4.3 User Story Anatomy · 4.4 Sprint Backlog Dependency Graph · 4.5 /sprint-plan Skill Cycle |
+| **4** | **Prompt Engineering** | 4.1 RISEN Prompting Framework · 4.2 Three-Phase PRD Generation Workflow · 4.3 User Story Anatomy · 4.4 Sprint Backlog Dependency Graph · 4.5 /sprint-plan Skill Cycle · 4.C Prompt Engineering Frameworks Cheatsheet |
 | **5** | **Messaging Architecture** | 5.1 RabbitMQ Fanout Exchange Topology · 5.2 MongoDB Unified Message Schema · 5.3 Redis Dual-Role Caching Architecture · 5.4 ClickHouse Analytics Pipeline · 5.5 ADR Structure and Decision Map |
 | **6** | **TDD & Clean Architecture** | 6.1 Clean Architecture Three-Layer Pattern · 6.2 TDD-First Development Cycle · 6.3 Five Channel Adapters · 6.4 SMS Gateway Failover Circuit Breaker · 6.5 Complete Dev Workflow Pipeline |
 | **7** | **Testing Strategy** | 7.1 AI-Adjusted Testing Pyramid · 7.2 Test Strategy Risk Matrix · 7.3 PostToolUse Auto-Test Feedback Loop · 7.4 Integration Test Infrastructure · 7.5 Contract Test Adapter Interface |
