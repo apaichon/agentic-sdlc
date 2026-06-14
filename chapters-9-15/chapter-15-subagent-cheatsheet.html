@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 15 — Sub-Agent Cheatsheet</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#f0f2f5;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;user-select:none}
+.container{width:1200px;height:700px;cursor:pointer}
+svg{width:100%;height:100%;display:block;background:#fbfcff}
+.step-item{opacity:0;transform:translateY(14px) scale(.98);transform-origin:50% 50%;transform-box:fill-box;transition:opacity .42s ease,transform .42s ease}
+.step-item.visible{opacity:1;transform:translateY(0) scale(1)}
+.dot{width:8px;height:8px;border-radius:50%;background:#d8e0ec;transition:.25s}
+.dot.done{background:#0e7490}
+.dot.active{background:#2563eb;transform:scale(1.45)}
+#progress{display:flex;gap:8px;margin-top:10px}
+#counter{font-size:12px;color:#8491a7;margin-top:6px;letter-spacing:.08em}
+#hint{margin-top:12px;font-size:13px;color:#64748b;display:flex;gap:8px}
+.key{border:1px solid #cbd5e1;background:#e2e8f0;border-radius:6px;padding:2px 9px;font-size:12px}
+.title{font-size:28px;font-weight:900;fill:#10203f}
+.subtitle{font-size:14px;fill:#526078}
+.card-title{font-size:14px;font-weight:900;fill:#10203f}
+.label{font-size:10px;font-weight:900;letter-spacing:.06em;fill:#64748b}
+.body{font-size:12px;fill:#10203f}
+.chip{font-size:10px;font-weight:900;fill:#fff}
+.agent{font-size:11px;font-weight:900;fill:#fff}
+.skill{font-family:"SFMono-Regular","Cascadia Code","Liberation Mono",Menlo,monospace;font-size:11px;fill:#0f172a}
+.mono{font-family:"SFMono-Regular","Cascadia Code","Liberation Mono",Menlo,monospace;font-size:11.5px;fill:#0f172a}
+.pop.visible{animation:pop .55s ease both}
+@keyframes pop{0%{transform:translateY(10px) scale(.94)}70%{transform:translateY(0) scale(1.02)}100%{transform:translateY(0) scale(1)}}
+</style></head><body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#e8ecf3"/></pattern>
+  <filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#26324a25"/></filter>
+</defs>
+<rect width="1200" height="700" fill="url(#grid)"/>
+
+<!-- Step 0: Header -->
+<g class="step-item" data-step="0">
+  <text x="600" y="36" text-anchor="middle" class="title">Sub-Agent Cheatsheet</text>
+  <text x="600" y="58" text-anchor="middle" class="subtitle">8 roles · signature skills · prompt template · red flags</text>
+</g>
+
+<!-- Step 1: 8-Agent Roster Grid (4x2) -->
+<g class="step-item pop" data-step="1">
+  <!-- Row 1 -->
+  <g transform="translate(36,80)">
+    <rect width="280" height="118" rx="8" fill="#fff" stroke="#16a34a" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="280" height="32" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+    <rect x="0" y="22" width="280" height="10" fill="#dcfce7"/>
+    <circle cx="22" cy="16" r="12" fill="#16a34a"/><text x="22" y="20" text-anchor="middle" class="chip">PM</text>
+    <text x="44" y="20" class="card-title">PM Agent</text>
+    <text x="10" y="50" class="label">USE WHEN</text>
+    <text x="10" y="66" class="body">PRD · story · sprint plan</text>
+    <text x="10" y="84" class="label">SKILLS</text>
+    <text x="10" y="100" class="skill">prd-generator · sprint-plan</text>
+  </g>
+  <g transform="translate(326,80)">
+    <rect width="280" height="118" rx="8" fill="#fff" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="280" height="32" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+    <rect x="0" y="22" width="280" height="10" fill="#dbeafe"/>
+    <circle cx="22" cy="16" r="12" fill="#2563eb"/><text x="22" y="20" text-anchor="middle" class="chip">AR</text>
+    <text x="44" y="20" class="card-title">Architect Agent</text>
+    <text x="10" y="50" class="label">USE WHEN</text>
+    <text x="10" y="66" class="body">design · boundary · ADR</text>
+    <text x="10" y="84" class="label">SKILLS</text>
+    <text x="10" y="100" class="skill">clean-architecture · adr-writer</text>
+  </g>
+  <g transform="translate(616,80)">
+    <rect width="280" height="118" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="280" height="32" rx="8" fill="#ede9fe" stroke="#7c3aed"/>
+    <rect x="0" y="22" width="280" height="10" fill="#ede9fe"/>
+    <circle cx="22" cy="16" r="12" fill="#7c3aed"/><text x="22" y="20" text-anchor="middle" class="chip">DE</text>
+    <text x="44" y="20" class="card-title">Developer Agent</text>
+    <text x="10" y="50" class="label">USE WHEN</text>
+    <text x="10" y="66" class="body">implement · refactor · wire DI</text>
+    <text x="10" y="84" class="label">SKILLS</text>
+    <text x="10" y="100" class="skill">tdd · dependency-injection</text>
+  </g>
+  <g transform="translate(906,80)">
+    <rect width="258" height="118" rx="8" fill="#fff" stroke="#dc2626" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="258" height="32" rx="8" fill="#fee2e2" stroke="#dc2626"/>
+    <rect x="0" y="22" width="258" height="10" fill="#fee2e2"/>
+    <circle cx="22" cy="16" r="12" fill="#dc2626"/><text x="22" y="20" text-anchor="middle" class="chip">RV</text>
+    <text x="44" y="20" class="card-title">Reviewer Agent</text>
+    <text x="10" y="50" class="label">USE WHEN</text>
+    <text x="10" y="66" class="body">PR review · code smell · risk</text>
+    <text x="10" y="84" class="label">SKILLS</text>
+    <text x="10" y="100" class="skill">code-review · silent-failure</text>
+  </g>
+
+  <!-- Row 2 -->
+  <g transform="translate(36,208)">
+    <rect width="280" height="118" rx="8" fill="#fff" stroke="#0891b2" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="280" height="32" rx="8" fill="#cffafe" stroke="#0891b2"/>
+    <rect x="0" y="22" width="280" height="10" fill="#cffafe"/>
+    <circle cx="22" cy="16" r="12" fill="#0891b2"/><text x="22" y="20" text-anchor="middle" class="chip">QA</text>
+    <text x="44" y="20" class="card-title">QA Agent</text>
+    <text x="10" y="50" class="label">USE WHEN</text>
+    <text x="10" y="66" class="body">test plan · contract · pyramid</text>
+    <text x="10" y="84" class="label">SKILLS</text>
+    <text x="10" y="100" class="skill">test-scenarios · pr-test-analyzer</text>
+  </g>
+  <g transform="translate(326,208)">
+    <rect width="280" height="118" rx="8" fill="#fff" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="280" height="32" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
+    <rect x="0" y="22" width="280" height="10" fill="#fef3c7"/>
+    <circle cx="22" cy="16" r="12" fill="#f59e0b"/><text x="22" y="20" text-anchor="middle" class="chip">SR</text>
+    <text x="44" y="20" class="card-title">SRE Agent</text>
+    <text x="10" y="50" class="label">USE WHEN</text>
+    <text x="10" y="66" class="body">deploy · CI/CD · observability</text>
+    <text x="10" y="84" class="label">SKILLS</text>
+    <text x="10" y="100" class="skill">blue-green · golden-signals</text>
+  </g>
+  <g transform="translate(616,208)">
+    <rect width="280" height="118" rx="8" fill="#fff" stroke="#0e7490" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="280" height="32" rx="8" fill="#cffafe" stroke="#0e7490"/>
+    <rect x="0" y="22" width="280" height="10" fill="#cffafe"/>
+    <circle cx="22" cy="16" r="12" fill="#0e7490"/><text x="22" y="20" text-anchor="middle" class="chip">DS</text>
+    <text x="44" y="20" class="card-title">Designer Agent</text>
+    <text x="10" y="50" class="label">USE WHEN</text>
+    <text x="10" y="66" class="body">UI · UX · component spec</text>
+    <text x="10" y="84" class="label">SKILLS</text>
+    <text x="10" y="100" class="skill">frontend-design · figma-spec</text>
+  </g>
+  <g transform="translate(906,208)">
+    <rect width="258" height="118" rx="8" fill="#fff" stroke="#475569" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="258" height="32" rx="8" fill="#e2e8f0" stroke="#475569"/>
+    <rect x="0" y="22" width="258" height="10" fill="#e2e8f0"/>
+    <circle cx="22" cy="16" r="12" fill="#475569"/><text x="22" y="20" text-anchor="middle" class="chip">DW</text>
+    <text x="44" y="20" class="card-title">Docs Writer</text>
+    <text x="10" y="50" class="label">USE WHEN</text>
+    <text x="10" y="66" class="body">README · runbook · changelog</text>
+    <text x="10" y="84" class="label">SKILLS</text>
+    <text x="10" y="100" class="skill">writing-clearly · comment-analyzer</text>
+  </g>
+</g>
+
+<!-- Step 2: Prompt Template -->
+<g class="step-item pop" data-step="2">
+  <g transform="translate(36,344)">
+    <rect width="560" height="240" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="560" height="36" rx="10" fill="#1e293b" stroke="#334155"/>
+    <text x="20" y="24" font-size="13" font-weight="900" fill="#67e8f9">⌨  PROMPT TEMPLATE — copy &amp; fill</text>
+    <text x="20" y="62" class="mono" fill="#e2e8f0">Agent({</text>
+    <text x="40" y="80" class="mono" fill="#94a3b8">description: </text>
+    <text x="135" y="80" class="mono" fill="#fde047">"&lt;3-5 word task&gt;",</text>
+    <text x="40" y="98" class="mono" fill="#94a3b8">subagent_type: </text>
+    <text x="148" y="98" class="mono" fill="#fde047">"Explore" | "Plan" | "...",</text>
+    <text x="40" y="116" class="mono" fill="#94a3b8">prompt: `</text>
+    <text x="40" y="134" class="mono" fill="#86efac">  GOAL: &lt;1-line outcome&gt;</text>
+    <text x="40" y="152" class="mono" fill="#86efac">  CONTEXT: &lt;what's been tried, constraints&gt;</text>
+    <text x="40" y="170" class="mono" fill="#86efac">  SCOPE: &lt;files/modules in-bounds&gt;</text>
+    <text x="40" y="188" class="mono" fill="#86efac">  DELIVERABLE: &lt;report | diff | data&gt;</text>
+    <text x="40" y="206" class="mono" fill="#86efac">  BUDGET: &lt;~200 words | depth tier&gt;</text>
+    <text x="40" y="224" class="mono" fill="#e2e8f0">`</text>
+    <text x="20" y="224" class="mono" fill="#e2e8f0">})</text>
+  </g>
+
+  <g transform="translate(616,344)">
+    <rect width="548" height="240" rx="10" fill="#fff" stroke="#0891b2" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="548" height="36" rx="10" fill="#cffafe" stroke="#0891b2"/>
+    <text x="20" y="24" font-size="13" font-weight="900" fill="#0e7490">⚡ QUICK RULES</text>
+    <text x="20" y="62" class="label">FOREGROUND</text>
+    <text x="120" y="62" class="body">ต้องการ result ก่อนทำขั้นต่อ (default)</text>
+    <text x="20" y="84" class="label">BACKGROUND</text>
+    <text x="120" y="84" class="body">มี parallel work อื่นรอ — รับ notification</text>
+    <text x="20" y="106" class="label">PARALLEL</text>
+    <text x="120" y="106" class="body">งานอิสระ → multi Agent calls / 1 message</text>
+    <text x="20" y="128" class="label">SEQUENTIAL</text>
+    <text x="120" y="128" class="body">output ของ A เป็น input ของ B → chain</text>
+    <text x="20" y="150" class="label">WORKTREE</text>
+    <text x="120" y="150" class="body">parallel agents แก้ไฟล์เดียวกัน เท่านั้น</text>
+    <text x="20" y="172" class="label">EXPLORE</text>
+    <text x="120" y="172" class="body">search/grep ใน 3+ ที่ — ใช้ Explore subagent</text>
+    <text x="20" y="194" class="label">PLAN</text>
+    <text x="120" y="194" class="body">implementation strategy → Plan subagent</text>
+    <text x="20" y="216" class="label">REVIEW</text>
+    <text x="120" y="216" class="body">PR / diff → pr-review-toolkit agents</text>
+  </g>
+</g>
+
+<!-- Step 3: Red flags / Footer -->
+<g class="step-item" data-step="3">
+  <g transform="translate(36,598)">
+    <rect width="1128" height="78" rx="10" fill="#7f1d1d" stroke="#dc2626" stroke-width="2" filter="url(#shadow)"/>
+    <text x="20" y="26" font-size="13" font-weight="900" fill="#fecaca">🚩 RED FLAGS — STOP and rewrite the prompt</text>
+    <text x="20" y="48" font-size="12" fill="#fee2e2">✘ "based on findings, fix it" → คุณกำลัง delegate ความเข้าใจ ให้ระบุไฟล์/บรรทัด/สิ่งที่จะแก้</text>
+    <text x="20" y="66" font-size="12" fill="#fee2e2">✘ Prompt เป็น command 1 บรรทัด  ·  ✘ Spawn agent เพื่อ read 1 ไฟล์  ·  ✘ ทำงานซ้ำกับ agent ที่ delegate ไปแล้ว  ·  ✘ Poll/sleep รอ background agent</text>
+  </g>
+</g>
+
+</svg>
+</div>
+<div id="progress"></div><div id="counter"></div>
+<div id="hint"><span class="key">CLICK</span> advance <span class="key">RIGHT CLICK</span> back <span class="key">LEFT/RIGHT</span> step</div>
+<script>
+const TOTAL=3;let step=-1;
+for(let i=0;i<=TOTAL;i++){const d=document.createElement("div");d.className="dot";d.id="dot-"+i;progress.appendChild(d)}
+function render(){document.querySelectorAll("[data-step]").forEach(e=>{parseInt(e.dataset.step)<=step?e.classList.add("visible"):e.classList.remove("visible")});for(let i=0;i<=TOTAL;i++){let d=document.getElementById("dot-"+i);d.className="dot"+(i<step?" done":i===step?" active":"")}counter.textContent=`STEP ${step} / ${TOTAL}`}
+function nextStep(){if(step<TOTAL){step++;render()}}
+function prevStep(){if(step>0){step--;render()}}
+document.addEventListener("keydown",e=>{if(e.key===" "||e.key==="ArrowRight"){e.preventDefault();nextStep()}if(e.key==="ArrowLeft"){e.preventDefault();prevStep()}if(e.key==="Home"){step=0;render()}if(e.key==="End"){step=TOTAL;render()}});
+slide.addEventListener("contextmenu",e=>{e.preventDefault();prevStep()});
+if(new URLSearchParams(location.search).has("final")){step=TOTAL;render()}else{nextStep()}
+</script></body></html>

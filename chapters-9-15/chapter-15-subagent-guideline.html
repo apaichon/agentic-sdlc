@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 15 — Sub-Agent Guideline</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#f0f2f5;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;user-select:none}
+.container{width:1200px;height:700px;cursor:pointer}
+svg{width:100%;height:100%;display:block;background:#fbfcff}
+.step-item{opacity:0;transform:translateY(14px) scale(.98);transform-origin:50% 50%;transform-box:fill-box;transition:opacity .42s ease,transform .42s ease}
+.step-item.visible{opacity:1;transform:translateY(0) scale(1)}
+.dot{width:8px;height:8px;border-radius:50%;background:#d8e0ec;transition:.25s}
+.dot.done{background:#0e7490}
+.dot.active{background:#2563eb;transform:scale(1.45)}
+#progress{display:flex;gap:8px;margin-top:10px}
+#counter{font-size:12px;color:#8491a7;margin-top:6px;letter-spacing:.08em}
+#hint{margin-top:12px;font-size:13px;color:#64748b;display:flex;gap:8px}
+.key{border:1px solid #cbd5e1;background:#e2e8f0;border-radius:6px;padding:2px 9px;font-size:12px}
+.title{font-size:30px;font-weight:900;fill:#10203f}
+.subtitle{font-size:15px;fill:#526078}
+.card-title{font-size:17px;font-weight:900;fill:#10203f}
+.label{font-size:11px;font-weight:900;letter-spacing:.08em;fill:#64748b}
+.body{font-size:13.5px;fill:#10203f}
+.answer{font-size:13.5px;font-weight:850;fill:#0f172a}
+.chip{font-size:11px;font-weight:900;fill:#fff}
+.tag{font-size:12px;font-weight:900;fill:#fff}
+.mono{font-family:"SFMono-Regular","Cascadia Code","Liberation Mono",Menlo,monospace;font-size:12px;fill:#0f172a}
+.pop.visible{animation:pop .7s ease both}
+@keyframes pop{0%{transform:translateY(14px) scale(.92)}70%{transform:translateY(0) scale(1.03)}100%{transform:translateY(0) scale(1)}}
+</style></head><body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#e8ecf3"/></pattern>
+  <filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#26324a25"/></filter>
+</defs>
+<rect width="1200" height="700" fill="url(#grid)"/>
+
+<!-- Step 0: Header -->
+<g class="step-item" data-step="0">
+  <text x="600" y="42" text-anchor="middle" class="title">Sub-Agent Guideline</text>
+  <text x="600" y="68" text-anchor="middle" class="subtitle">วิธีตัดสินใจ spawn · เขียน prompt · run · และ avoid pitfalls</text>
+  <rect x="190" y="86" width="820" height="38" rx="19" fill="#ecfeff" stroke="#0891b2"/>
+  <text x="600" y="110" text-anchor="middle" font-size="15" font-weight="900" fill="#0e7490">Sub-agent = isolated context window with its own goal — ใช้เมื่อ work เป็นอิสระและ blast radius ชัดเจน</text>
+</g>
+
+<!-- Step 1: Decision Rule -->
+<g class="step-item pop" data-step="1">
+  <g transform="translate(48,146)">
+    <rect width="540" height="232" rx="10" fill="#fff" stroke="#16a34a" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="540" height="42" rx="10" fill="#dcfce7" stroke="#16a34a"/>
+    <circle cx="28" cy="21" r="15" fill="#16a34a"/>
+    <text x="28" y="26" text-anchor="middle" class="chip">1</text>
+    <text x="55" y="27" class="card-title">When to spawn — กฎตัดสินใจ</text>
+
+    <text x="22" y="68" class="label">SPAWN ถ้า…</text>
+    <text x="22" y="90" class="body">• Task มี clear deliverable + scope ที่อธิบายได้</text>
+    <text x="22" y="110" class="body">• ต้อง search/read หลายไฟล์ (&gt; 3 queries)</text>
+    <text x="22" y="130" class="body">• งานเป็นอิสระจาก task อื่น → fan-out ได้</text>
+    <text x="22" y="150" class="body">• ต้องการ second opinion / adversarial check</text>
+
+    <text x="22" y="180" class="label">DO INLINE ถ้า…</text>
+    <text x="22" y="202" class="body">• รู้ path/symbol อยู่แล้ว → Read/Grep ตรง ๆ</text>
+    <text x="22" y="222" class="body">• Task เล็ก เสี่ยงต่ำ และ reversible</text>
+  </g>
+
+  <g transform="translate(612,146)">
+    <rect width="540" height="232" rx="10" fill="#fff" stroke="#0891b2" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="540" height="42" rx="10" fill="#cffafe" stroke="#0891b2"/>
+    <circle cx="28" cy="21" r="15" fill="#0891b2"/>
+    <text x="28" y="26" text-anchor="middle" class="chip">2</text>
+    <text x="55" y="27" class="card-title">Prompt anatomy — โครงสร้าง 5 ชั้น</text>
+
+    <rect x="22" y="58" width="120" height="22" rx="4" fill="#0e7490"/>
+    <text x="82" y="74" text-anchor="middle" class="tag">GOAL</text>
+    <text x="152" y="74" class="body">สิ่งที่ต้องการให้ agent ทำ (1 ประโยค)</text>
+
+    <rect x="22" y="86" width="120" height="22" rx="4" fill="#0e7490"/>
+    <text x="82" y="102" text-anchor="middle" class="tag">CONTEXT</text>
+    <text x="152" y="102" class="body">ที่มา · constraints · สิ่งที่ลองแล้ว</text>
+
+    <rect x="22" y="114" width="120" height="22" rx="4" fill="#0e7490"/>
+    <text x="82" y="130" text-anchor="middle" class="tag">SCOPE</text>
+    <text x="152" y="130" class="body">ไฟล์/โมดูล/บรรทัด ที่ allow แตะ</text>
+
+    <rect x="22" y="142" width="120" height="22" rx="4" fill="#0e7490"/>
+    <text x="82" y="158" text-anchor="middle" class="tag">DELIVERABLE</text>
+    <text x="152" y="158" class="body">รูปแบบ output (data / diff / report)</text>
+
+    <rect x="22" y="170" width="120" height="22" rx="4" fill="#0e7490"/>
+    <text x="82" y="186" text-anchor="middle" class="tag">BUDGET</text>
+    <text x="152" y="186" class="body">ขอบเขตเวลา / token / depth ของงาน</text>
+
+    <text x="22" y="218" class="label" fill="#dc2626">⚠ Brief the agent like a smart colleague — not a CLI command</text>
+  </g>
+</g>
+
+<!-- Step 2: Isolation & Parallelism -->
+<g class="step-item pop" data-step="2">
+  <g transform="translate(48,392)">
+    <rect width="356" height="218" rx="10" fill="#fff" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="356" height="42" rx="10" fill="#dbeafe" stroke="#2563eb"/>
+    <circle cx="28" cy="21" r="15" fill="#2563eb"/>
+    <text x="28" y="26" text-anchor="middle" class="chip">3</text>
+    <text x="55" y="27" class="card-title">Foreground vs Background</text>
+    <text x="22" y="68" class="label">FOREGROUND (default)</text>
+    <text x="22" y="90" class="body">ต้องการ result ก่อนทำขั้นต่อ —</text>
+    <text x="22" y="108" class="body">research, plan, review</text>
+    <text x="22" y="138" class="label">BACKGROUND</text>
+    <text x="22" y="160" class="body">มีงาน parallel อื่นรอทำ —</text>
+    <text x="22" y="178" class="body">long build, deploy, ralph loop</text>
+    <text x="22" y="200" class="body" fill="#dc2626">⚠ อย่า poll/sleep รอ — harness จะ notify เอง</text>
+  </g>
+
+  <g transform="translate(422,392)">
+    <rect width="356" height="218" rx="10" fill="#fff" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="356" height="42" rx="10" fill="#ede9fe" stroke="#7c3aed"/>
+    <circle cx="28" cy="21" r="15" fill="#7c3aed"/>
+    <text x="28" y="26" text-anchor="middle" class="chip">4</text>
+    <text x="55" y="27" class="card-title">Parallelism rules</text>
+    <text x="22" y="68" class="label">FAN-OUT ขนาน</text>
+    <text x="22" y="90" class="body">งานอิสระ ไม่ shared state →</text>
+    <text x="22" y="108" class="body">หลาย Agent calls ใน message เดียว</text>
+    <text x="22" y="138" class="label">SEQUENTIAL</text>
+    <text x="22" y="160" class="body">ผลของ A เป็น input ของ B →</text>
+    <text x="22" y="178" class="body">รอ A เสร็จก่อนเรียก B</text>
+    <text x="22" y="200" class="body" fill="#dc2626">⚠ Workflow ต้องได้ user opt-in ก่อน</text>
+  </g>
+
+  <g transform="translate(796,392)">
+    <rect width="356" height="218" rx="10" fill="#fff" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="356" height="42" rx="10" fill="#fef3c7" stroke="#f59e0b"/>
+    <circle cx="28" cy="21" r="15" fill="#f59e0b"/>
+    <text x="28" y="26" text-anchor="middle" class="chip">5</text>
+    <text x="55" y="27" class="card-title">Worktree isolation</text>
+    <text x="22" y="68" class="label">เปิดใช้เมื่อ…</text>
+    <text x="22" y="90" class="body">หลาย agent แก้ไฟล์เดียวกัน</text>
+    <text x="22" y="108" class="body">parallel — จะ conflict ถ้าไม่แยก</text>
+    <text x="22" y="138" class="label">COST</text>
+    <text x="22" y="160" class="body">~200–500ms setup + disk ต่อ agent</text>
+    <text x="22" y="178" class="body">หากไม่ mutate ไฟล์ → ไม่ต้องใช้</text>
+    <text x="22" y="200" class="body" fill="#dc2626">⚠ Auto-cleanup ถ้า diff ว่าง</text>
+  </g>
+</g>
+
+<!-- Step 3: Pitfalls / Footer -->
+<g class="step-item" data-step="3">
+  <rect x="48" y="624" width="1104" height="56" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2" filter="url(#shadow)"/>
+  <text x="68" y="650" font-size="12" font-weight="900" letter-spacing=".08em" fill="#94a3b8">PITFALLS</text>
+  <text x="68" y="670" font-size="13" font-weight="700" fill="#f8fafc">✘ Delegating understanding ("based on findings, fix it")  ·  ✘ Terse one-liner prompts  ·  ✘ ทำงานซ้ำกับ agent ที่ spawn ไปแล้ว  ·  ✘ Spawn agent เพื่อ read 1 ไฟล์</text>
+</g>
+
+</svg>
+</div>
+<div id="progress"></div><div id="counter"></div>
+<div id="hint"><span class="key">CLICK</span> advance <span class="key">RIGHT CLICK</span> back <span class="key">LEFT/RIGHT</span> step</div>
+<script>
+const TOTAL=3;let step=-1;
+for(let i=0;i<=TOTAL;i++){const d=document.createElement("div");d.className="dot";d.id="dot-"+i;progress.appendChild(d)}
+function render(){document.querySelectorAll("[data-step]").forEach(e=>{parseInt(e.dataset.step)<=step?e.classList.add("visible"):e.classList.remove("visible")});for(let i=0;i<=TOTAL;i++){let d=document.getElementById("dot-"+i);d.className="dot"+(i<step?" done":i===step?" active":"")}counter.textContent=`STEP ${step} / ${TOTAL}`}
+function nextStep(){if(step<TOTAL){step++;render()}}
+function prevStep(){if(step>0){step--;render()}}
+document.addEventListener("keydown",e=>{if(e.key===" "||e.key==="ArrowRight"){e.preventDefault();nextStep()}if(e.key==="ArrowLeft"){e.preventDefault();prevStep()}if(e.key==="Home"){step=0;render()}if(e.key==="End"){step=TOTAL;render()}});
+slide.addEventListener("contextmenu",e=>{e.preventDefault();prevStep()});
+if(new URLSearchParams(location.search).has("final")){step=TOTAL;render()}else{nextStep()}
+</script></body></html>

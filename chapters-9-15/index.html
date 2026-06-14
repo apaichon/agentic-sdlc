@@ -149,8 +149,8 @@ body { font-family:system-ui,-apple-system,sans-serif; background:#0f172a; color
   <div id="nav-controls">
     <button id="btn-first" title="First page">&#8676;</button>
     <button id="btn-prev" title="Previous (← key)">&#8592;</button>
-    <input id="page-input" type="number" min="1" max="39" value="1" title="Jump to page">
-    <span id="page-total">/ 39</span>
+    <input id="page-input" type="number" min="1" max="47" value="1" title="Jump to page">
+    <span id="page-total">/ 47</span>
     <button id="btn-next" title="Next (→ key)">&#8594;</button>
     <button id="btn-last" title="Last page">&#8677;</button>
   </div>
@@ -186,34 +186,42 @@ const PAGES = [
   { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:3,  fig:"9.3", title:"Multi-Stage Docker Build",             file:"chapter-9/03-multi-stage-docker-build.html" },
   { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:4,  fig:"9.4", title:"Blue-Green Deployment Switch",         file:"chapter-9/04-blue-green-deployment-switch.html" },
   { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:5,  fig:"9.5", title:"Deploy Production Workflow",           file:"chapter-9/05-deploy-production-workflow.html" },
+  { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:6,  fig:"9.P", title:"Practice Prompts for All Figures",     file:"chapter-9/06-practice-prompts.html" },
+  { ch:9,  chTitle:"Ch 9: CI/CD & Deployment",    page:7,  fig:"9.E", title:"Skill & Agent Exercises",              file:"chapter-9/07-skill-agent-exercises.html" },
   // Chapter 10 — Production Launch
   { ch:10, chTitle:"Ch 10: Production Launch",    page:6,  fig:"10.1", title:"Production Readiness Scorecard",      file:"chapter-10/01-production-readiness-scorecard.html" },
   { ch:10, chTitle:"Ch 10: Production Launch",    page:7,  fig:"10.2", title:"Launch Day Timeline",                 file:"chapter-10/02-launch-day-timeline.html" },
   { ch:10, chTitle:"Ch 10: Production Launch",    page:8,  fig:"10.3", title:"Load Test Targets",                   file:"chapter-10/03-load-test-target.html" },
   { ch:10, chTitle:"Ch 10: Production Launch",    page:9,  fig:"10.4", title:"Production Dashboard",                file:"chapter-10/04-production-dashboard.html" },
   { ch:10, chTitle:"Ch 10: Production Launch",    page:10, fig:"10.5", title:"Sprint Improvement Cycle",            file:"chapter-10/05-sprint-improvement-cycle.html" },
-  // Chapter 11 — Observability (9 files: light + dark variants)
+  { ch:10, chTitle:"Ch 10: Production Launch",    page:11, fig:"10.P", title:"Example Prompts",                     file:"chapter-10/06-example-prompts.html" },
+  { ch:10, chTitle:"Ch 10: Production Launch",    page:12, fig:"10.E", title:"Skill & Agent Exercises",             file:"chapter-10/07-skill-agent-exercises.html" },
+  // Chapter 11 — Observability
   { ch:11, chTitle:"Ch 11: Observability",        page:11, fig:"11.1",  title:"Observability Pillars",              file:"chapter-11/01-observability-pillars.html" },
-  { ch:11, chTitle:"Ch 11: Observability",        page:12, fig:"11.2a", title:"Four Golden Signals (Light)",        file:"chapter-11/02-four-golden-signals-light.html" },
-  { ch:11, chTitle:"Ch 11: Observability",        page:13, fig:"11.2b", title:"Four Golden Signals (Dark)",         file:"chapter-11/03-four-golden-signals-dark.html" },
-  { ch:11, chTitle:"Ch 11: Observability",        page:14, fig:"11.3a", title:"Error Budget (Light)",               file:"chapter-11/04-error-budget-light.html" },
-  { ch:11, chTitle:"Ch 11: Observability",        page:15, fig:"11.3b", title:"Error Budget (Dark)",                file:"chapter-11/05-error-budget-dark.html" },
-  { ch:11, chTitle:"Ch 11: Observability",        page:16, fig:"11.4a", title:"Alert Noise Reduction Pipeline (Light)", file:"chapter-11/06-alert-noise-reduction-pipeline-light.html" },
-  { ch:11, chTitle:"Ch 11: Observability",        page:17, fig:"11.4b", title:"Alert Noise Reduction Pipeline (Dark)",  file:"chapter-11/07-alert-noise-reduction-pipeline-dark.html" },
-  { ch:11, chTitle:"Ch 11: Observability",        page:18, fig:"11.5a", title:"Trace Waterfall (Light)",            file:"chapter-11/08-trace-waterfall-light.html" },
-  { ch:11, chTitle:"Ch 11: Observability",        page:19, fig:"11.5b", title:"Trace Waterfall (Dark)",             file:"chapter-11/09-trace-waterfall-dark.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:12, fig:"11.2",  title:"Four Golden Signals",                file:"chapter-11/02-four-golden-signals-light.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:13, fig:"11.3",  title:"Error Budget",                       file:"chapter-11/04-error-budget-light.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:14, fig:"11.4",  title:"Alert Noise Reduction Pipeline",     file:"chapter-11/06-alert-noise-reduction-pipeline-light.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:15, fig:"11.5",  title:"Trace Waterfall",                    file:"chapter-11/08-trace-waterfall-light.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:20, fig:"11.P",  title:"Example Prompts",                    file:"chapter-11/10-example-prompts.html" },
+  { ch:11, chTitle:"Ch 11: Observability",        page:21, fig:"11.E",  title:"Skill & Agent Exercises",            file:"chapter-11/11-skill-agent-exercises.html" },
   // Chapter 12 — Incident Response & Retrospectives
   { ch:12, chTitle:"Ch 12: Incident & Retro",     page:20, fig:"12.1", title:"Five-Phase Incident Response Lifecycle",          file:"chapter-12-figure-12-1-incident-response-lifecycle-animated.html" },
   { ch:12, chTitle:"Ch 12: Incident & Retro",     page:21, fig:"12.2", title:"Blameless Post-Mortem Structure",                 file:"chapter-12-figure-12-2-blameless-postmortem-structure-animated.html" },
   { ch:12, chTitle:"Ch 12: Incident & Retro",     page:22, fig:"12.3", title:"Retrospective Data Collection & Analysis",        file:"chapter-12-figure-12-3-retrospective-data-collection-analysis-workflow-animated.html" },
   { ch:12, chTitle:"Ch 12: Incident & Retro",     page:23, fig:"12.4", title:"AI Impact Scorecard Q2 2026",                     file:"chapter-12-figure-12-4-ai-impact-scorecard-animated.html" },
   { ch:12, chTitle:"Ch 12: Incident & Retro",     page:24, fig:"12.5", title:"CLAUDE.md Evolution Over Time",                   file:"chapter-12-figure-12-5-claude-md-evolution-over-time-animated.html" },
+  { ch:12, chTitle:"Ch 12: Incident & Retro",     page:25, fig:"12.P", title:"Example Prompts",                                 file:"chapter-12-example-prompts.html" },
+  { ch:12, chTitle:"Ch 12: Incident & Retro",     page:26, fig:"12.E", title:"Skill & Agent Exercises",                         file:"chapter-12-skill-agent-exercises.html" },
+  { ch:12, chTitle:"Ch 12: Incident & Retro",     page:27, fig:"12.U", title:"Example Use Cases",                                file:"chapter-12-use-cases.html" },
   // Chapter 13 — Go Clean Architecture
   { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:25, fig:"13.1", title:"Standard Go Project Layout Tree",                 file:"chapter-13-figure-13-1-standard-go-project-layout-tree-animated.html" },
   { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:26, fig:"13.2", title:"Clean Architecture Dependency Ring",              file:"chapter-13-figure-13-2-clean-architecture-dependency-ring-animated.html" },
   { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:27, fig:"13.3", title:"Dependency Injection Wiring Sequence",            file:"chapter-13-figure-13-3-dependency-injection-wiring-sequence-animated.html" },
   { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:28, fig:"13.4", title:"Viper Config Four-Step Resolution Order",         file:"chapter-13-figure-13-4-viper-config-resolution-order-animated.html" },
   { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:29, fig:"13.5", title:"Anti-Patterns vs Clean Architecture",             file:"chapter-13-figure-13-5-antipatterns-vs-clean-architecture-animated.html" },
+  { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:30, fig:"13.P", title:"Example Prompts",                                  file:"chapter-13-example-prompts.html" },
+  { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:31, fig:"13.E", title:"Skill & Agent Exercises",                          file:"chapter-13-skill-agent-exercises.html" },
+  { ch:13, chTitle:"Ch 13: Go Clean Architecture",page:32, fig:"TAG.P", title:"Chapter 9-13 TAG Prompts",                        file:"tag-pattern-prompts.html" },
   // Chapter 14 — Role-Based Subagents
   { ch:14, chTitle:"Ch 14: Role-Based Subagents", page:30, fig:"14.1", title:"Human Role · Agent Role · Skill Taxonomy",       file:"chapter-14-figure-14-1-human-role-agent-role-skill-taxonomy-animated.html" },
   { ch:14, chTitle:"Ch 14: Role-Based Subagents", page:31, fig:"14.2", title:"File Ownership Map",                             file:"chapter-14-figure-14-2-file-ownership-map-animated.html" },
@@ -226,8 +234,11 @@ const PAGES = [
   { ch:15, chTitle:"Ch 15: Agent Team Model",     page:37, fig:"15.3", title:"Nine-Step Agent Delivery Flow",                  file:"chapter-15-figure-15-3-nine-step-agent-delivery-flow-animated.html" },
   { ch:15, chTitle:"Ch 15: Agent Team Model",     page:38, fig:"15.4", title:"Charter, Team State & Handoff Packet",           file:"chapter-15-figure-15-4-charter-team-state-animated.html" },
   { ch:15, chTitle:"Ch 15: Agent Team Model",     page:39, fig:"15.5", title:"Six Guardrails vs Seven Pitfalls",               file:"chapter-15-figure-15-5-guardrails-pitfalls-animated.html" },
+  { ch:15, chTitle:"Ch 15: Agent Team Model",     page:40, fig:"15.G", title:"Sub-Agent Guideline",                            file:"chapter-15-subagent-guideline.html" },
+  { ch:15, chTitle:"Ch 15: Agent Team Model",     page:41, fig:"15.C", title:"Sub-Agent Cheatsheet",                           file:"chapter-15-subagent-cheatsheet.html" },
 ];
 
+PAGES.forEach((p, i) => { p.page = i + 1; });
 const TOTAL_PAGES = PAGES.length;
 let currentPage = 1;
 
@@ -274,6 +285,8 @@ document.getElementById('btn-prev').addEventListener('click', () => goTo(current
 document.getElementById('btn-next').addEventListener('click', () => goTo(currentPage + 1));
 
 const pageInput = document.getElementById('page-input');
+pageInput.max = TOTAL_PAGES;
+document.getElementById('page-total').textContent = '/ ' + TOTAL_PAGES;
 pageInput.addEventListener('change', () => {
   const v = parseInt(pageInput.value);
   if (!isNaN(v)) goTo(Math.max(1, Math.min(TOTAL_PAGES, v)));
