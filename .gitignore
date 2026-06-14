@@ -24,3 +24,7 @@ dist/
 SPEAKER_SCRIPT_TH.md
 chapters-1-8/SPEAKER_SCRIPT_TH.md
 chapters-9-15/SPEAKER_SCRIPT_TH.md
+
+# Local/generated assets and workflows
+n8n.json
+prompt-engineering.png
