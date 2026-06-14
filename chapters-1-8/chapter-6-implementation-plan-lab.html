@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 Lab - Implementation Plan & Code Convention</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #eef2f7; color: #172033; display: flex; align-items: center; justify-content: center; padding: 18px; }
+.page { width: min(1180px, 100%); min-height: 660px; background: #fff; border: 1px solid #d8e2f1; border-radius: 14px; box-shadow: 0 22px 60px rgba(22, 35, 57, .16); overflow: hidden; }
+.hero { background: linear-gradient(135deg, #1e40af, #7c3aed); color: #fff; padding: 22px 28px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+h1 { margin: 0; font-size: clamp(30px, 4vw, 48px); line-height: 1.02; }
+.hero p { margin: 8px 0 0; color: #e0e7ff; font-size: 16px; font-weight: 650; }
+.badge { border: 1px solid rgba(255,255,255,.45); background: rgba(255,255,255,.15); border-radius: 8px; padding: 10px 14px; font-weight: 900; white-space: nowrap; }
+.grid { display: grid; grid-template-columns: .92fr 1.08fr; gap: 14px; padding: 16px 18px 18px; }
+.panel { border: 1px solid #d6e0ef; border-radius: 10px; background: #fff; overflow: hidden; }
+.panel h2 { margin: 0; padding: 10px 14px; font-size: 18px; color: #fff; background: #1d4ed8; }
+.panel.green h2 { background: #0f766e; }
+.panel.orange h2 { background: #9a3412; }
+.panel.purple h2 { background: #5b21b6; }
+.body { padding: 12px 14px; }
+.steps { display: grid; gap: 8px; }
+.step { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; border: 1px solid #dbeafe; border-radius: 8px; padding: 9px; background: #f8fafc; }
+.num { width: 28px; height: 28px; border-radius: 50%; background: #1d4ed8; color: #fff; display: grid; place-items: center; font-weight: 950; }
+.step h3 { margin: 0 0 3px; font-size: 14px; }
+.step p, li { margin: 0; font-size: 12.5px; line-height: 1.35; font-weight: 620; }
+pre { margin: 0; white-space: pre-wrap; background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 11px 12px; font-size: 11.5px; line-height: 1.35; max-height: 300px; overflow: auto; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.wide { grid-column: 1 / -1; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th { text-align: left; background: #eff6ff; color: #1e3a8a; border: 1px solid #cbd5e1; padding: 7px 8px; }
+td { border: 1px solid #cbd5e1; padding: 7px 8px; vertical-align: top; font-weight: 620; }
+.layers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.layer { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 9px; font-size: 12px; font-weight: 800; color: #4c1d95; }
+.deliverables { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.deliverable { background: #ecfdf5; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px; font-size: 12px; font-weight: 800; color: #065f46; }
+.footer { padding: 0 18px 16px; }
+.rule { border-left: 5px solid #1d4ed8; background: #eff6ff; border-radius: 8px; padding: 11px 13px; font-size: 14px; line-height: 1.35; font-weight: 750; }
+@media (max-width: 900px) { body { padding: 0; align-items: flex-start; } .page { border-radius: 0; } .hero, .grid, .deliverables, .layers { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <div>
+      <h1>Lab: Implementation Plan & Code Convention</h1>
+      <p>สร้าง implementation plan, task list และ code conventions จาก PRD + architecture docs.</p>
+    </div>
+    <div class="badge">Chapter 6 · 6.L</div>
+  </section>
+  <section class="grid">
+    <div class="panel">
+      <h2>Step-by-step Lab</h2>
+      <div class="body steps">
+        <div class="step"><div class="num">1</div><div><h3>สร้าง implementation branch</h3><p><code>git switch -c lab/chapter-6-implementation-plan</code><br><code>mkdir -p docs/implementation</code></p></div></div>
+        <div class="step"><div class="num">2</div><div><h3>Collect source documents</h3><p>ตรวจว่า PRD, user stories, messaging flow, schema และ ADR พร้อมแล้ว.</p></div></div>
+        <div class="step"><div class="num">3</div><div><h3>Generate implementation plan</h3><p>ให้ Dev Agent แปลง PRD + architecture เป็น plan, task list, TDD sequence และ verification commands.</p></div></div>
+        <div class="step"><div class="num">4</div><div><h3>Generate executable tasks</h3><p>แยก task ตาม layer พร้อม owner, files, tests, dependency และ Definition of Done.</p></div></div>
+        <div class="step"><div class="num">5</div><div><h3>Generate code conventions</h3><p>กำหนด naming, package boundaries, interface rules, error handling, logging, config และ testing.</p></div></div>
+        <div class="step"><div class="num">6</div><div><h3>Review implementation readiness</h3><p>ตรวจ Clean Architecture boundaries, TDD sequence, risks, assumptions และ open questions.</p></div></div>
+      </div>
+    </div>
+    <div class="panel purple">
+      <h2>Implementation Plan Prompt</h2>
+      <div class="body">
+<pre><code>Task:
+Generate an implementation plan for the WhatsApp Adapter feature.
+
+Action:
+Read the PRD, user stories, messaging architecture, message schema, and ADR. Convert them into a layered implementation plan, task list, TDD sequence, code conventions, verification commands, and risk checklist.
+
+Goal:
+Produce implementation artifacts that Developer Agent, Tester Agent, and Reviewer can execute and verify without guessing product or architecture intent.
+
+Context:
+- Feature: WhatsApp Adapter for Unified Inbox
+- Language: Go
+- Architecture: Clean Architecture
+- UI integration: Next.js
+- Queue: RabbitMQ
+- Storage: MongoDB
+- Cache: Redis
+- Analytics: ClickHouse
+
+Required Output:
+1. Implementation summary
+2. Layer-by-layer task breakdown
+3. File and package plan
+4. Code convention checklist
+5. TDD task sequence
+6. Test strategy by layer
+7. Verification commands
+8. Risk and rollback checklist
+9. Definition of Done</code></pre>
+      </div>
+    </div>
+    <div class="panel green">
+      <h2>Skill: /generate-implementation-plan</h2>
+      <div class="body">
+        <table><tbody>
+          <tr><th>Purpose</th><td>Generate implementation plan, task list และ code conventions จาก PRD, user stories, architecture docs, schema และ ADR.</td></tr>
+          <tr><th>Trigger</th><td>ใช้เมื่อ PRD approved แล้ว, architecture docs มีแล้ว และทีมต้องการ task list ก่อน coding.</td></tr>
+          <tr><th>Inputs</th><td>PRD, user stories, acceptance criteria, architecture document, schema/API contract, ADR.</td></tr>
+          <tr><th>Workflow</th><td>Map requirements to layers, split tasks, define package/file plan, code conventions, TDD sequence, verification commands, risks และ Definition of Done.</td></tr>
+          <tr><th>Quality Rules</th><td>Domain ไม่ import infrastructure, services depend on interfaces, repositories hide DB details, every task has verification command.</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="panel orange">
+      <h2>Task Layers</h2>
+      <div class="body layers">
+        <div class="layer">domain</div><div class="layer">service</div><div class="layer">adapter</div><div class="layer">repository</div>
+        <div class="layer">handler</div><div class="layer">tests</div><div class="layer">observability</div><div class="layer">documentation</div>
+      </div>
+    </div>
+    <div class="panel wide">
+      <h2>Implementation Review Checklist</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>Check</th><th>Yes/No</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>PRD and architecture docs were read</td><td></td><td></td></tr>
+            <tr><td>Tasks are split by Clean Architecture layer</td><td></td><td></td></tr>
+            <tr><td>File/package plan is clear</td><td></td><td></td></tr>
+            <tr><td>Code conventions are explicit</td><td></td><td></td></tr>
+            <tr><td>TDD sequence starts with failing tests</td><td></td><td></td></tr>
+            <tr><td>Verification commands are listed</td><td></td><td></td></tr>
+            <tr><td>Risks and assumptions are visible</td><td></td><td></td></tr>
+            <tr><td>Definition of Done is measurable</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel wide green">
+      <h2>Expected Deliverables</h2>
+      <div class="body deliverables">
+        <div class="deliverable">docs/implementation/whatsapp-adapter-plan.md</div>
+        <div class="deliverable">docs/implementation/whatsapp-adapter-tasks.md</div>
+        <div class="deliverable">docs/implementation/code-conventions.md</div>
+      </div>
+    </div>
+  </section>
+  <section class="footer">
+    <div class="rule"><b>Plan before code.</b> Dev Agent should not implement until PRD, architecture, task list, code conventions, tests, and verification commands are clear.</div>
+  </section>
+</main>
+</body>
+</html>

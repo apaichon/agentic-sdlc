@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic SDLC Team Coaching Workshop — Chapters 4-15</title>
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#162033;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}.layout{display:grid;grid-template-columns:290px 1fr;min-height:100vh}.nav{position:sticky;top:0;height:100vh;overflow:auto;background:#111827;color:#dbe4f0;padding:24px 18px;border-right:1px solid #263244}.brand{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd}.nav h1{font-size:22px;line-height:1.12;margin:8px 0 18px;color:#fff}.nav a{display:block;color:#aebbd0;text-decoration:none;padding:9px 10px;border-radius:7px;font-size:14px;font-weight:750}.nav a:hover{background:#1f2937;color:#fff}.nav .rule{margin-top:18px;padding:12px;border:1px solid #334155;border-radius:8px;background:#0f172a;font-size:13px;color:#cbd5e1}.content{padding:34px 44px 70px;max-width:1320px}.hero{background:#fff;border:1px solid #d8e0ea;border-radius:10px;padding:30px;box-shadow:0 8px 24px rgba(20,30,55,.08);margin-bottom:24px}.hero h2{font-size:38px;line-height:1.05;margin:0 0 12px;color:#0f172a}.hero p{font-size:18px;max-width:900px;margin:0;color:#526078}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.chip{border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;background:#e0f2fe;color:#0e7490}.section{margin:28px 0}.section h2{font-size:27px;margin:0 0 14px;color:#10203f}.section h3{font-size:19px;margin:18px 0 10px;color:#10203f}.grid{display:grid;gap:14px}.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:#fff;border:1px solid #d8e0ea;border-radius:9px;padding:18px;box-shadow:0 4px 14px rgba(20,30,55,.06)}.card h3{margin-top:0}.muted{color:#64748b}.day{border-left:6px solid #0e7490}.day.d1{border-left-color:#7c3aed}.day.d2{border-left-color:#2563eb}.day.d3{border-left-color:#f97316}.day.d4{border-left-color:#16a34a}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:900;background:#e0f2fe;color:#0e7490;margin-right:6px}.badge.pm{background:#ede9fe;color:#6d28d9}.badge.dev{background:#dbeafe;color:#1d4ed8}.badge.test{background:#dcfce7;color:#15803d}.badge.ops{background:#ffedd5;color:#c2410c}.badge.sre{background:#fee2e2;color:#dc2626}.agenda{display:grid;grid-template-columns:105px 1fr 1.1fr 1.1fr;gap:0;border:1px solid #d8e0ea;border-radius:9px;overflow:hidden;background:#fff}.agenda>div{padding:12px;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;font-size:14px}.agenda>div:nth-child(4n){border-right:0}.agenda .head{background:#f8fafc;font-weight:900;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#10203f}.agenda .time{font-weight:900;color:#0e7490}.artifact{background:#f0fdf4;color:#14532d;border:1px solid #bbf7d0;border-radius:7px;padding:8px 10px;font-family:"SFMono-Regular","Cascadia Code","Liberation Mono",Menlo,monospace;font-size:12px;margin-top:8px}.flowline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.pill{padding:9px 12px;background:#fff;border:1px solid #cbd5e1;border-radius:999px;font-weight:850;font-size:13px}.arrow{color:#64748b;font-weight:900}.matrix{width:100%;border-collapse:collapse;background:#fff;border:1px solid #d8e0ea;border-radius:8px;overflow:hidden}.matrix th,.matrix td{padding:11px 12px;border-bottom:1px solid #e2e8f0;text-align:left;font-size:14px;vertical-align:top}.matrix th{background:#f8fafc;color:#10203f;font-size:12px;text-transform:uppercase;letter-spacing:.06em}.matrix tr:last-child td{border-bottom:0}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:8px}.check{padding:10px 12px;border-radius:7px;background:#f8fafc;border:1px solid #d8e0ea;font-size:14px}.check:before{content:"□";font-weight:900;margin-right:8px;color:#0e7490}.code{background:#0f172a;color:#dbeafe;border-radius:8px;padding:14px;font-family:"SFMono-Regular","Cascadia Code","Liberation Mono",Menlo,monospace;font-size:13px;overflow:auto;white-space:pre}.callout{padding:16px 18px;border-left:5px solid #0e7490;background:#ecfeff;border-radius:8px;margin:16px 0;color:#134e4a}.rhythm{counter-reset:item}.rhythm div{position:relative;padding-left:38px}.rhythm div:before{counter-increment:item;content:counter(item);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:50%;background:#0e7490;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:900}.print-note{display:none}@media(max-width:1000px){.layout{grid-template-columns:1fr}.nav{position:relative;height:auto}.content{padding:22px}.grid,.cols-2,.cols-3,.cols-4,.checklist{grid-template-columns:1fr}.agenda{grid-template-columns:1fr}.agenda>div{border-right:0}.agenda .head{display:none}}@media print{body{background:#fff}.layout{display:block}.nav{display:none}.content{padding:0;max-width:none}.hero,.card{box-shadow:none}.section,.card{break-inside:avoid}.print-note{display:block}.check:before{content:"☐"}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="nav">
+    <div class="brand">Agentic SDLC</div>
+    <h1>Team Coaching Workshop</h1>
+    <a href="#overview">Overview</a>
+    <a href="#outcomes">Outcomes</a>
+    <a href="#agenda">4-Day Agenda</a>
+    <a href="#day1">Day 1: Planning</a>
+    <a href="#day2">Day 2: Build & Test</a>
+    <a href="#day3">Day 3: Launch</a>
+    <a href="#day4">Day 4: Scale</a>
+    <a href="#capstone">Capstone</a>
+    <a href="#rubric">Rubric</a>
+    <a href="#facilitator">Facilitator Guide</a>
+    <div class="rule">Every exercise ends with a committed artifact, not just a discussion.</div>
+  </aside>
+
+  <main class="content">
+    <section class="hero" id="overview">
+      <h2>Agentic SDLC Team Coaching Workshop</h2>
+      <p>Workshop design for coaching a team through Chapters 4-15: from PRD and architecture to code, tests, CI/CD, production readiness, observability, incidents, retrospectives, and agent team operations.</p>
+      <div class="chips">
+        <span class="chip">Ch 4-15</span>
+        <span class="chip">4 Days</span>
+        <span class="chip">PM + Dev + Tester + DevOps</span>
+        <span class="chip">Human + AI Agent</span>
+        <span class="chip">Git Artifacts</span>
+      </div>
+    </section>
+
+    <section class="section" id="outcomes">
+      <h2>Workshop Outcomes</h2>
+      <div class="grid cols-3">
+        <div class="card"><h3>Team Operating Model</h3><p>The team can explain which work belongs to Human PM, Developer, Tester, DevOps, SRE, and AI Agents.</p></div>
+        <div class="card"><h3>Git-Based Traceability</h3><p>Every important artifact is stored in Git: PRD, ADR, tests, CI/CD, runbooks, incident reports, and CLAUDE.md updates.</p></div>
+        <div class="card"><h3>Feature Delivery</h3><p>Each group delivers one feature from requirement to production readiness using agentic workflows.</p></div>
+      </div>
+      <div class="callout">Target outcome: one feature moves from PRD → architecture → code → tests → CI/CD → launch readiness → observability → incident learning.</div>
+    </section>
+
+    <section class="section" id="agenda">
+      <h2>4-Day Agenda</h2>
+      <div class="grid cols-4">
+        <div class="card day d1"><h3>Day 1</h3><p><b>Planning & Architecture</b></p><p class="muted">Chapters 4-5</p><p>RISEN, PRD, stories, sprint plan, RabbitMQ, MongoDB, Redis, ClickHouse, ADR.</p></div>
+        <div class="card day d2"><h3>Day 2</h3><p><b>Build & Test</b></p><p class="muted">Chapters 6-8</p><p>Clean Architecture, TDD, adapters, failover, testing pyramid, worktrees.</p></div>
+        <div class="card day d3"><h3>Day 3</h3><p><b>CI/CD & Launch</b></p><p class="muted">Chapters 9-11</p><p>Pipeline, Docker, deployment, production readiness, observability, alerts.</p></div>
+        <div class="card day d4"><h3>Day 4</h3><p><b>Scale & Learn</b></p><p class="muted">Chapters 12-15</p><p>Incidents, retros, Go architecture, role subagents, agent team model.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="day1">
+      <h2>Day 1: Planning And Architecture</h2>
+      <div class="agenda">
+        <div class="head">Time</div><div class="head">Session</div><div class="head">Exercise</div><div class="head">Git Artifact</div>
+        <div class="time">09:00</div><div>RISEN Prompting + PRD<br><span class="badge pm">PM Agent</span> Ch 4.1-4.3</div><div>Turn raw feature brief into PRD and Given/When/Then acceptance criteria.</div><div><div class="artifact">docs/product/prd.md<br>docs/product/user-stories.md</div></div>
+        <div class="time">11:00</div><div>Sprint Planning<br><span class="badge pm">PM Agent</span> Ch 4.4-4.5</div><div>Estimate story points, map dependencies, identify blocked vs parallel work.</div><div><div class="artifact">docs/product/sprint-plan.md<br>docs/product/dependency-map.md</div></div>
+        <div class="time">13:30</div><div>Architecture Decisions<br><span class="badge dev">Architect Agent</span> Ch 5.1-5.5</div><div>Select message routing, data schema, cache, analytics pipeline, and write ADR.</div><div><div class="artifact">docs/architecture/adr/ADR-001-message-routing.md</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="day2">
+      <h2>Day 2: Build And Test</h2>
+      <div class="agenda">
+        <div class="head">Time</div><div class="head">Session</div><div class="head">Exercise</div><div class="head">Git Artifact</div>
+        <div class="time">09:00</div><div>Clean Architecture Implementation<br><span class="badge dev">Developer Agent</span> Ch 6.1, 6.3, 6.4</div><div>Design adapter interface, implement skeleton, add SMS failover behavior.</div><div><div class="artifact">internal/domain/<br>internal/services/<br>internal/adapters/</div></div>
+        <div class="time">11:00</div><div>TDD + Auto-Test Loop<br><span class="badge test">Tester Agent</span> Ch 6.2, 7.1, 7.3</div><div>Write failing tests, implement code, run auto-test feedback loop.</div><div><div class="artifact">tests/unit/<br>tests/integration/</div></div>
+        <div class="time">13:30</div><div>Contract + Integration Tests<br><span class="badge test">Tester Agent</span> Ch 7.4-7.5</div><div>Write adapter contract tests and run integration tests against real services.</div><div><div class="artifact">tests/contract/<br>tests/integration/</div></div>
+        <div class="time">15:30</div><div>Parallel Worktrees<br><span class="badge dev">Dev</span><span class="badge test">Test</span><span class="badge ops">Ops</span> Ch 8</div><div>Split Dev, Test, and DevOps branches using git worktree and open PRs.</div><div><div class="artifact">feature/*<br>test/*<br>ops/*</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="day3">
+      <h2>Day 3: CI/CD, Launch, Observability</h2>
+      <div class="agenda">
+        <div class="head">Time</div><div class="head">Session</div><div class="head">Exercise</div><div class="head">Git Artifact</div>
+        <div class="time">09:00</div><div>CI/CD Pipeline<br><span class="badge ops">DevOps Agent</span> Ch 9.1-9.3</div><div>Create GitHub Actions, Dockerfile, and docker-compose local stack.</div><div><div class="artifact">.github/workflows/pr-checks.yml<br>Dockerfile<br>docker-compose.yml</div></div>
+        <div class="time">11:00</div><div>Deployment Strategy<br><span class="badge ops">Release Agent</span> Ch 9.4-9.5</div><div>Design blue-green deployment, traffic switch, health checks, rollback triggers.</div><div><div class="artifact">docs/operations/deploy-checklists/<br>docs/operations/rollback-plan.md</div></div>
+        <div class="time">13:30</div><div>Production Readiness<br><span class="badge ops">Release Agent</span> Ch 10</div><div>Build readiness scorecard, launch timeline, load targets, dashboard checks.</div><div><div class="artifact">docs/operations/production-readiness.md<br>docs/operations/launch-runbook.md</div></div>
+        <div class="time">15:30</div><div>Observability Design<br><span class="badge sre">SRE Agent</span> Ch 11</div><div>Define Golden Signals, Error Budget, alert routing, and trace analysis flow.</div><div><div class="artifact">docs/operations/observability-plan.md<br>docs/operations/alert-routing.md</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="day4">
+      <h2>Day 4: Incidents, Architecture, Agent Teams</h2>
+      <div class="agenda">
+        <div class="head">Time</div><div class="head">Session</div><div class="head">Exercise</div><div class="head">Git Artifact</div>
+        <div class="time">09:00</div><div>Incident Simulation<br><span class="badge sre">Incident Agent</span> Ch 12.1-12.2</div><div>Simulate SMS provider outage and run Detect → Triage → Mitigate → Resolve.</div><div><div class="artifact">docs/operations/incident-reports/INC-001.md</div></div>
+        <div class="time">10:45</div><div>Retro + AI Impact<br><span class="badge pm">PM Agent</span> Ch 12.3-12.5</div><div>Review MTTR, velocity, AI usage, team feedback, and update CLAUDE.md.</div><div><div class="artifact">CLAUDE.md<br>docs/operations/retro-actions.md</div></div>
+        <div class="time">13:00</div><div>Go Clean Architecture<br><span class="badge dev">Architect Agent</span> Ch 13</div><div>Review project structure, detect dependency violations, refactor one anti-pattern.</div><div><div class="artifact">docs/architecture/clean-architecture-review.md</div></div>
+        <div class="time">14:30</div><div>Role-Based Subagents<br><span class="badge dev">Team Lead</span> Ch 14</div><div>Assign file ownership, choose workflow modes, write coordination rules.</div><div><div class="artifact">docs/team/file-ownership-map.md<br>docs/team/coordination-rules.md</div></div>
+        <div class="time">16:00</div><div>Agent Team Operating Model<br><span class="badge dev">Orchestrator</span> Ch 15</div><div>Create Agent Team Charter, Team State, and Handoff Packet template.</div><div><div class="artifact">docs/team/agent-team-charter.md<br>docs/team/handoff-packet-template.md</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="capstone">
+      <h2>Final Capstone</h2>
+      <div class="card">
+        <h3>Challenge</h3>
+        <p>Each group delivers one feature using the full Agentic SDLC workflow. Suggested feature options: <b>WhatsApp Adapter</b>, <b>SMS Failover</b>, or <b>Unified Inbox Analytics</b>.</p>
+        <div class="grid cols-3">
+          <div><span class="badge pm">PM</span><p>PRD, stories, acceptance criteria, sprint plan.</p></div>
+          <div><span class="badge dev">Dev</span><p>Architecture, ADR, implementation, PR.</p></div>
+          <div><span class="badge test">Tester</span><p>Unit, integration, contract, E2E validation.</p></div>
+          <div><span class="badge ops">DevOps</span><p>CI/CD, Docker, deploy checklist, rollback.</p></div>
+          <div><span class="badge sre">SRE</span><p>Dashboard, alerts, SLO, incident simulation.</p></div>
+          <div><span class="badge pm">Retro</span><p>AI impact review and CLAUDE.md update.</p></div>
+        </div>
+      </div>
+      <h3>Required Final Artifacts</h3>
+      <div class="code">docs/product/prd.md
+docs/product/user-stories.md
+docs/architecture/adr/
+internal/
+tests/
+.github/workflows/
+docs/operations/production-readiness.md
+docs/operations/observability-plan.md
+docs/operations/incident-report.md
+CLAUDE.md updates
+Pull Request</div>
+    </section>
+
+    <section class="section" id="rubric">
+      <h2>Final Review Rubric</h2>
+      <table class="matrix">
+        <thead><tr><th>Area</th><th>Evidence</th><th>Pass Criteria</th></tr></thead>
+        <tbody>
+          <tr><td>Product clarity</td><td>PRD and acceptance criteria</td><td>Stories are testable and scoped.</td></tr>
+          <tr><td>Architecture quality</td><td>ADR and dependency direction</td><td>Trade-offs are recorded and boundaries are clear.</td></tr>
+          <tr><td>Code quality</td><td>Clean Architecture and PR</td><td>Core logic is isolated from infrastructure.</td></tr>
+          <tr><td>Test confidence</td><td>Unit, integration, contract tests</td><td>Critical risk paths are covered.</td></tr>
+          <tr><td>Delivery readiness</td><td>CI/CD and rollback plan</td><td>Pipeline blocks unsafe releases.</td></tr>
+          <tr><td>Production readiness</td><td>Dashboard, alerts, SLO</td><td>On-call can detect and diagnose issues.</td></tr>
+          <tr><td>Team learning</td><td>Retro actions and CLAUDE.md update</td><td>Lessons become durable process improvements.</td></tr>
+          <tr><td>Agentic maturity</td><td>Human/AI responsibility boundary</td><td>Humans approve decisions; AI produces artifacts.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" id="facilitator">
+      <h2>Facilitator Guide</h2>
+      <div class="grid cols-2">
+        <div class="card rhythm">
+          <h3>Session Rhythm</h3>
+          <div>Explain concept with figure.</div>
+          <div>Show example prompt.</div>
+          <div>Assign human role and AI agent.</div>
+          <div>Run hands-on exercise.</div>
+          <div>Review artifact.</div>
+          <div>Commit artifact to Git.</div>
+          <div>Reflect: what becomes a rule, skill, or runbook?</div>
+        </div>
+        <div class="card">
+          <h3>Workshop Rules</h3>
+          <div class="checklist">
+            <div class="check">Every exercise ends with a committed artifact</div>
+            <div class="check">No AI direct push to main</div>
+            <div class="check">Every AI artifact gets human review</div>
+            <div class="check">Every architecture choice gets ADR or note</div>
+            <div class="check">Every production change gets rollback path</div>
+            <div class="check">Every incident learning updates memory or process</div>
+          </div>
+        </div>
+      </div>
+      <p class="print-note">Printable version: use browser print to export this workshop as PDF.</p>
+    </section>
+  </main>
+</div>
+</body>
+</html>

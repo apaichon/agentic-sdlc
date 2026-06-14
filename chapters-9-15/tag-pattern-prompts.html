@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAG Pattern Prompts — Chapters 9-13</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;background:#f0f2f5;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;user-select:none}.container{width:1200px;height:700px;cursor:pointer}svg{width:100%;height:100%;display:block;background:#fbfcff}.step-item{opacity:0;transform:translateY(14px) scale(.98);transform-origin:50% 50%;transform-box:fill-box;transition:opacity .42s ease,transform .42s ease}.step-item.visible{opacity:1;transform:translateY(0) scale(1)}.dot{width:8px;height:8px;border-radius:50%;background:#d8e0ec;transition:.25s}.dot.done{background:#0e7490}.dot.active{background:#2563eb;transform:scale(1.45)}#progress{display:flex;gap:8px;margin-top:10px}#counter{font-size:12px;color:#8491a7;margin-top:6px;letter-spacing:.08em}#hint{margin-top:12px;font-size:13px;color:#64748b;display:flex;gap:8px}.key{border:1px solid #cbd5e1;background:#e2e8f0;border-radius:6px;padding:2px 9px;font-size:12px}.title{font-size:30px;font-weight:900;fill:#10203f}.subtitle{font-size:15px;fill:#526078}.card-title{font-size:17px;font-weight:900;fill:#10203f}.label{font-size:11px;font-weight:900;letter-spacing:.08em;fill:#64748b}.body{font-size:13px;fill:#10203f}.tag{font-size:12px;font-weight:900;fill:#fff}.prompt{font-family:"SFMono-Regular","Cascadia Code","Liberation Mono",Menlo,monospace;font-size:12px;fill:#0f172a}.pop.visible{animation:pop .7s ease both}@keyframes pop{0%{transform:translateY(14px) scale(.92)}70%{transform:translateY(0) scale(1.03)}100%{transform:translateY(0) scale(1)}}
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#e8ecf3"/></pattern>
+<filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#26324a25"/></filter>
+</defs>
+<rect width="1200" height="700" fill="url(#grid)"/>
+
+<g class="step-item" data-step="0">
+  <text x="600" y="42" text-anchor="middle" class="title">TAG Pattern Prompts — Chapters 9-13</text>
+  <text x="600" y="68" text-anchor="middle" class="subtitle">Use Task, Action, Goal to make Claude Code requests specific, executable, and reviewable.</text>
+  <rect x="292" y="86" width="616" height="38" rx="19" fill="#ecfeff" stroke="#0891b2"/>
+  <text x="600" y="110" text-anchor="middle" font-size="15" font-weight="900" fill="#0e7490">TAG = Task: what to produce · Action: how to work · Goal: what success looks like</text>
+</g>
+
+<g class="step-item pop" data-step="1">
+  <g transform="translate(48,146)">
+    <rect width="356" height="210" rx="10" fill="#fff" stroke="#5b21b6" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="356" height="42" rx="10" fill="#ede9fe" stroke="#5b21b6"/>
+    <circle cx="28" cy="21" r="15" fill="#5b21b6"/><text x="28" y="26" text-anchor="middle" class="tag">9</text>
+    <text x="55" y="27" class="card-title">CI/CD & Deployment</text>
+    <text x="22" y="68" class="label">TASK</text>
+    <text x="72" y="68" class="prompt">Create PR CI/CD workflow for Go services.</text>
+    <text x="22" y="102" class="label">ACTION</text>
+    <text x="72" y="102" class="prompt">Include lint, tests, Docker build, Trivy, staging.</text>
+    <text x="22" y="136" class="label">GOAL</text>
+    <text x="72" y="136" class="prompt">PR shows pass/fail gates and rollback path.</text>
+    <text x="22" y="178" class="body">Use when learners need a deployable pipeline artifact,</text>
+    <text x="22" y="197" class="body">not just a high-level CI/CD explanation.</text>
+  </g>
+</g>
+
+<g class="step-item pop" data-step="2">
+  <g transform="translate(422,146)">
+    <rect width="356" height="210" rx="10" fill="#fff" stroke="#f97316" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="356" height="42" rx="10" fill="#ffedd5" stroke="#f97316"/>
+    <circle cx="28" cy="21" r="15" fill="#f97316"/><text x="28" y="26" text-anchor="middle" class="tag">10</text>
+    <text x="55" y="27" class="card-title">Production Launch</text>
+    <text x="22" y="68" class="label">TASK</text>
+    <text x="72" y="68" class="prompt">Build launch readiness and go/no-go runbook.</text>
+    <text x="22" y="102" class="label">ACTION</text>
+    <text x="72" y="102" class="prompt">Define owners, SLO, load tests, dashboard checks.</text>
+    <text x="22" y="136" class="label">GOAL</text>
+    <text x="72" y="136" class="prompt">Release lead can approve, pause, or rollback.</text>
+    <text x="22" y="178" class="body">Use when launch day needs concrete decisions,</text>
+    <text x="22" y="197" class="body">timelines, thresholds, and accountable owners.</text>
+  </g>
+</g>
+
+<g class="step-item pop" data-step="3">
+  <g transform="translate(796,146)">
+    <rect width="356" height="210" rx="10" fill="#fff" stroke="#0d9488" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="356" height="42" rx="10" fill="#ccfbf1" stroke="#0d9488"/>
+    <circle cx="28" cy="21" r="15" fill="#0d9488"/><text x="28" y="26" text-anchor="middle" class="tag">11</text>
+    <text x="55" y="27" class="card-title">Observability</text>
+    <text x="22" y="68" class="label">TASK</text>
+    <text x="72" y="68" class="prompt">Design observability for message-router stack.</text>
+    <text x="22" y="102" class="label">ACTION</text>
+    <text x="72" y="102" class="prompt">Map logs, metrics, traces, alerts, SLO budget.</text>
+    <text x="22" y="136" class="label">GOAL</text>
+    <text x="72" y="136" class="prompt">On-call can find bottleneck within minutes.</text>
+    <text x="22" y="178" class="body">Use when the team needs dashboard, alert routing,</text>
+    <text x="22" y="197" class="body">and trace analysis artifacts.</text>
+  </g>
+</g>
+
+<g class="step-item pop" data-step="4">
+  <g transform="translate(165,388)">
+    <rect width="410" height="210" rx="10" fill="#fff" stroke="#dc2626" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="410" height="42" rx="10" fill="#fee2e2" stroke="#dc2626"/>
+    <circle cx="28" cy="21" r="15" fill="#dc2626"/><text x="28" y="26" text-anchor="middle" class="tag">12</text>
+    <text x="55" y="27" class="card-title">Incident & Retrospective</text>
+    <text x="22" y="68" class="label">TASK</text>
+    <text x="72" y="68" class="prompt">Create incident learning package from notes.</text>
+    <text x="22" y="102" class="label">ACTION</text>
+    <text x="72" y="102" class="prompt">Summarize timeline, impact, root cause, action items.</text>
+    <text x="22" y="136" class="label">GOAL</text>
+    <text x="72" y="136" class="prompt">Update runbooks, CLAUDE.md, skills, and backlog.</text>
+    <text x="22" y="178" class="body">Use when incidents must become durable learning,</text>
+    <text x="22" y="197" class="body">not just a restored service.</text>
+  </g>
+</g>
+
+<g class="step-item pop" data-step="5">
+  <g transform="translate(625,388)">
+    <rect width="410" height="210" rx="10" fill="#fff" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="410" height="42" rx="10" fill="#dbeafe" stroke="#2563eb"/>
+    <circle cx="28" cy="21" r="15" fill="#2563eb"/><text x="28" y="26" text-anchor="middle" class="tag">13</text>
+    <text x="55" y="27" class="card-title">Go Clean Architecture</text>
+    <text x="22" y="68" class="label">TASK</text>
+    <text x="72" y="68" class="prompt">Refactor Go service toward Clean Architecture.</text>
+    <text x="22" y="102" class="label">ACTION</text>
+    <text x="72" y="102" class="prompt">Preserve inward deps, add interfaces, wire DI.</text>
+    <text x="22" y="136" class="label">GOAL</text>
+    <text x="72" y="136" class="prompt">Tests pass and package boundaries are reviewable.</text>
+    <text x="22" y="178" class="body">Use when code structure, config, and dependencies</text>
+    <text x="22" y="197" class="body">need a concrete refactor plan.</text>
+  </g>
+</g>
+
+<g class="step-item" data-step="6">
+  <rect x="128" y="620" width="944" height="46" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2" filter="url(#shadow)"/>
+  <text x="600" y="648" text-anchor="middle" font-size="16" font-weight="900" fill="#f8fafc">Key message: TAG prompts force AI work to produce an artifact, follow constraints, and meet a measurable goal.</text>
+</g>
+</svg>
+</div>
+<div id="progress"></div><div id="counter"></div><div id="hint"><span class="key">CLICK</span> advance <span class="key">RIGHT CLICK</span> back <span class="key">LEFT/RIGHT</span> step</div>
+<script>
+const TOTAL=6;let step=-1;for(let i=0;i<=TOTAL;i++){const d=document.createElement("div");d.className="dot";d.id="dot-"+i;progress.appendChild(d)}function render(){document.querySelectorAll("[data-step]").forEach(e=>{parseInt(e.dataset.step)<=step?e.classList.add("visible"):e.classList.remove("visible")});for(let i=0;i<=TOTAL;i++){let d=document.getElementById("dot-"+i);d.className="dot"+(i<step?" done":i===step?" active":"")}counter.textContent=`STEP ${step} / ${TOTAL}`}function nextStep(){if(step<TOTAL){step++;render()}}function prevStep(){if(step>0){step--;render()}}document.addEventListener("keydown",e=>{if(e.key===" "||e.key==="ArrowRight"){e.preventDefault();nextStep()}if(e.key==="ArrowLeft"){e.preventDefault();prevStep()}if(e.key==="Home"){step=0;render()}if(e.key==="End"){step=TOTAL;render()}});slide.addEventListener("contextmenu",e=>{e.preventDefault();prevStep()});if(new URLSearchParams(location.search).has("final")){step=TOTAL;render()}else{nextStep()}
+</script>
+</body>
+</html>

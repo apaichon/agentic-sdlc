@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Story Points - Measurable Team Standard</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #eef2f7;
+  color: #172033;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.slide {
+  width: min(1180px, 100%);
+  min-height: 660px;
+  background: #fff;
+  border: 1px solid #d9e2f2;
+  border-radius: 14px;
+  box-shadow: 0 22px 60px rgba(22, 35, 57, .16);
+  overflow: hidden;
+}
+.hero {
+  background: linear-gradient(135deg, #0f766e, #1d4ed8);
+  color: #fff;
+  padding: 22px 28px 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+h1 {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+.hero p {
+  margin: 8px 0 0;
+  color: #dff7ff;
+  font-size: 16px;
+  font-weight: 650;
+}
+.tag {
+  border: 1px solid rgba(255,255,255,.45);
+  background: rgba(255,255,255,.16);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+.content {
+  padding: 16px 18px 18px;
+  display: grid;
+  grid-template-columns: .92fr 1.08fr;
+  gap: 14px;
+}
+.panel {
+  border: 1px solid #d6e0ef;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+.panel h2 {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 18px;
+  color: #fff;
+  background: #1f3f7a;
+}
+.panel .body { padding: 12px 14px; }
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.box {
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 150px;
+}
+.bad { background: #fff1f2; border: 1px solid #fecdd3; }
+.good { background: #ecfdf5; border: 1px solid #bbf7d0; }
+.box h3 { margin: 0 0 8px; font-size: 16px; }
+.box p, .box li { margin: 0; font-size: 13px; line-height: 1.38; font-weight: 620; }
+.box ul { margin: 6px 0 0 18px; padding: 0; }
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.check {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  font-size: 13px;
+  line-height: 1.28;
+  font-weight: 700;
+}
+.check span { color: #059669; font-weight: 950; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+th {
+  background: #eff6ff;
+  color: #1e3a8a;
+  text-align: left;
+  padding: 7px 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 12px;
+}
+td {
+  border: 1px solid #cbd5e1;
+  padding: 7px 8px;
+  vertical-align: top;
+  font-weight: 620;
+}
+.score {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 950;
+}
+.s1 { background: #16a34a; }
+.s2 { background: #0891b2; }
+.s3 { background: #2563eb; }
+.s5 { background: #7c3aed; }
+.s8 { background: #ea580c; }
+.s13 { background: #dc2626; }
+.wide {
+  grid-column: 1 / -1;
+}
+.examples h2 { background: #0f766e; }
+.lens h2 { background: #7c2d12; }
+.tech {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.tech span {
+  background: #eef2ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.footer {
+  padding: 11px 18px 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.rule {
+  border-left: 5px solid #0f766e;
+  background: #f0fdfa;
+  border-radius: 8px;
+  padding: 11px 13px;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+.rule b { color: #0f766e; }
+@media (max-width: 900px) {
+  body { padding: 0; align-items: flex-start; }
+  .slide { border-radius: 0; }
+  .hero { grid-template-columns: 1fr; }
+  .content, .footer { grid-template-columns: 1fr; }
+  .compare, .check-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main class="slide">
+  <section class="hero">
+    <div>
+      <h1>Story Points: Measurable Team Standard</h1>
+      <p>Estimate by observable behavior, uncertainty, integration risk, and team-agreed standards.</p>
+    </div>
+    <div class="tag">Chapter 4 · After 4.4</div>
+  </section>
+
+  <section class="content">
+    <div class="panel">
+      <h2>From Vague Story to Measurable Story</h2>
+      <div class="body compare">
+        <div class="box bad">
+          <h3>Weak input</h3>
+          <p>"Build consolidated chat."</p>
+          <ul>
+            <li>No acceptance criteria</li>
+            <li>No target latency</li>
+            <li>No known data stores</li>
+            <li>No integration boundary</li>
+            <li>No test data</li>
+          </ul>
+        </div>
+        <div class="box good">
+          <h3>Measurable input</h3>
+          <p>"As a support agent, I can see LINE, Facebook, and WhatsApp messages in one Next.js inbox within P95 2s, persisted to MongoDB, routed by RabbitMQ, cached in Redis, and measured in ClickHouse."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Story Point Checklist</h2>
+      <div class="body check-grid">
+        <div class="check"><span>✓</span> User value is clear</div>
+        <div class="check"><span>✓</span> Behavior is observable</div>
+        <div class="check"><span>✓</span> Given/When/Then exists</div>
+        <div class="check"><span>✓</span> Dependency is known</div>
+        <div class="check"><span>✓</span> Test data is known</div>
+        <div class="check"><span>✓</span> Risk is visible</div>
+        <div class="check"><span>✓</span> Team standard is applied</div>
+        <div class="check"><span>✓</span> Done means verified</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Fibonacci Team Standard</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>Points</th><th>Team Meaning</th><th>Decision</th></tr></thead>
+          <tbody>
+            <tr><td><span class="score s1">1</span></td><td>Tiny known change, one component, no integration risk.</td><td>Ready</td></tr>
+            <tr><td><span class="score s2">2</span></td><td>Small change, low uncertainty, simple test path.</td><td>Ready</td></tr>
+            <tr><td><span class="score s3">3</span></td><td>Normal story, clear acceptance criteria, one main integration.</td><td>Ready</td></tr>
+            <tr><td><span class="score s5">5</span></td><td>Multi-component work or new integration with known pattern.</td><td>Plan carefully</td></tr>
+            <tr><td><span class="score s8">8</span></td><td>High uncertainty, multiple integrations, data migration, or operational risk.</td><td>Spike or split</td></tr>
+            <tr><td><span class="score s13">13</span></td><td>Too large for sprint confidence.</td><td>Split before sprint</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel wide lens">
+      <h2>Tips การให้คะแนน: นับ Architecture Layers + Deployment Stages</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>มุมที่ต้องดู / Lens</th><th>Checklist ที่ต้องถาม</th><th>ผลต่อ Score</th><th>ตัวอย่าง Consolidated Chat</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Architecture layers</td>
+              <td>แตะกี่ layer: UI, API, service, queue, cache, database, analytics, monitoring.</td>
+              <td>ยิ่งหลาย layer ยิ่งมี integration risk และ score สูงขึ้น.</td>
+              <td>Next.js + Go API + RabbitMQ + MongoDB มักเริ่มที่ 5 points.</td>
+            </tr>
+            <tr>
+              <td>DB schema change</td>
+              <td>มี field, index, collection shape, compatibility หรือ rollback ไหม.</td>
+              <td>เพิ่ม risk เพราะกระทบ persistent data.</td>
+              <td>เพิ่ม `delivery_status` และ index `conversation_id` ใน MongoDB.</td>
+            </tr>
+            <tr>
+              <td>Migration</td>
+              <td>ต้อง backfill, idempotency, old data, deploy order หรือ rollback plan ไหม.</td>
+              <td>มักดันจาก 3 → 5 หรือ 5 → 8.</td>
+              <td>Backfill WhatsApp messages เก่าเข้า normalized message schema.</td>
+            </tr>
+            <tr>
+              <td>Cache behavior</td>
+              <td>มี TTL, invalidation, fallback, race condition หรือ stale data ไหม.</td>
+              <td>เพิ่ม uncertainty ถ้ายังไม่มี pattern เดิม.</td>
+              <td>Redis active assignment cache พร้อม MongoDB fallback.</td>
+            </tr>
+            <tr>
+              <td>Backup / restore</td>
+              <td>restore เคยทดสอบไหม, RPO/RTO ชัดไหม, data recover ได้ไหม.</td>
+              <td>เพิ่ม operational scope และ release checklist.</td>
+              <td>ทดสอบ MongoDB backup restore ก่อนเปิด migration.</td>
+            </tr>
+            <tr>
+              <td>Monitoring</td>
+              <td>มี metrics, logs, traces, dashboard, alerts และ runbook ไหม.</td>
+              <td>เพิ่มงาน แต่ลด release risk.</td>
+              <td>Alert RabbitMQ queue depth, Go error rate, ClickHouse ingest lag.</td>
+            </tr>
+            <tr>
+              <td>Security</td>
+              <td>มี auth, permission, secrets, PII, webhook signature หรือ audit log ไหม.</td>
+              <td>อาจเพิ่ม score หรือบังคับ split story.</td>
+              <td>Verify WhatsApp webhook signature และ mask customer phone numbers.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel wide lens">
+      <h2>Calculation Table: รวมคะแนน → Story Points</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>Factor</th><th>เลือกคะแนน</th><th>เกณฑ์เร็ว / Quick Rule</th><th>Evidence ของ task</th><th>Subtotal</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Layers touched</td>
+              <td>0 / 1 / <b>2</b></td>
+              <td>0=1 layer · 1=2-3 layers · 2=4+ layers</td>
+              <td>Next.js + Go + RabbitMQ + MongoDB</td>
+              <td><b>2</b></td>
+            </tr>
+            <tr>
+              <td>Data change</td>
+              <td>0 / <b>1</b> / 2</td>
+              <td>0=no data · 1=field/index · 2=migration/backfill</td>
+              <td>เพิ่ม MongoDB index `conversation_id`</td>
+              <td><b>1</b></td>
+            </tr>
+            <tr>
+              <td>Cache complexity</td>
+              <td>0 / 1 / <b>2</b></td>
+              <td>0=no cache · 1=simple TTL · 2=invalidation/fallback/race</td>
+              <td>Redis active assignment cache + MongoDB fallback</td>
+              <td><b>2</b></td>
+            </tr>
+            <tr>
+              <td>Deployment risk</td>
+              <td>0 / <b>1</b> / 2</td>
+              <td>0=normal deploy · 1=feature flag/config · 2=migration/rollback/restore</td>
+              <td>ต้องเปิดผ่าน feature flag</td>
+              <td><b>1</b></td>
+            </tr>
+            <tr>
+              <td>Observability</td>
+              <td>0 / 1 / <b>2</b></td>
+              <td>0=existing coverage · 1=metric/log · 2=dashboard/alert/runbook</td>
+              <td>RabbitMQ depth alert + ClickHouse lag dashboard</td>
+              <td><b>2</b></td>
+            </tr>
+            <tr>
+              <td>Security / compliance</td>
+              <td>0 / 1 / <b>2</b></td>
+              <td>0=no sensitive data · 1=existing auth · 2=PII/secrets/signature/audit</td>
+              <td>mask phone number + verify webhook signature</td>
+              <td><b>2</b></td>
+            </tr>
+            <tr>
+              <td>Test scope</td>
+              <td>0 / 1 / <b>2</b></td>
+              <td>0=unit only · 1=unit+integration · 2=E2E/contract/performance/recovery</td>
+              <td>RabbitMQ integration + E2E inbox test</td>
+              <td><b>2</b></td>
+            </tr>
+            <tr>
+              <td><b>Total Score</b></td>
+              <td colspan="3"><b>2 + 1 + 2 + 1 + 2 + 2 + 2</b></td>
+              <td><b>12</b></td>
+            </tr>
+            <tr>
+              <td><b>Map to Fibonacci</b></td>
+              <td colspan="4"><b>0-2 = 1/2 pts</b> · <b>3-5 = 3 pts</b> · <b>6-8 = 5 pts</b> · <b>9-11 = 8 pts</b> · <b>12+ = 13 pts และต้อง split</b></td>
+            </tr>
+            <tr>
+              <td><b>Final Decision</b></td>
+              <td colspan="4"><b>Score 12 → 13 points:</b> งานนี้ใหญ่เกินไป ควร split เป็น UI, API, cache, queue, analytics, security และ E2E stories.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel examples">
+      <h2>Real Task Scoring: Consolidated Chat Stack</h2>
+      <div class="body">
+        <div class="tech">
+          <span>Next.js</span><span>Go</span><span>Redis</span><span>RabbitMQ</span><span>MongoDB</span><span>ClickHouse</span>
+        </div>
+        <table>
+          <thead><tr><th>Example Task</th><th>Score</th><th>Why</th><th>Measurable Done</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>เพิ่ม unread count badge ใน Next.js inbox โดยใช้ existing API.</td>
+              <td><span class="score s2">2</span></td>
+              <td>เป็นงาน UI เป็นหลัก และ API field มีอยู่แล้ว.</td>
+              <td>Badge update หลังมี message ใหม่; unit test และ component test ผ่าน.</td>
+            </tr>
+            <tr>
+              <td>สร้าง Go endpoint สำหรับ list conversations จาก MongoDB พร้อม pagination.</td>
+              <td><span class="score s3">3</span></td>
+              <td>เป็น service path เดียว และมี repository test ชัดเจน.</td>
+              <td>P95 ต่ำกว่า 300ms สำหรับ test dataset 1,000 conversations.</td>
+            </tr>
+            <tr>
+              <td>publish inbound messages ผ่าน RabbitMQ และ persist normalized message ลง MongoDB.</td>
+              <td><span class="score s5">5</span></td>
+              <td>เกี่ยวข้องกับ Go service, queue, schema และ integration tests.</td>
+              <td>Given inbound payload แล้ว message ถูก stored once และ acked once.</td>
+            </tr>
+            <tr>
+              <td>เพิ่ม Redis session cache สำหรับ active chat assignment.</td>
+              <td><span class="score s5">5</span></td>
+              <td>ต้องดู cache behavior, expiry, fallback และ race conditions.</td>
+              <td>Assignment lookup P95 ต่ำกว่า 50ms; fallback ไป MongoDB verify แล้ว.</td>
+            </tr>
+            <tr>
+              <td>สร้าง ClickHouse analytics ingestion สำหรับ message volume แยกตาม channel.</td>
+              <td><span class="score s8">8</span></td>
+              <td>เป็น analytics path ใหม่ มี batching, idempotency และ dashboard query risk.</td>
+              <td>Dashboard แสดง per-channel volume ภายใน 5 นาทีหลัง event time.</td>
+            </tr>
+            <tr>
+              <td>ส่งมอบ consolidated chat ทั้งก้อน ครอบคลุม Next.js, Go, RabbitMQ, Redis, MongoDB และ ClickHouse.</td>
+              <td><span class="score s13">13</span></td>
+              <td>มี components และ risks มากเกินไปสำหรับ story เดียว.</td>
+              <td>ควร split เป็น UI, API, router, cache, persistence, analytics และ E2E stories.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="footer">
+    <div class="rule"><b>Team rule:</b> Story points measure relative effort and uncertainty, not hours.</div>
+    <div class="rule"><b>Planning rule:</b> If the team cannot write measurable done criteria, do not estimate yet.</div>
+  </section>
+</main>
+</body>
+</html>

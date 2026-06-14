@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 4 Lab - สร้าง PRD ด้วย PM Agent</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #eef2f7;
+  color: #172033;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.page {
+  width: min(1180px, 100%);
+  min-height: 660px;
+  background: #fff;
+  border: 1px solid #d8e2f1;
+  border-radius: 14px;
+  box-shadow: 0 22px 60px rgba(22, 35, 57, .16);
+  overflow: hidden;
+}
+.hero {
+  background: linear-gradient(135deg, #5b21b6, #1d4ed8);
+  color: #fff;
+  padding: 22px 28px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+h1 {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.02;
+}
+.hero p {
+  margin: 8px 0 0;
+  color: #e0e7ff;
+  font-size: 16px;
+  font-weight: 650;
+}
+.badge {
+  border: 1px solid rgba(255,255,255,.45);
+  background: rgba(255,255,255,.15);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.grid {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 14px;
+  padding: 16px 18px 18px;
+}
+.panel {
+  border: 1px solid #d6e0ef;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+.panel h2 {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 18px;
+  color: #fff;
+  background: #312e81;
+}
+.panel.green h2 { background: #0f766e; }
+.panel.orange h2 { background: #9a3412; }
+.panel.blue h2 { background: #1d4ed8; }
+.body { padding: 12px 14px; }
+.steps {
+  display: grid;
+  gap: 8px;
+}
+.step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  padding: 9px;
+  background: #f8fafc;
+}
+.num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 950;
+}
+.step h3 {
+  margin: 0 0 3px;
+  font-size: 14px;
+}
+.step p, li {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.35;
+  font-weight: 620;
+}
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 11px 12px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  max-height: 300px;
+  overflow: auto;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.wide { grid-column: 1 / -1; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+th {
+  text-align: left;
+  background: #eff6ff;
+  color: #1e3a8a;
+  border: 1px solid #cbd5e1;
+  padding: 7px 8px;
+}
+td {
+  border: 1px solid #cbd5e1;
+  padding: 7px 8px;
+  vertical-align: top;
+  font-weight: 620;
+}
+.deliverables {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.deliverable {
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #065f46;
+}
+.footer {
+  padding: 0 18px 16px;
+}
+.rule {
+  border-left: 5px solid #7c3aed;
+  background: #f5f3ff;
+  border-radius: 8px;
+  padding: 11px 13px;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+@media (max-width: 900px) {
+  body { padding: 0; align-items: flex-start; }
+  .page { border-radius: 0; }
+  .hero, .grid, .deliverables { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <div>
+      <h1>Lab: สร้าง PRD ด้วย PM Agent</h1>
+      <p>เปลี่ยน stakeholder input แบบหยาบให้เป็น PRD ที่ review ได้ พร้อม user stories, acceptance criteria และ PM approval checklist.</p>
+    </div>
+    <div class="badge">Chapter 4 · 4.L</div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Step-by-step Lab</h2>
+      <div class="body steps">
+        <div class="step"><div class="num">1</div><div><h3>สร้าง lab branch</h3><p><code>git switch -c lab/chapter-4-generate-prd</code><br><code>mkdir -p docs/product</code></p></div></div>
+        <div class="step"><div class="num">2</div><div><h3>เก็บ stakeholder input</h3><p>สร้าง <code>docs/product/whatsapp-adapter-raw-input.md</code> พร้อม business request, desired capabilities และ constraints.</p></div></div>
+        <div class="step"><div class="num">3</div><div><h3>Generate PRD draft</h3><p>ใช้ PM Agent พร้อม TAG + RISEN prompt เพื่อสร้าง structured PRD.</p></div></div>
+        <div class="step"><div class="num">4</div><div><h3>Save PRD</h3><p>บันทึก output ไปที่ <code>docs/product/whatsapp-adapter-prd.md</code>.</p></div></div>
+        <div class="step"><div class="num">5</div><div><h3>Review and refine</h3><p>ให้ PM Agent หา unclear scope, untestable requirements, missing risks และ weak acceptance criteria.</p></div></div>
+        <div class="step"><div class="num">6</div><div><h3>Generate user stories</h3><p>สร้าง sprint-ready stories พร้อม Given/When/Then, priority, dependencies และ suggested owner role.</p></div></div>
+        <div class="step"><div class="num">7</div><div><h3>Human PM approval</h3><p>PM ยืนยัน MVP scope, measurable metrics, dependencies และ readiness สำหรับ <code>/sprint-plan</code>.</p></div></div>
+      </div>
+    </div>
+
+    <div class="panel blue">
+      <h2>Generate PRD Prompt</h2>
+      <div class="body">
+<pre><code>Task:
+สร้าง Product Requirements Document (PRD) สำหรับ WhatsApp Adapter feature.
+
+Action:
+ใช้ RISEN framework.
+
+Role:
+Act as a senior Product Manager สำหรับ Agentic SDLC team ที่กำลังสร้าง Unified Inbox platform.
+
+Instructions:
+เปลี่ยน raw stakeholder input ให้เป็น structured PRD. แยก goals ออกจาก non-goals. ทำ requirements ให้ testable. ระบุ risks, assumptions, dependencies และ open questions.
+
+Steps:
+1. สรุป product problem.
+2. ระบุ target users และ user needs.
+3. เขียน goals และ non-goals.
+4. ระบุ functional และ non-functional requirements.
+5. สร้าง 3-5 user stories พร้อม Given/When/Then.
+6. ระบุ dependencies ระหว่าง PM, Dev, Tester, DevOps.
+7. ระบุ success metrics และ PM approval checklist.
+
+Goal:
+สร้าง PRD ที่พร้อมให้ Human PM review และ handoff ต่อให้ Dev, Tester และ DevOps Agents.
+
+Narrowing:
+Keep MVP small. Fit one sprint. ใช้ Markdown format. ต้องมี section "Human PM Approval Gate".</code></pre>
+      </div>
+    </div>
+
+    <div class="panel green">
+      <h2>PM Skill: /generate-prd</h2>
+      <div class="body">
+        <table>
+          <tbody>
+            <tr><th>Purpose</th><td>Generate structured PRD จาก raw stakeholder input, meeting notes, customer feedback หรือ feature brief.</td></tr>
+            <tr><th>Trigger</th><td>ใช้เมื่อ feature idea ยัง vague, team ต้องการ PRD ก่อน sprint planning หรือ PM ต้องการ stories และ acceptance criteria.</td></tr>
+            <tr><th>Required Inputs</th><td>Raw input, target users, business goal, known constraints.</td></tr>
+            <tr><th>Workflow</th><td>อ่าน context, ถาม clarification เฉพาะที่จำเป็น, draft PRD, create user stories, define success metrics, add Human PM Approval Gate.</td></tr>
+            <tr><th>Quality Rules</th><td>Requirements ต้อง testable, non-goals ต้องกัน scope creep, acceptance criteria ใช้ Given/When/Then, open questions ต้องมี owner หรือ decision path.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel orange">
+      <h2>PM Approval Checklist</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>Question</th><th>Yes/No</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>MVP scope ชัดเจนหรือไม่?</td><td></td><td></td></tr>
+            <tr><td>Non-goals ระบุชัดหรือไม่?</td><td></td><td></td></tr>
+            <tr><td>User stories testable หรือไม่?</td><td></td><td></td></tr>
+            <tr><td>Launch success metrics measurable หรือไม่?</td><td></td><td></td></tr>
+            <tr><td>Open questions มี owner หรือไม่?</td><td></td><td></td></tr>
+            <tr><td>Dependencies มองเห็นชัดหรือไม่?</td><td></td><td></td></tr>
+            <tr><td>Feature พร้อมเข้า <code>/sprint-plan</code> หรือยัง?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel wide green">
+      <h2>Expected Deliverables</h2>
+      <div class="body deliverables">
+        <div class="deliverable">docs/product/whatsapp-adapter-raw-input.md</div>
+        <div class="deliverable">docs/product/whatsapp-adapter-prd.md</div>
+        <div class="deliverable">docs/product/whatsapp-adapter-user-stories.md</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="footer">
+    <div class="rule"><b>Human PM owns approval.</b> PM Agent ช่วยเร่ง drafting แต่ Dev, Tester และ DevOps ควรเริ่มงานหลัง PRD approval gate ชัดเจนแล้วเท่านั้น.</div>
+  </section>
+</main>
+</body>
+</html>

@@ -336,7 +336,7 @@
 </div>
 <div id="progress-bar"></div>
 <div id="step-counter">STEP 0 / 6</div>
-<div id="click-hint"><span class="key">CLICK</span> or <span class="key">SPACE</span> to advance &nbsp;·&nbsp; <span class="key">Home</span> to reset &nbsp;·&nbsp; <span class="key">End</span> to show all</div>
+<div id="click-hint"><span class="key">CLICK</span> or <span class="key">SPACE</span> to advance &nbsp;·&nbsp; <span class="key">←</span> back &nbsp;·&nbsp; <span class="key">Home</span> to reset &nbsp;·&nbsp; <span class="key">End</span> to show all</div>
 
 <script>
 const TOTAL = 6;
@@ -346,16 +346,30 @@ function buildDots() {
   for (let i = 0; i <= TOTAL; i++) { const d=document.createElement('div'); d.className='dot'; d.id='dot-'+i; bar.appendChild(d); }
 }
 function nextStep() {
-  if (step >= TOTAL) return; step++;
-  document.querySelectorAll('[data-step]').forEach(el => { if (parseInt(el.dataset.step) <= step) el.classList.add('visible'); });
+  if (step >= TOTAL) return;
+  step++;
+  renderStep();
+}
+function prevStep() {
+  if (step <= 0) return;
+  step--;
+  renderStep();
+}
+function renderStep() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    const itemStep = parseInt(el.dataset.step, 10);
+    el.classList.toggle('visible', !Number.isNaN(itemStep) && itemStep <= step);
+  });
   for (let i = 0; i <= TOTAL; i++) { const d=document.getElementById('dot-'+i); if(d) d.className='dot'+(i<step?' done':i===step?' active':''); }
   document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
 }
 document.addEventListener('keydown', e => {
   if (e.key===' '||e.key==='ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key==='ArrowLeft') { e.preventDefault(); prevStep(); }
   if (e.key==='Home') location.reload();
   if (e.key==='End') { while(step<TOTAL) nextStep(); }
 });
+document.addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
 buildDots(); nextStep();
 </script>
 </body>

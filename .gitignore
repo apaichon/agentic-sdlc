@@ -19,3 +19,8 @@ __pycache__/
 dist/
 *.tmp
 *.log
+
+# Local/generated speaker scripts
+SPEAKER_SCRIPT_TH.md
+chapters-1-8/SPEAKER_SCRIPT_TH.md
+chapters-9-15/SPEAKER_SCRIPT_TH.md

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 Practice Prompts</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;background:#f0f2f5;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;user-select:none}.container{width:1200px;height:700px;cursor:pointer}svg{width:100%;height:100%;display:block;background:#fbfcff}.step-item{opacity:0;transform:translateY(14px) scale(.98);transform-origin:50% 50%;transform-box:fill-box;transition:opacity .42s ease,transform .42s ease}.step-item.visible{opacity:1;transform:translateY(0) scale(1)}.dot{width:8px;height:8px;border-radius:50%;background:#d8e0ec;transition:.25s}.dot.done{background:#0e7490}.dot.active{background:#2563eb;transform:scale(1.45)}#progress{display:flex;gap:8px;margin-top:10px}#counter{font-size:12px;color:#8491a7;margin-top:6px;letter-spacing:.08em}#hint{margin-top:12px;font-size:13px;color:#64748b;display:flex;gap:8px}.key{border:1px solid #cbd5e1;background:#e2e8f0;border-radius:6px;padding:2px 9px;font-size:12px}.title{font-size:30px;font-weight:900;fill:#10203f}.subtitle{font-size:15px;fill:#526078}.card-title{font-size:18px;font-weight:900;fill:#10203f}.label{font-size:11px;font-weight:900;letter-spacing:.08em;fill:#64748b}.body{font-size:14px;fill:#10203f}.prompt{font-family:"SFMono-Regular","Cascadia Code","Liberation Mono",Menlo,monospace;font-size:13px;fill:#0f172a}.chip{font-size:11px;font-weight:900;fill:#fff}.pop.visible{animation:pop .7s ease both}@keyframes pop{0%{transform:translateY(14px) scale(.92)}70%{transform:translateY(0) scale(1.03)}100%{transform:translateY(0) scale(1)}}
+</style>
+</head>
+<body>
+<div class="container" id="slide" onclick="nextStep()">
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#e8ecf3"/></pattern>
+<filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#26324a25"/></filter>
+</defs>
+<rect width="1200" height="700" fill="url(#grid)"/>
+
+<g class="step-item" data-step="0">
+  <text x="600" y="42" text-anchor="middle" class="title">Chapter 9 Practice Prompts</text>
+  <text x="600" y="68" text-anchor="middle" class="subtitle">Use these prompts after each figure to turn concepts into deployable CI/CD artifacts.</text>
+  <rect x="325" y="86" width="550" height="38" rx="19" fill="#e0f2fe" stroke="#0891b2"/>
+  <text x="600" y="110" text-anchor="middle" font-size="15" font-weight="900" fill="#0e7490">Practice pattern: explain → generate config → validate checkpoints</text>
+</g>
+
+<g class="step-item pop" data-step="1">
+  <g transform="translate(58,146)">
+    <rect width="346" height="206" rx="10" fill="#fff" stroke="#5b21b6" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="346" height="42" rx="10" fill="#ede9fe" stroke="#5b21b6"/>
+    <circle cx="28" cy="21" r="15" fill="#5b21b6"/><text x="28" y="26" text-anchor="middle" class="chip">9.1</text>
+    <text x="55" y="27" class="card-title">PR Created CI/CD Pipeline</text>
+    <text x="22" y="70" class="label">GOAL</text>
+    <text x="22" y="92" class="body">ออกแบบ GitHub Actions pipeline เมื่อเปิด PR</text>
+    <text x="22" y="122" class="label">PROMPT</text>
+    <text x="22" y="146" class="prompt">Create a GitHub Actions workflow for a Go</text>
+    <text x="22" y="165" class="prompt">message-router service: lint, unit tests,</text>
+    <text x="22" y="184" class="prompt">integration tests, Docker build, Trivy scan.</text>
+  </g>
+</g>
+
+<g class="step-item pop" data-step="2">
+  <g transform="translate(427,146)">
+    <rect width="346" height="206" rx="10" fill="#fff" stroke="#0d9488" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="346" height="42" rx="10" fill="#ccfbf1" stroke="#0d9488"/>
+    <circle cx="28" cy="21" r="15" fill="#0d9488"/><text x="28" y="26" text-anchor="middle" class="chip">9.2</text>
+    <text x="55" y="27" class="card-title">Docker Compose Topology</text>
+    <text x="22" y="70" class="label">GOAL</text>
+    <text x="22" y="92" class="body">สร้าง local stack สำหรับ service ทั้งระบบ</text>
+    <text x="22" y="122" class="label">PROMPT</text>
+    <text x="22" y="146" class="prompt">Write docker-compose.yml for web, api,</text>
+    <text x="22" y="165" class="prompt">RabbitMQ, MongoDB, Redis, ClickHouse,</text>
+    <text x="22" y="184" class="prompt">with healthchecks and shared network.</text>
+  </g>
+</g>
+
+<g class="step-item pop" data-step="3">
+  <g transform="translate(796,146)">
+    <rect width="346" height="206" rx="10" fill="#fff" stroke="#1d4ed8" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="346" height="42" rx="10" fill="#dbeafe" stroke="#1d4ed8"/>
+    <circle cx="28" cy="21" r="15" fill="#1d4ed8"/><text x="28" y="26" text-anchor="middle" class="chip">9.3</text>
+    <text x="55" y="27" class="card-title">Multi-Stage Docker Build</text>
+    <text x="22" y="70" class="label">GOAL</text>
+    <text x="22" y="92" class="body">ลด image size และ attack surface</text>
+    <text x="22" y="122" class="label">PROMPT</text>
+    <text x="22" y="146" class="prompt">Create a multi-stage Dockerfile for Go:</text>
+    <text x="22" y="165" class="prompt">build in golang:1.22-alpine, copy binary</text>
+    <text x="22" y="184" class="prompt">to distroless nonroot runtime image.</text>
+  </g>
+</g>
+
+<g class="step-item pop" data-step="4">
+  <g transform="translate(185,380)">
+    <rect width="390" height="206" rx="10" fill="#fff" stroke="#15803d" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="390" height="42" rx="10" fill="#dcfce7" stroke="#15803d"/>
+    <circle cx="28" cy="21" r="15" fill="#15803d"/><text x="28" y="26" text-anchor="middle" class="chip">9.4</text>
+    <text x="55" y="27" class="card-title">Blue-Green Deployment Switch</text>
+    <text x="22" y="70" class="label">GOAL</text>
+    <text x="22" y="92" class="body">วาง deployment plan ที่ rollback ได้เร็ว</text>
+    <text x="22" y="122" class="label">PROMPT</text>
+    <text x="22" y="146" class="prompt">Design a Blue-Green deployment plan for</text>
+    <text x="22" y="165" class="prompt">message-router. Include health checks, traffic</text>
+    <text x="22" y="184" class="prompt">switch, rollback trigger, and monitoring metrics.</text>
+  </g>
+</g>
+
+<g class="step-item pop" data-step="5">
+  <g transform="translate(625,380)">
+    <rect width="390" height="206" rx="10" fill="#fff" stroke="#f97316" stroke-width="2" filter="url(#shadow)"/>
+    <rect width="390" height="42" rx="10" fill="#ffedd5" stroke="#f97316"/>
+    <circle cx="28" cy="21" r="15" fill="#f97316"/><text x="28" y="26" text-anchor="middle" class="chip">9.5</text>
+    <text x="55" y="27" class="card-title">Deploy Production Workflow</text>
+    <text x="22" y="70" class="label">GOAL</text>
+    <text x="22" y="92" class="body">สร้าง runbook สำหรับ production release</text>
+    <text x="22" y="122" class="label">PROMPT</text>
+    <text x="22" y="146" class="prompt">Write a production deploy runbook with</text>
+    <text x="22" y="165" class="prompt">pre-flight checks, approval gate, rollout,</text>
+    <text x="22" y="184" class="prompt">post-deploy verification, and abort criteria.</text>
+  </g>
+</g>
+
+<g class="step-item" data-step="6">
+  <rect x="148" y="610" width="904" height="56" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2" filter="url(#shadow)"/>
+  <text x="600" y="634" text-anchor="middle" font-size="17" font-weight="900" fill="#f8fafc">Checkpoint for every practice: output must be runnable, reviewable, and tied to a production safety gate.</text>
+  <text x="600" y="656" text-anchor="middle" font-size="13" fill="#cbd5e1">Ask Claude Code to explain assumptions before writing files, then run validation commands.</text>
+</g>
+</svg>
+</div>
+<div id="progress"></div><div id="counter"></div><div id="hint"><span class="key">CLICK</span> advance <span class="key">RIGHT CLICK</span> back <span class="key">LEFT/RIGHT</span> step</div>
+<script>
+const TOTAL=6;let step=-1;for(let i=0;i<=TOTAL;i++){const d=document.createElement("div");d.className="dot";d.id="dot-"+i;progress.appendChild(d)}function render(){document.querySelectorAll("[data-step]").forEach(e=>{parseInt(e.dataset.step)<=step?e.classList.add("visible"):e.classList.remove("visible")});for(let i=0;i<=TOTAL;i++){let d=document.getElementById("dot-"+i);d.className="dot"+(i<step?" done":i===step?" active":"")}counter.textContent=`STEP ${step} / ${TOTAL}`}function nextStep(){if(step<TOTAL){step++;render()}}function prevStep(){if(step>0){step--;render()}}document.addEventListener("keydown",e=>{if(e.key===" "||e.key==="ArrowRight"){e.preventDefault();nextStep()}if(e.key==="ArrowLeft"){e.preventDefault();prevStep()}if(e.key==="Home"){step=0;render()}if(e.key==="End"){step=TOTAL;render()}});slide.addEventListener("contextmenu",e=>{e.preventDefault();prevStep()});if(new URLSearchParams(location.search).has("final")){step=TOTAL;render()}else{nextStep()}
+</script>
+</body>
+</html>

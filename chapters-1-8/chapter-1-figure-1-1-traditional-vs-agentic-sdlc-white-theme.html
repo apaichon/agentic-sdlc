@@ -430,6 +430,7 @@
 <div id="click-hint">
   <span class="key">CLICK</span> or <span class="key">SPACE</span> to advance
   &nbsp;·&nbsp;
+  <span class="key">←</span> back &nbsp;·&nbsp;
   <span class="key">HOME</span> reset &nbsp;·&nbsp; <span class="key">END</span> skip to end
 </div>
 
@@ -447,17 +448,17 @@ function buildDots() {
   }
 }
 
-function nextStep() {
-  if (step >= TOTAL) return;
-  step++;
+function renderStep() {
   document.querySelectorAll('[data-step]').forEach(el => {
-    if (parseInt(el.dataset.step) <= step) el.classList.add('visible');
+    const itemStep = parseInt(el.dataset.step, 10);
+    el.classList.toggle('visible', !Number.isNaN(itemStep) && itemStep <= step);
   });
-  if (step >= 6) {
-    document.getElementById('ai-glow')?.classList.add('active');
-    document.getElementById('ai-ring')?.classList.add('active');
-    document.querySelectorAll('.ping-dot').forEach(d => d.classList.add('active'));
-  }
+  document.getElementById('ai-glow')?.classList.toggle('active', step >= 6);
+  document.getElementById('ai-ring')?.classList.toggle('active', step >= 6);
+  document.querySelectorAll('.ping-dot').forEach(d => {
+    const itemStep = parseInt(d.dataset.step, 10);
+    d.classList.toggle('active', !Number.isNaN(itemStep) && itemStep <= step);
+  });
   for (let i = 0; i <= TOTAL; i++) {
     const d = document.getElementById('dot-' + i);
     if (d) d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
@@ -465,11 +466,25 @@ function nextStep() {
   document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
 }
 
+function nextStep() {
+  if (step >= TOTAL) return;
+  step++;
+  renderStep();
+}
+
+function prevStep() {
+  if (step <= 0) return;
+  step--;
+  renderStep();
+}
+
 document.addEventListener('keydown', e => {
   if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
   if (e.key === 'Home') location.reload();
   if (e.key === 'End') { while (step < TOTAL) nextStep(); }
 });
+document.addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
 
 buildDots();
 nextStep(); // show step 0 immediately

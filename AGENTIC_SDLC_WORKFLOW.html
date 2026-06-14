@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic SDLC Workflow Playbook</title>
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#162033;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}.shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}.nav{position:sticky;top:0;height:100vh;overflow:auto;background:#111827;color:#dbe4f0;padding:24px 18px;border-right:1px solid #263244}.brand{font-size:14px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:8px}.nav h1{font-size:22px;line-height:1.12;margin:0 0 18px;color:#fff}.nav a{display:block;color:#aebbd0;text-decoration:none;padding:9px 10px;border-radius:7px;font-size:14px;font-weight:750}.nav a:hover{background:#1f2937;color:#fff}.nav .rule{margin:18px 0;padding:12px;border:1px solid #334155;border-radius:8px;background:#0f172a;font-size:13px;color:#cbd5e1}.content{padding:34px 44px 70px;max-width:1280px}.hero{background:#fff;border:1px solid #d8e0ea;border-radius:10px;padding:30px;box-shadow:0 8px 24px rgba(20,30,55,.08);margin-bottom:24px}.hero h2{font-size:38px;line-height:1.05;margin:0 0 12px;color:#0f172a;letter-spacing:0}.hero p{font-size:18px;max-width:860px;margin:0;color:#526078}.principle{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.principle div{padding:14px;border-radius:8px;background:#eef6ff;border:1px solid #bfdbfe}.principle b{display:block;color:#1d4ed8;margin-bottom:4px}.section{margin:28px 0}.section h2{font-size:27px;margin:0 0 14px;color:#10203f}.section h3{font-size:19px;margin:18px 0 10px;color:#10203f}.grid{display:grid;gap:14px}.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:#fff;border:1px solid #d8e0ea;border-radius:9px;padding:18px;box-shadow:0 4px 14px rgba(20,30,55,.06)}.card h3{margin-top:0}.muted{color:#64748b}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:900;background:#e0f2fe;color:#0e7490;margin-right:6px}.badge.pm{background:#ede9fe;color:#6d28d9}.badge.dev{background:#dbeafe;color:#1d4ed8}.badge.test{background:#dcfce7;color:#15803d}.badge.ops{background:#ffedd5;color:#c2410c}.badge.git{background:#e5e7eb;color:#374151}.pipeline{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}.step{background:#fff;border:1px solid #cbd5e1;border-top:5px solid #0e7490;border-radius:8px;padding:12px;min-height:130px}.step .n{font-size:12px;font-weight:900;color:#64748b}.step b{display:block;font-size:15px;margin:6px 0;color:#10203f}.step span{font-size:13px;color:#526078}.swimlane{border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;background:#fff}.lane{display:grid;grid-template-columns:150px 1fr 1fr 1fr;min-height:70px;border-top:1px solid #e2e8f0}.lane:first-child{border-top:0}.lane>div{padding:14px;border-left:1px solid #e2e8f0}.lane>div:first-child{border-left:0;font-weight:900;background:#f8fafc;color:#10203f}.lane .human{background:#fefce8}.lane .agent{background:#eef6ff}.lane .artifact{background:#f0fdf4}.code{background:#0f172a;color:#dbeafe;border-radius:8px;padding:14px;font-family:"SFMono-Regular","Cascadia Code","Liberation Mono",Menlo,monospace;font-size:13px;overflow:auto}.tree{white-space:pre}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:8px}.check{padding:10px 12px;border-radius:7px;background:#f8fafc;border:1px solid #d8e0ea;font-size:14px}.check:before{content:"□";font-weight:900;margin-right:8px;color:#0e7490}.flowline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.pill{padding:9px 12px;background:#fff;border:1px solid #cbd5e1;border-radius:999px;font-weight:850;font-size:13px}.arrow{color:#64748b;font-weight:900}.matrix{width:100%;border-collapse:collapse;background:#fff;border:1px solid #d8e0ea;border-radius:8px;overflow:hidden}.matrix th,.matrix td{padding:11px 12px;border-bottom:1px solid #e2e8f0;text-align:left;font-size:14px;vertical-align:top}.matrix th{background:#f8fafc;color:#10203f;font-size:12px;text-transform:uppercase;letter-spacing:.06em}.matrix tr:last-child td{border-bottom:0}.callout{padding:16px 18px;border-left:5px solid #0e7490;background:#ecfeff;border-radius:8px;margin:16px 0;color:#134e4a}.print-note{display:none}@media (max-width:980px){.shell{grid-template-columns:1fr}.nav{position:relative;height:auto}.content{padding:22px}.pipeline,.cols-2,.cols-3,.cols-4,.principle{grid-template-columns:1fr}.lane{grid-template-columns:1fr}.lane>div{border-left:0;border-top:1px solid #e2e8f0}.lane>div:first-child{border-top:0}}@media print{body{background:#fff}.shell{display:block}.nav{display:none}.content{padding:0;max-width:none}.card,.hero,.step{box-shadow:none}.section{break-inside:avoid}.print-note{display:block;color:#64748b}.check:before{content:"☐"}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="nav">
+    <div class="brand">Agentic SDLC</div>
+    <h1>Workflow Playbook</h1>
+    <a href="#overview">Overview</a>
+    <a href="#pipeline">End-to-End Flow</a>
+    <a href="#roles">Human + AI Roles</a>
+    <a href="#git">Git Branching</a>
+    <a href="#docs">Document Management</a>
+    <a href="#pr">PR Checklist</a>
+    <a href="#responsibility">Responsibility Boundary</a>
+    <a href="#modes">Workflow Modes</a>
+    <a href="#quality">Quality Gates</a>
+    <div class="rule">Rule: AI drafts and accelerates. Humans approve scope, architecture, risk, and release.</div>
+  </aside>
+
+  <main class="content">
+    <section class="hero" id="overview">
+      <h2>Recommended Agentic SDLC Workflow</h2>
+      <p>A practical operating model for PM, Developer, Tester, and DevOps collaboration between humans and AI agents, with Git as the system of record.</p>
+      <div class="principle">
+        <div><b>Human</b> Owns accountability, direction, trade-offs, and final approval.</div>
+        <div><b>AI Agent</b> Drafts, analyzes, implements, tests, documents, and iterates faster.</div>
+        <div><b>Git</b> Preserves branches, PRs, documents, decisions, and audit trail.</div>
+      </div>
+    </section>
+
+    <section class="section" id="pipeline">
+      <h2>End-to-End Flow</h2>
+      <div class="pipeline">
+        <div class="step"><div class="n">01</div><b>Brief</b><span>Human PM defines intent, business context, and constraints.</span></div>
+        <div class="step"><div class="n">02</div><b>Plan</b><span>PM Agent drafts PRD, stories, acceptance criteria, sprint plan.</span></div>
+        <div class="step"><div class="n">03</div><b>Design</b><span>Developer/Architect Agent drafts ADR and implementation plan.</span></div>
+        <div class="step"><div class="n">04</div><b>Build</b><span>Developer Agent writes tests, code, refactors, and PR summary.</span></div>
+        <div class="step"><div class="n">05</div><b>Validate</b><span>Tester Agent creates risk-based tests and coverage report.</span></div>
+        <div class="step"><div class="n">06</div><b>Release</b><span>DevOps Agent prepares CI/CD, monitoring, rollback, runbook.</span></div>
+        <div class="step"><div class="n">07</div><b>Learn</b><span>Incidents and retros update CLAUDE.md, skills, docs, tests.</span></div>
+      </div>
+      <div class="callout">Practical rule: no AI output is complete until it becomes a reviewable artifact in Git.</div>
+    </section>
+
+    <section class="section" id="roles">
+      <h2>Human + AI Role Swimlanes</h2>
+      <div class="swimlane">
+        <div class="lane">
+          <div>Role</div><div class="human"><b>Human Owns</b></div><div class="agent"><b>AI Agent Produces</b></div><div class="artifact"><b>Artifacts</b></div>
+        </div>
+        <div class="lane">
+          <div><span class="badge pm">PM</span></div><div>Priority, scope, trade-offs, PRD approval.</div><div>PRD draft, user stories, acceptance criteria, sprint plan.</div><div><code>docs/product/prd.md</code><br><code>docs/product/user-stories.md</code></div>
+        </div>
+        <div class="lane">
+          <div><span class="badge dev">Dev</span></div><div>Architecture decisions, code review, merge approval.</div><div>Implementation plan, code, refactor proposal, ADR draft.</div><div><code>internal/</code><br><code>docs/architecture/adr/</code></div>
+        </div>
+        <div class="lane">
+          <div><span class="badge test">Tester</span></div><div>Test strategy, risk priority, release confidence.</div><div>Unit, integration, contract, E2E tests and report.</div><div><code>tests/</code><br><code>docs/test-reports/</code></div>
+        </div>
+        <div class="lane">
+          <div><span class="badge ops">DevOps</span></div><div>Infrastructure decisions, access policy, release approval.</div><div>CI/CD, Docker, runbooks, monitoring, rollback checklist.</div><div><code>.github/workflows/</code><br><code>docs/operations/</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="git">
+      <h2>Git Branching And Worktrees</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Branch Naming</h3>
+          <div class="code">feature/US-042-line-adapter
+fix/INC-014-sms-timeout
+docs/ADR-007-rabbitmq-fanout
+test/US-050-adapter-contract-tests
+ops/DEPLOY-003-blue-green</div>
+        </div>
+        <div class="card">
+          <h3>Parallel AI Worktrees</h3>
+          <div class="code">git worktree add ../agent-dev feature/US-042-line-adapter
+git worktree add ../agent-test test/US-042-contract-tests
+git worktree add ../agent-ops ops/US-042-ci-deploy</div>
+        </div>
+      </div>
+      <h3>Branch Flow</h3>
+      <div class="flowline">
+        <span class="pill">AI writes branch</span><span class="arrow">→</span>
+        <span class="pill">AI opens PR</span><span class="arrow">→</span>
+        <span class="pill">CI validates</span><span class="arrow">→</span>
+        <span class="pill">Human reviews</span><span class="arrow">→</span>
+        <span class="pill">Human merges</span>
+      </div>
+    </section>
+
+    <section class="section" id="docs">
+      <h2>Document Management</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Repository Structure</h3>
+          <div class="code tree">/
+  CLAUDE.md
+  docs/
+    product/
+    architecture/
+      adr/
+    operations/
+      runbooks/
+      incident-reports/
+      deploy-checklists/
+    test-reports/
+  internal/
+  tests/
+  .github/workflows/
+  .claude/
+    pm.md
+    dev.md
+    tester.md
+    devops.md
+    skills/</div>
+        </div>
+        <div class="card">
+          <h3>Document Lifecycle</h3>
+          <div class="flowline">
+            <span class="pill">Draft</span><span class="arrow">→</span>
+            <span class="pill">Review</span><span class="arrow">→</span>
+            <span class="pill">Approved</span><span class="arrow">→</span>
+            <span class="pill">Versioned in Git</span><span class="arrow">→</span>
+            <span class="pill">Updated through PR</span>
+          </div>
+          <div class="checklist">
+            <div class="check">PRD changes go through PR</div>
+            <div class="check">ADRs are immutable after accepted</div>
+            <div class="check">Runbooks update with operational changes</div>
+            <div class="check">CLAUDE.md requires human review</div>
+            <div class="check">Incident learnings update docs/tests/hooks/skills</div>
+            <div class="check">AI-generated docs are reviewed before merge</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pr">
+      <h2>Pull Request Checklist</h2>
+      <div class="card">
+        <div class="checklist">
+          <div class="check">Summary explains the change</div>
+          <div class="check">Linked story, PRD, or ADR</div>
+          <div class="check">Acceptance criteria covered</div>
+          <div class="check">Unit tests run</div>
+          <div class="check">Integration or contract tests run when needed</div>
+          <div class="check">CI pipeline passes</div>
+          <div class="check">Security risk reviewed</div>
+          <div class="check">Operational impact reviewed</div>
+          <div class="check">Rollback plan documented</div>
+          <div class="check">AI assistance disclosed</div>
+          <div class="check">Human reviewer approved</div>
+          <div class="check">No direct AI push to main</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="responsibility">
+      <h2>Human vs AI Responsibility Boundary</h2>
+      <table class="matrix">
+        <thead><tr><th>Area</th><th>Human Owns</th><th>AI Agent Helps With</th></tr></thead>
+        <tbody>
+          <tr><td>Product scope</td><td>Final priority</td><td>PRD draft, stories</td></tr>
+          <tr><td>Architecture</td><td>Final decision</td><td>Options, diagrams, ADR draft</td></tr>
+          <tr><td>Code</td><td>Merge approval</td><td>Implementation, refactor</td></tr>
+          <tr><td>Testing</td><td>Risk strategy</td><td>Test generation, reports</td></tr>
+          <tr><td>Deployment</td><td>Go/no-go</td><td>Pipeline, checklist</td></tr>
+          <tr><td>Incidents</td><td>Accountability</td><td>Timeline, post-mortem draft</td></tr>
+          <tr><td>Documentation</td><td>Approval</td><td>First draft, updates</td></tr>
+          <tr><td>CLAUDE.md</td><td>Rule approval</td><td>Suggested updates</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">If a decision changes product scope, architecture direction, production risk, or customer impact, a human must approve it.</div>
+    </section>
+
+    <section class="section" id="modes">
+      <h2>Recommended Workflow Modes</h2>
+      <div class="grid cols-4">
+        <div class="card"><span class="badge git">Sync</span><h3>High ambiguity</h3><p>Use for architecture decisions, sprint planning, and incident triage.</p></div>
+        <div class="card"><span class="badge git">Async</span><h3>Clear task</h3><p>Use for generating tests, docs, summaries, and straightforward implementation.</p></div>
+        <div class="card"><span class="badge git">Parallel</span><h3>Independent work</h3><p>Use when Dev, Tester, and DevOps can work on separate files or branches.</p></div>
+        <div class="card"><span class="badge git">Resync</span><h3>Merge findings</h3><p>Use after parallel analysis to resolve conflicts and decide next steps.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="quality">
+      <h2>Quality Gates</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Before Merge</h3>
+          <div class="checklist">
+            <div class="check">PRD or story linked</div>
+            <div class="check">Acceptance criteria covered</div>
+            <div class="check">Tests added or updated</div>
+            <div class="check">CI passes</div>
+            <div class="check">Security risk reviewed</div>
+            <div class="check">Rollback plan documented</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Before Production</h3>
+          <div class="checklist">
+            <div class="check">Deployment runbook exists</div>
+            <div class="check">Monitoring dashboard exists</div>
+            <div class="check">Alert routing exists</div>
+            <div class="check">Rollback path documented</div>
+            <div class="check">On-call owner identified</div>
+            <div class="check">Go/no-go decision recorded</div>
+          </div>
+        </div>
+      </div>
+      <p class="print-note">Printable version: use browser print to export this playbook as PDF.</p>
+    </section>
+  </main>
+</div>
+</body>
+</html>

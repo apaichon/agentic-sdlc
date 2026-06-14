@@ -353,6 +353,7 @@
 <div id="step-counter">STEP 0 / 8</div>
 <div id="click-hint">
   <span class="key">CLICK</span> or <span class="key">SPACE</span> to advance &nbsp;·&nbsp;
+  <span class="key">←</span> back &nbsp;·&nbsp;
   <span class="key">Home</span> reset &nbsp;·&nbsp;
   <span class="key">End</span> jump to last
 </div>
@@ -365,17 +366,32 @@ function buildDots() {
   for (let i = 0; i <= TOTAL; i++) { const d=document.createElement('div'); d.className='dot'; d.id='dot-'+i; bar.appendChild(d); }
 }
 function nextStep() {
-  if (step >= TOTAL) return; step++;
-  document.querySelectorAll('[data-step]').forEach(el => { if (parseInt(el.dataset.step) <= step) el.classList.add('visible'); });
-  if (step >= 1) { document.getElementById('ai-glow')?.classList.add('active'); document.getElementById('ai-ring')?.classList.add('active'); }
+  if (step >= TOTAL) return;
+  step++;
+  renderStep();
+}
+function prevStep() {
+  if (step <= 0) return;
+  step--;
+  renderStep();
+}
+function renderStep() {
+  document.querySelectorAll('[data-step]').forEach(el => {
+    const itemStep = parseInt(el.dataset.step, 10);
+    el.classList.toggle('visible', !Number.isNaN(itemStep) && itemStep <= step);
+  });
+  document.getElementById('ai-glow')?.classList.toggle('active', step >= 1);
+  document.getElementById('ai-ring')?.classList.toggle('active', step >= 1);
   for (let i = 0; i <= TOTAL; i++) { const d=document.getElementById('dot-'+i); if(d) d.className='dot'+(i<step?' done':i===step?' active':''); }
   document.getElementById('step-counter').textContent = `STEP ${step} / ${TOTAL}`;
 }
 document.addEventListener('keydown', e => {
   if (e.key===' '||e.key==='ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key==='ArrowLeft') { e.preventDefault(); prevStep(); }
   if (e.key==='Home') location.reload();
   if (e.key==='End') { while(step<TOTAL) nextStep(); }
 });
+document.addEventListener('contextmenu', e => { e.preventDefault(); prevStep(); });
 buildDots(); nextStep();
 </script>
 </body>
